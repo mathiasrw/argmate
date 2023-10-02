@@ -3,18 +3,20 @@
 	"version": "1.0.0",
 	"description": "",
 	"main": "index.js",
+	"type": "module",
 	"scripts": {
-		"test": "jest",
+		"build": "bun build src/cli.ts --outfile dist/argMate.js",
+		"test": "bun test --bail",
 		"format": "prettier --write ."
 	},
 	"keywords": [],
 	"author": "",
 	"license": "MIT",
 	"dependencies": {
-		"jest": "^29.7.0",
-		"mri": "^1.2.0"
+		"columnify": "^1.6.0"
 	},
 	"devDependencies": {
+		"bun-types": "^1.0.3",
 		"husky": "^8.0.3",
 		"prettier": "^3.0.3"
 	}
