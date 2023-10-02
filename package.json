@@ -2,7 +2,7 @@
 	"name": "argmate",
 	"version": "0.3.0",
 	"author": "Mathias Rengel Wulff",
-	"description": "Ultra fast CLI argument parser with developer-friendly config and features",
+	"description": "Lightning-fast CLI parameter parsing, seasoned with convenient features for better DX",
 	"license": "CC-BY-4.0",
 	"repository": {
 		"type": "git",
