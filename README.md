@@ -1,7 +1,7 @@
 [![CI-test](https://github.com/mathiasrw/argmate/workflows/CI-test/badge.svg)](https://github.com/mathiasrw/argmate/actions)
 [![NPM downloads](https://img.shields.io/npm/dm/argmate.svg?style=flat&label=npm%20downloads)](https://npm-stat.com/charts.html?package=argmate)
 [![npm version](https://badge.fury.io/js/argmate.svg)](https://www.npmjs.com/package/argmate)
-[![FOSSA Status](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmathiasrw%2Fargmate?ref=badge_shield)
+[![FOSSA Status](https://img.shields.io/badge/license-CC%20BY-brightgreen.svg)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmathiasrw%2Fargmate?ref=badge_shield)
 [![OPEN open source software](https://img.shields.io/badge/Open--OSS-%E2%9C%94-brightgreen.svg)](http://open-oss.com)
 
 # ArgMate
@@ -19,7 +19,7 @@ minimist        706,265 ops/sec ±1.05% (94 runs sampled)		 13x
 yargs-parser    67,417 ops/sec ±0.39% (97 runs sampled)			135x
 ```
 
-Meet ArgMate: a CLI parameter parser that's not just fast—it's 4-5 times faster than other parsers focused on speed, while nearly as feature-rich as yargs (if you don't need subcommands). _But how?!?_ A computer processes instructions at a set pace. To get results faster the only option is to ask the computer to do less work. By minimising how many times variables are touched and keeping those operations close together, the implementation enables efficient caching of data, resulting in fewer CPU cycles to get the result.
+Meet ArgMate: a CLI parameter parser that's not just fast—it's 4-5 times faster than other parsers focused on speed, while being feature-rich. _But how?!?_ A computer processes instructions at a set pace. To get results faster the only option is to ask the computer to do less work. By minimising how many times variables are touched and keeping those operations close together, the implementation enables efficient caching of data, resulting in fewer CPU cycles to get the result.
 
 
 

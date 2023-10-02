@@ -3,7 +3,7 @@
 	"version": "0.3.0",
 	"author": "Mathias Rengel Wulff",
 	"description": "Ultra fast CLI argument parser with developer-friendly config and features",
-	"license": "MIT",
+	"license": "CC-BY-4.0",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/mathiasrw/argmate.git"
