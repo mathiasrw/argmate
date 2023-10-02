@@ -1,6 +1,6 @@
 {
 	"name": "argmate",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"author": "Mathias Rengel Wulff",
 	"description": "A fast and flexible CLI argument parser with extended features.",
 	"license": "MIT",
@@ -24,9 +24,11 @@
 		"build": "bun build src/argMate.ts --outdir dist/",
 		"test": "bun test --bail",
 		"test-cli": "# sh test/cli/run.sh",
+		"test-ci": "yarn test-format && yarn test && yarn build && yarn test-cli",
+		"test-format": "prettier --list-different . || (echo 'Please correct file formatting using `yarn format` and try again.' && exit 1)",
 		"format": "prettier --write .",
 		"release": "yarn version",
-		"preversion": "yarn && yarn format && yarn build && yarn test && yarn test-cli",
+		"preversion": "yarn && yarn format && yarn test && yarn build && yarn test-cli",
 		"postversion": "npm publish && git push && git push --tags && echo \"Successfully released version $npm_package_version\""
 	},
 	"dependencies": {},
