@@ -1,0 +1,21 @@
+{
+	"name": "mri-wrapper",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "jest",
+		"format": "prettier --write ."
+	},
+	"keywords": [],
+	"author": "",
+	"license": "MIT",
+	"dependencies": {
+		"jest": "^29.7.0",
+		"mri": "^1.2.0"
+	},
+	"devDependencies": {
+		"husky": "^8.0.3",
+		"prettier": "^3.0.3"
+	}
+}
