@@ -12,7 +12,7 @@ export default function engine(args, params, conf) {
 	};
 
 	Object.keys(params).forEach(key => {
-		// If only default value is provided, then make object with correct type
+		// If only default value is provided, then transform to object with correct type
 		if (params[key] === null || typeof params[key] !== 'object' || Array.isArray(params[key])) {
 			params[key] = {
 				default: params[key],
@@ -23,7 +23,8 @@ export default function engine(args, params, conf) {
 		params[key].key = key;
 		params[key].alias = params[key].alias || [];
 		params[key].conflict = params[key].conflict || [];
-		params[key].type = params[key].type?.toLowerCase() || findType(params[key]) || 'boolean';
+		params[key].type =
+			params[key].type?.toLowerCase() || findType(params[key].default) || 'boolean';
 
 		if (undefined !== params[key].default) {
 			result[key] = params[key].default;
@@ -116,6 +117,7 @@ export default function engine(args, params, conf) {
 			case 'string':
 				result[params[key].key] = val;
 				break;
+
 			case 'number':
 			case 'float':
 				num = +val;
@@ -123,24 +125,26 @@ export default function engine(args, params, conf) {
 					return conf.error(`The value of "${key}" is not a number: "${val}"`);
 				result[params[key].key] = num;
 				break;
+
 			case 'int':
 				num = +val | 0;
-
 				if (isNaN(num) || !isFinite(num))
 					return conf.error(`The value of "${key}" is not an integer: "${val}"`);
 				result[params[key].key] = num;
 				break;
+
 			case 'hex':
 				num = parseInt(val, 16);
-
 				if (isNaN(num) || !isFinite(num))
 					return conf.error(`The value of "${key}" is not a valid hex number: "${val}"`);
 				result[params[key].key] = num;
 				break;
+
 			case 'array':
 			case 'string[]':
 				result[params[key].key].push(val);
 				break;
+
 			case 'number[]':
 			case 'float[]':
 				num = +val;
@@ -148,12 +152,14 @@ export default function engine(args, params, conf) {
 					return conf.error(`The value of "${key}" is not a number: "${val}"`);
 				result[params[key].key].push(num);
 				break;
+
 			case 'int[]':
 				num = +val | 0;
 				if (isNaN(num) || !isFinite(num))
 					return conf.error(`The value of "${key}" is not a number: "${val}"`);
 				result[params[key].key].push(num);
 				break;
+
 			case 'hex[]':
 				num = parseInt(val, 16);
 				if (isNaN(num) || !isFinite(num))
@@ -186,13 +192,12 @@ function findType(val) {
 	let isArray = Array.isArray(val);
 
 	if (isArray && val.length > 0) {
-		type = typeof val;
+		type = typeof val[0];
 	}
 
 	switch (type) {
 		case 'boolean':
 		case 'number':
-		case 'boolean':
 			return type + (isArray ? '[]' : '');
 		default:
 			return 'string' + (isArray ? '[]' : '');

@@ -8,9 +8,20 @@
 
 > _Your go-to companion for lightning-fast CLI parameter parsing, seasoned with a handful of convenient features to make your development experience so much smoother._
 
-While developing [AlaSQL](https://www.npmjs.com/package/alasql) and [RexReplace](https://www.npmjs.com/package/rexreplace), I've always been caught between two types of CLI parsers. On one hand, there are feature-rich options like [yargs](https://www.npmjs.com/package/yargs) and [commander](https://www.npmjs.com/package/commander), which, despite their heavy startup time, provide key elements such as easy defaults, smooth validation, and well-structured CLI help text output. On the other hand, faster alternatives like [minimist](https://www.npmjs.com/package/minimist) and [mri](https://www.npmjs.com/package/mri) excelled in performance but lacked in development experience.
+While developing things like [AlaSQL](https://www.npmjs.com/package/alasql) and [RexReplace](https://www.npmjs.com/package/rexreplace) I've always been caught between two types of CLI parsers. On one hand, there are feature-rich options like [yargs](https://www.npmjs.com/package/yargs) and [commander](https://www.npmjs.com/package/commander), which, despite their heavy startup time, provide useful help like easy defaults, smooth validation, and well-structured CLI help text output. On the other hand, more simple alternatives like [nopt](https://www.npmjs.com/package/nopt) and [mri](https://www.npmjs.com/package/mri) excel in performance but lack in development experience. After yet again uncovering a performance hit from using a heavyweight parser, I decided to solve this issue once and for all.
 
-After yet again uncovering a performance hit from using a heavyweight parser, I decided to solve this issue once and for all. Meet ArgMate: a CLI parameter parser that's as efficient as [mri](https://www.npmjs.com/package/mri) and nearly as feature-rich as [yargs](https://www.npmjs.com/package/yargs).
+```
+Benchmark:
+argMate         9,089,813 ops/sec ±2.15% (98 runs sampled)		  1x
+nopt            2,070,397 ops/sec ±1.21% (94 runs sampled)		  4x
+mri             1,832,768 ops/sec ±0.13% (99 runs sampled)		  5x
+minimist        706,265 ops/sec ±1.05% (94 runs sampled)		 13x
+yargs-parser    67,417 ops/sec ±0.39% (97 runs sampled)			135x
+```
+
+Meet ArgMate: a CLI parameter parser that's not just fast—it's 4-5 times faster than other parsers focused on speed, while nearly as feature-rich as yargs (if you don't need subcommands). _But how?!?_ A computer processes instructions at a set pace. To get results faster the only option is to ask the computer to do less work. By minimising how many times variables are touched and keeping those operations close together, the implementation enables efficient caching of data, resulting in fewer CPU cycles to get the result.
+
+
 
 ## Installation
 
@@ -41,7 +52,7 @@ const params = {
 };
 const config = {
 Defaults to true.
-	allowUnknown: false,	// Only allow parameters we have specified (--loops and --help).
+	allowUnknown: false,	// Only allow parameters we have specified (--loops and --help). 
 	error: msg => {			// If there is an error (like providing parameters not allowed), this function will be invoked.
 		console.error('There was a problem:', msg);
 		process.exit(1);
@@ -66,7 +77,7 @@ const params = {
 		type: 'number',
 		mandatory: true,
 		alias: ['l', 'loops'],
-		valid: v => v > 0, // Call config.error if value is not valid
+		valid: v => v > 0, 			// Call config.error if value is not valid
 	},
 	help: {
 		alias: ['h'],
@@ -111,14 +122,14 @@ argv = argMate(['--foo', 'bar'], {foo: {type: 'string'}});
 const params = {
 	// The object returned from argMate will have the same propety names as this object
 	foo: {
-		type: 'string', // boolean | string | number/float | int | hex | array/string[] | number[]/float[] | int[] | hex[]
-		default: 'val', // The default value for the parameter. If the type is not specified, the type will be determined from this field.
-		mandatory: true, // Calls config.error if the value is not provided. No effect if used in combination with "default".
-		alias: [], // Other values to be treated as this parameter. Also accepts a single string.
-		// If you camelCase the keyword, it will treat kebab-case of the word as an alias
-		conflict: [], // Other keys to be treated as conflicting. Also accepts a single string.
-		valid: () => {}, // Function to check if the value is valid (will call config.error if not valid)
-		describe: 'Description here', // A description of the parameter. Will be used for the helpText (see below).
+		type: 'string', 				// boolean | string | number/float | int | hex | array/string[] | number[]/float[] | int[] | hex[]
+		default: 'val', 				// The default value for the parameter. If the type is not specified, the type will be determined from this field.
+		mandatory: true, 				// Calls config.error if the value is not provided. No effect if used in combination with "default".
+		alias: [], 						// Other values to be treated as this parameter. Also accepts a single string.
+										// If you camelCase the keyword, it will treat kebab-case of the word as an alias
+		conflict: [], 					// Other keys to be treated as conflicting. Also accepts a single string.
+		valid: () => {}, 				// Function to check if the value is valid (will call config.error if not valid)
+		describe: 'Description here', 	// A description of the parameter. Will be used for the helpText (see below).
 	},
 };
 ```
@@ -127,12 +138,12 @@ const params = {
 
 ```js
 const config = {
-	error: msg => {}, // Function to be called when a problem has been detected in the parsing. Defaults to throwing an informative exception (should probably be changed to something more friendly)
-	panic: msg => {}, // Function to be called when there is a panic in the engine. Defaults to throwing an informative exception. (Mostly used for development and should probably not be changed.)
-	allowUnknown: true, // Specify if parameters not described in "params" are allowed. If violated, config.error will be called.
-	no: true, // Specify if boolean flags with "no-" as the first part will be treated as a negation. If so, --no-foo will result in {'_':[], 'foo': false}. Works well with default: true;
-	intro: 'Intro Text', // Text to add above the information about each parameter in the help text.
-	outro: 'Outro Text', // Text to add below the information about each parameter in the help text.
+	error: msg => {},		// Function to be called when a problem has been detected in the parsing. Defaults to throwing an informative exception (should probably be changed to something more friendly)
+	panic: msg => {},		// Function to be called when there is a panic in the engine. Defaults to throwing an informative exception. (Mostly used for development and should probably not be changed.)
+	allowUnknown: true, 	// Specify if parameters not described in "params" are allowed. If violated, config.error will be called.
+	no: true, 				// Specify if boolean flags with "no-" as the first part will be treated as a negation. If so, --no-foo will result in {'_':[], 'foo': false}. Works well with default: true;
+	intro: 'Intro Text', 	// Text to add above the information about each parameter in the help text.
+	outro: 'Outro Text', 	// Text to add below the information about each parameter in the help text.
 };
 ```
 
@@ -150,24 +161,24 @@ const argv = argMate(
 		foo2: {type: 'string'},
 	},
 	{
-		intro: 'Introduction here', // Text to add above the information about each parameter in the help text.
-		outro: 'See you later!', // Text to add below the information about each parameter in the help text.
+		intro: 'Introduction here', 	// Text to add above the information about each parameter in the help text.
+		outro: 'See you later!', 		// Text to add below the information about each parameter in the help text.
 	}
 );
 
 console.log(
 	helpText({
-		width: 100, // Max character limit in the width of the output.
-		format: 'cli', // cli | markdown
-		voidIntro: false, // Avoid including the intro.
-		voidOutro: false, // Avoid including the outro.
+		width: 100,			// Max character limit in the width of the output.
+		format: 'cli', 		// cli | markdown
+		voidIntro: false, 	// Avoid including the intro.
+		voidOutro: false, 	// Avoid including the outro.
 	})
 );
 ```
 
 ---
 
-Please note that RexReplace is an [OPEN open source software](http://open-oss.com) project.
+Please note that argMate is an [OPEN open source software](http://open-oss.com) project.
 This means that individuals making significant and valuable contributions are given commit access to the project to contribute as they see fit. This project is more like an open wiki than a standard guarded open source project.
 
 [![OPEN open source software](https://img.shields.io/badge/Open--OSS-%E2%9C%94-brightgreen.svg)](http://open-oss.com)
