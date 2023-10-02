@@ -1,22 +1,38 @@
 {
-	"name": "mri-wrapper",
-	"version": "1.0.0",
-	"description": "",
-	"main": "index.js",
+	"name": "argmate",
+	"version": "0.2.0",
+	"author": "Mathias Rengel Wulff",
+	"description": "A fast and flexible CLI argument parser with extended features.",
+	"license": "MIT",
+	"keywords": [
+		"CLI",
+		"argument",
+		"parser",
+		"command-line",
+		"arg",
+		"parse",
+		"flags",
+		"options",
+		"argv",
+		"mri",
+		"yargs",
+		"meow"
+	],
+	"main": "dist/argMate.js",
 	"type": "module",
 	"scripts": {
-		"build": "bun build src/cli.ts --outfile dist/argMate.js",
+		"build": "bun build src/argMate.ts --outdir dist/",
 		"test": "bun test --bail",
-		"format": "prettier --write ."
+		"test-cli": "# sh test/cli/run.sh",
+		"format": "prettier --write .",
+		"release": "yarn version",
+		"preversion": "yarn && yarn format && yarn build && yarn test && yarn test-cli",
+		"postversion": "npm publish && git push && git push --tags && echo \"Successfully released version $npm_package_version\""
 	},
-	"keywords": [],
-	"author": "",
-	"license": "MIT",
-	"dependencies": {
-		"columnify": "^1.6.0"
-	},
+	"dependencies": {},
 	"devDependencies": {
 		"bun-types": "^1.0.3",
+		"columnify": "^1.6.0",
 		"husky": "^8.0.3",
 		"prettier": "^3.0.3"
 	}
