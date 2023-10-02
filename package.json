@@ -4,6 +4,10 @@
 	"author": "Mathias Rengel Wulff",
 	"description": "Ultra fast CLI argument parser with developer-friendly config and features",
 	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/mathiasrw/argmate.git"
+	},
 	"keywords": [
 		"CLI",
 		"argument",
@@ -37,5 +41,14 @@
 		"columnify": "^1.6.0",
 		"husky": "^8.0.3",
 		"prettier": "^3.0.3"
-	}
+	},
+	"engines": {
+		"node": ">=14.0.0",
+		"bun": ">=1.0.3"
+	},
+	"peerDependencies": {},
+	"bugs": {
+		"url": "https://github.com/mathiasrw/argmate/issues"
+	},
+	"homepage": "https://github.com/mathiasrw/argmate#readme"
 }
