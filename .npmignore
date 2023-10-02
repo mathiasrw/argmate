@@ -1,0 +1,7 @@
+test/*
+tmp/*
+.*
+*.log
+*.txt
+*.file
+*.lock
