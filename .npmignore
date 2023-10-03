@@ -5,3 +5,5 @@ tmp/*
 *.txt
 *.file
 *.lock
+bench/
+
