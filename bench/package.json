@@ -2,7 +2,7 @@
 	"devDependencies": {
 		"benchmark": "2.1.4",
 		"minimist": "1.2.5",
-		"mri": "1.1.1",
+		"mri": "1.2.0",
 		"nopt": "5.0.0",
 		"yargs-parser": "20.2.9"
 	}
