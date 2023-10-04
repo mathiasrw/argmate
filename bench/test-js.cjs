@@ -1,5 +1,5 @@
 (async () => {
-	const {Suite} = require('benchmark');
+	const { Suite } = require('benchmark');
 	console.log('Load Times:');
 
 	console.time('nopt');
@@ -19,7 +19,7 @@
 	console.timeEnd('mri');
 
 	console.time('argMate');
-	let argMate = (await import('../dist/argMate.js')).default;
+	let argMate = (await import('../dist/argMate.min.js')).default;
 	console.timeEnd('argMate');
 
 	console.log('\nBenchmark:');
@@ -27,11 +27,15 @@
 	const args = ['-b', '--bool', '--no-meep', '--multi=baz'];
 
 	bench
-		.add('minimist     ', () => minimist(args))
-		.add('mri          ', () => mri(args))
-		.add('nopt         ', () => nopt(args))
-		.add('yargs-parser ', () => yargs(args))
-		.add('argMate      ', () => argMate(args))
+		.add('argMate@0.4.0       ', () => argMate(args))
+		.add('mri@1.1.1           ', () => mri(args))
+		.add('nopt@5.0.0          ', () => nopt(args))
+		.add('minimist@1.2.5      ', () => minimist(args))
+		.add('yargs-parser@20.2.9 ', () => yargs(args))
 		.on('cycle', e => console.log(String(e.target)))
-		.run();
+		.run({
+			cycles: 1000
+		});
 })();
+
+

@@ -76,7 +76,7 @@ describe('Inspired by mri', () => {
 	});
 
 	test('already a number', () => {
-		let argv = argMate(['-x', 1234, 789], {
+		let argv = argMate(['-x', '1234', '789'], {
 			x: {type: 'number'},
 		});
 

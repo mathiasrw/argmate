@@ -1,25 +1,26 @@
 #!/usr/bin/env node
 
-import engine from './engine';
+// @ts-ignore
+//export {ArgMateParams, ArgMateConfig, ArgMateHelpTextConfig} from './types.d.ts';
+
+// @ts-ignore
+import {ArgMateParams, ArgMateConfig} from './types.d.ts';
+
+import {engine} from './engine';
+
 import formatParamInfo from './helpText';
 
-let params: any = {};
+let params;
 
-let conf = {
-	panic: msg => {
-		throw msg;
-	},
-	error: msg => {
-		throw msg;
-	},
-	allowUnknown: true,
-	no: true,
-};
+let conf;
 
-export default function argMate(args, params_, conf_ = conf) {
-	args = args || [];
-	params = params_ || {};
-	conf = {...conf, ...conf_};
+export default function argMate(
+	args: string[],
+	params_: ArgMateParams = {},
+	conf_: ArgMateConfig = {}
+) {
+	params = params_;
+	conf = conf_;
 
 	return engine(args, params, conf);
 }

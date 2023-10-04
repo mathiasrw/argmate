@@ -124,7 +124,7 @@ argv = argMate(['--foo', 'bar'], {foo: {type: 'string'}});
 
 ```js
 const params = {
-	// The object returned from argMate will have the same propety names as this object
+	// The object returned from argMate will only have propety names provided in this object
 	foo: {
 		type: 'string', 				// boolean | string | number/float | int | hex | array/string[] | number[]/float[] | int[] | hex[]
 		default: 'val', 				// The default value for the parameter. If the type is not specified, the type will be determined from this field.

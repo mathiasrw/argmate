@@ -6,4 +6,5 @@ tmp/*
 *.file
 *.lock
 bench/
+*.exe
 
