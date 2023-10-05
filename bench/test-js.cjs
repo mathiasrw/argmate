@@ -19,19 +19,23 @@
 	console.timeEnd('mri');
 
 	console.time('argMate');
-	let argMate = (await import('../dist/argMate.js')).default;
+	let argMate = (await import('../dist/argMate.min.mjs')).default;
 	console.timeEnd('argMate');
 
 	console.log('\nBenchmark:');
 	const bench = new Suite();
-	const args = ['-b', '--bool', '--no-meep', '--multi=baz'];
+	const args = process.argv.slice(2).length
+		? process.argv.slice(2)
+		: ['-b', '--bool', '--no-meep', '--multi=baz'];
 
 	bench
-		.add('minimist     ', () => minimist(args))
-		.add('mri          ', () => mri(args))
-		.add('nopt         ', () => nopt(args))
-		.add('yargs-parser ', () => yargs(args))
-		.add('argMate      ', () => argMate(args))
+		.add('argMate       ', () => argMate(args))
+		.add('mri           ', () => mri(args))
+		.add('nopt          ', () => nopt(args))
+		.add('minimist      ', () => minimist(args))
+		.add('yargs-parser  ', () => yargs(args))
 		.on('cycle', e => console.log(String(e.target)))
-		.run();
+		.run({
+			cycles: 1000,
+		});
 })();

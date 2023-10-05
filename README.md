@@ -1,16 +1,19 @@
+
+![mamate](https://github.com/mathiasrw/argmate/assets/1063454/bf9b4739-2e67-4103-97a7-b61d4fe9c6ca)
+
+# ArgMate
+
 [![CI-test](https://github.com/mathiasrw/argmate/workflows/CI-test/badge.svg)](https://github.com/mathiasrw/argmate/actions)
 [![NPM downloads](https://img.shields.io/npm/dm/argmate.svg?style=flat&label=npm%20downloads)](https://npm-stat.com/charts.html?package=argmate)
 [![npm version](https://badge.fury.io/js/argmate.svg)](https://www.npmjs.com/package/argmate)
 [![FOSSA Status](https://img.shields.io/badge/license-CC%20BY-brightgreen.svg)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmathiasrw%2Fargmate?ref=badge_shield)
 [![OPEN open source software](https://img.shields.io/badge/Open--OSS-%E2%9C%94-brightgreen.svg)](http://open-oss.com)
 
-# ArgMate
 
-> _Your go-to companion for lightning-fast CLI parameter parsing, seasoned with a handful of convenient features to make your development experience so much smoother._
 
-![argMate logo](https://github.com/mathiasrw/argmate/assets/1063454/9cedfa2b-89d5-494b-885a-be5ae1b65858)
 
----
+> _Your go-to companion for lightning-fast CLI parameter parsing, seasoned with convenient features to make your development experience much more smooth._
+
 
 While developing things like [AlaSQL](https://www.npmjs.com/package/alasql) and [RexReplace](https://www.npmjs.com/package/rexreplace) I've always been caught between two types of CLI parsers. On one hand, there are feature-rich options like [yargs](https://www.npmjs.com/package/yargs) and [commander](https://www.npmjs.com/package/commander), which, despite their heavy startup time, provide useful help like easy defaults, smooth validation, and well-structured CLI help text output. On the other hand, more simple alternatives like [nopt](https://www.npmjs.com/package/nopt) and [mri](https://www.npmjs.com/package/mri) excel in performance but lack in development experience. After yet again uncovering a performance hit from using a heavyweight parser, I decided to solve this issue once and for all.
 
@@ -124,7 +127,7 @@ argv = argMate(['--foo', 'bar'], {foo: {type: 'string'}});
 
 ```js
 const params = {
-	// The object returned from argMate will have the same propety names as this object
+	// The object returned from argMate will only have propety names provided in this object
 	foo: {
 		type: 'string', 				// boolean | string | number/float | int | hex | array/string[] | number[]/float[] | int[] | hex[]
 		default: 'val', 				// The default value for the parameter. If the type is not specified, the type will be determined from this field.

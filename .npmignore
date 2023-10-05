@@ -5,3 +5,7 @@ tmp/*
 *.txt
 *.file
 *.lock
+bench/
+*.exe
+package-lock
+
