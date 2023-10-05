@@ -75,6 +75,7 @@ export function engine(args: string[], params: ArgMateParams, conf_: ArgMateConf
 		if (!params.hasOwnProperty(key)) continue;
 		let param = params[key];
 		// If only default value is provided, then transform to object with correct type
+
 		if (param === null || typeof param !== 'object' || Array.isArray(param)) {
 			param = {
 				default: param,
@@ -86,6 +87,14 @@ export function engine(args: string[], params: ArgMateParams, conf_: ArgMateConf
 		param.alias = param.alias || [];
 		param.conflict = param.conflict || [];
 		param.type = param.type?.toLowerCase() || findType(param.default) || 'boolean';
+
+		if (undefined !== param.valid) {
+			validate.push(key);
+			if (undefined === param.default && Array.isArray(param.valid)) {
+				if (param.type.match(re.arrayType)) param.default = param.valid;
+				else if (1 < param.valid.length) param.default = param.valid[0];
+			}
+		}
 
 		if (undefined !== param.default) {
 			if (Array.isArray(param.default)) {
@@ -110,10 +119,6 @@ export function engine(args: string[], params: ArgMateParams, conf_: ArgMateConf
 
 		if (param.mandatory) {
 			mandatory.push(key);
-		}
-
-		if (undefined !== param.valid) {
-			validate.push(key);
 		}
 
 		if (conf.kebabCaseAsAlias) {
@@ -302,6 +307,7 @@ export function engine(args: string[], params: ArgMateParams, conf_: ArgMateConf
 			if (params[key].valid.includes(result[key])) continue;
 			help = '. Please use one of the following values: ' + JSON.stringify(params[key].valid);
 		}
+
 		return conf.error(
 			`The value provided for parameter "${key}" is not valid: "${result[key]}"` + help
 		);

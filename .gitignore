@@ -5,3 +5,4 @@ dist/
 *.file
 *.lock
 *.exe
+dist/package.json

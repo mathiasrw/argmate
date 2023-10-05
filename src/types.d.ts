@@ -44,7 +44,7 @@ export interface ArgMateConfig {
 
 export interface ArgMateHelpTextConfig {
 	width?: number;
-	format?: 'cli' | 'markdown';
+	format?: 'cli' | 'markdown' | 'json';
 	voidIntro?: boolean;
 	voidOutro?: boolean;
 }

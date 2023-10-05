@@ -3,6 +3,8 @@
 // @ts-ignore
 import {expect, test, describe} from 'bun:test';
 
+// also include array
+
 import argMate from '../src/argMate';
 
 describe('Boolean', () => {

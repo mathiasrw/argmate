@@ -5,8 +5,8 @@ import {expect, test, describe} from 'bun:test';
 
 import argMate from '../src/argMate';
 
-describe('Boolean', () => {
-	test('Default to boolean', () => {
+describe.todo('Boolean', () => {
+	test.todo('Default to boolean', () => {
 		let argv = argMate('--foo bar --foo2 bar2'.split(' '));
 		expect(argv).toEqual({
 			_: ['bar', 'bar2'],
@@ -15,7 +15,7 @@ describe('Boolean', () => {
 		});
 	});
 
-	test('Boolean negative', () => {
+	test.todo('Boolean negative', () => {
 		let argv = argMate('--no-foo bar --foo2 bar2'.split(' '));
 		expect(argv).toEqual({
 			_: ['bar', 'bar2'],

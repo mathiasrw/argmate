@@ -10,24 +10,23 @@ import {engine} from './engine';
 
 import formatParamInfo from './helpText';
 
-let params;
+let params_;
 
-let conf;
+let conf_;
 
 export default function argMate(
 	args: string[],
-	params_: ArgMateParams = {},
-	conf_: ArgMateConfig = {}
+	params: ArgMateParams = {},
+	conf: ArgMateConfig = {}
 ) {
-	params = params_;
-	conf = conf_;
+	params_ = JSON.stringify(params);
+	conf_ = conf;
 
 	return engine(args, params, conf);
 }
 
 export function helpText(settings: any = {}) {
-	debugger;
-	return formatParamInfo(params, conf, {
+	return formatParamInfo(JSON.parse(params_), conf_, {
 		...{
 			width: 100,
 			format: 'cli',

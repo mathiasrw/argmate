@@ -7,7 +7,7 @@ console.log(
 		process.argv.slice(2),
 		{
 			foo: {type: 'string'},
-			foo2: {type: 'string'},
+			foo2: {type: 'string', alias: ['abc']},
 		},
 		{intro: 'what is going on?', outro: 'Vi ses!'}
 	)

@@ -3,7 +3,9 @@
 // @ts-ignore
 import {expect, test, describe} from 'bun:test';
 
-import argMate from '../src/argMate.js';
+import argMate from '../src/argMate';
+
+// Enum is really a parameter where an array of values have been set as valid. Will default to first element if default is not provided.
 
 describe('Enum', () => {
 	test('Set differently', () => {

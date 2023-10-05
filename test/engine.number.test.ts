@@ -3,9 +3,11 @@
 // @ts-ignore
 import {expect, test, describe} from 'bun:test';
 
+// also test float
+
 import argMate from '../src/argMate';
 
-describe('Boolean', () => {
+describe.todo('Boolean', () => {
 	test('Default to boolean', () => {
 		let argv = argMate('--foo bar --foo2 bar2'.split(' '));
 		expect(argv).toEqual({

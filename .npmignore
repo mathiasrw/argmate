@@ -7,4 +7,5 @@ tmp/*
 *.lock
 bench/
 *.exe
+package-lock
 

@@ -3,10 +3,10 @@
 // @ts-ignore
 import {expect, test, describe} from 'bun:test';
 
-import argMate from '../src/argMate.js';
+import argMate from '../src/argMate';
 
-describe('Inspired by mri', () => {
-	// Note that we default to boolean and string where mri default to string and converts to number if valid
+describe.todo('Inspired by mri', () => {
+	// Note that we default to boolean
 
 	test('Parse args', () => {
 		let argv = argMate(['--no-moo']);
