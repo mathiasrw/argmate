@@ -5,4 +5,5 @@ dist/
 *.file
 *.lock
 *.exe
-dist/package.json
+bench/p*.json
+
