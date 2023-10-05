@@ -4,3 +4,6 @@ dist/
 *.txt
 *.file
 *.lock
+*.exe
+bench/p*.json
+

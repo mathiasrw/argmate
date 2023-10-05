@@ -1,7 +1,10 @@
+// @ts-ignore
+import {ArgMateParams, ArgMateConfig, ArgMateHelpTextConfig} from './types.js';
+
 export default function formatParamInfo(
-	params,
-	conf: any = {},
-	settings = {
+	params: ArgMateParams,
+	conf: ArgMateConfig = {},
+	settings: ArgMateHelpTextConfig = {
 		width: 100,
 		format: 'cli',
 		voidIntro: false,
@@ -10,17 +13,22 @@ export default function formatParamInfo(
 ) {
 	debugger;
 
-	let txt = '';
+	let info: any = {};
 	if (!settings.voidIntro && conf.intro) {
-		txt += conf.intro + '\n\n';
+		info.intro = conf.intro;
 	}
-	// todo: format details for markdown
-	// todo: format details for cli
 
-	txt += JSON.stringify({params}, null, 2);
+	info.params = JSON.parse(JSON.stringify(params));
 
 	if (!settings.voidOutro && conf.outro) {
-		txt += '\n\n' + conf.outro;
+		info.outro = conf.outro;
 	}
-	return txt;
+
+	if ('json' === settings.format) return info;
+
+	// todo: format details for cli
+	if ('cli' === settings.format) return JSON.stringify(info, null, 2);
+
+	// todo: format details for markdown
+	if ('markdown' === settings.format) return 'md not supported yet';
 }

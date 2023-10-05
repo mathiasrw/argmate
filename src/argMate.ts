@@ -1,32 +1,32 @@
 #!/usr/bin/env node
 
-import engine from './engine';
+// @ts-ignore
+//export {ArgMateParams, ArgMateConfig, ArgMateHelpTextConfig} from './types.d.ts';
+
+// @ts-ignore
+import {ArgMateParams, ArgMateConfig} from './types.d.ts';
+
+import {engine} from './engine';
+
 import formatParamInfo from './helpText';
 
-let params: any = {};
+let params_;
 
-let conf = {
-	panic: msg => {
-		throw msg;
-	},
-	error: msg => {
-		throw msg;
-	},
-	allowUnknown: true,
-	no: true,
-};
+let conf_;
 
-export default function argMate(args, params_, conf_ = conf) {
-	args = args || [];
-	params = params_ || {};
-	conf = {...conf, ...conf_};
+export default function argMate(
+	args: string[],
+	params: ArgMateParams = {},
+	conf: ArgMateConfig = {}
+) {
+	params_ = JSON.stringify(params);
+	conf_ = conf;
 
 	return engine(args, params, conf);
 }
 
 export function helpText(settings: any = {}) {
-	debugger;
-	return formatParamInfo(params, conf, {
+	return formatParamInfo(JSON.parse(params_), conf_, {
 		...{
 			width: 100,
 			format: 'cli',

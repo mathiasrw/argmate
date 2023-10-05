@@ -3,7 +3,9 @@
 // @ts-ignore
 import {expect, test, describe} from 'bun:test';
 
-import argMate from '../src/argMate.js';
+// also include array
+
+import argMate from '../src/argMate';
 
 describe('Boolean', () => {
 	test('Default to boolean', () => {
