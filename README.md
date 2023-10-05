@@ -1,5 +1,5 @@
 
-![mamate](https://github.com/mathiasrw/argmate/assets/1063454/bf9b4739-2e67-4103-97a7-b61d4fe9c6ca)
+![mamate](https://github.com/mathiasrw/argmate/assets/1063454/b63fe097-dc1b-49c2-919e-cd665024e34d)
 
 # ArgMate
 
