@@ -5,22 +5,41 @@ import {expect, test, describe} from 'bun:test';
 
 import argMate from '../src/argMate';
 
-describe.todo('Boolean', () => {
-	test('Default to boolean', () => {
-		let argv = argMate('--foo bar --foo2 bar2'.split(' '));
+describe.todo('allowUnknown', () => {
+	test('Plain', () => {
+		let argv = argMate('--foo bar'.split(' '));
 		expect(argv).toEqual({
-			_: ['bar', 'bar2'],
+			_: ['bar'],
 			foo: true,
-			foo2: true,
 		});
 	});
 
-	test('Boolean negative', () => {
-		let argv = argMate('--no-foo bar --foo2 bar2'.split(' '));
+	test('Negation', () => {
+		let argv = argMate(
+			'--no-foo bar'.split(' '),
+			{
+				'no-foo': {type: 'boolean'},
+			},
+			{allowUnknown: false}
+		);
 		expect(argv).toEqual({
-			_: ['bar', 'bar2'],
-			foo: false,
-			foo2: true,
+			_: ['bar'],
+			noFoo: false,
 		});
+	});
+
+	test('Disabled', done => {
+		let argv = argMate(
+			'--foo bar'.split(' '),
+			{},
+			{
+				allowUnknown: false,
+				error: msg => {
+					expect(msg).toContain('Unspecified parameters');
+					expect(msg).toContain('foo');
+					done();
+				},
+			}
+		);
 	});
 });

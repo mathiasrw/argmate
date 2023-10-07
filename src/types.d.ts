@@ -34,10 +34,9 @@ export interface ArgMateConfig {
 	error?: (msg: string) => void;
 	strict?: boolean;
 	allowUnknown?: boolean;
-	camelCaseUnknown?: boolean;
+	autoCamelKebabCase?: boolean;
 	allowNegatingFlags?: boolean;
 	allowKeyNumValues?: boolean;
-	kebabCaseAsAlias?: boolean;
 	intro?: IntroOutroType;
 	outro?: IntroOutroType;
 }

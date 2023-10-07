@@ -5,22 +5,20 @@ import {expect, test, describe} from 'bun:test';
 
 import argMate from '../src/argMate';
 
-describe.todo('Boolean', () => {
-	test('Default to boolean', () => {
-		let argv = argMate('--foo bar --foo2 bar2'.split(' '));
+describe('autoCamelKebabCase', () => {
+	test('Plain', () => {
+		let argv = argMate('--foo-bar 123'.split(' '));
 		expect(argv).toEqual({
-			_: ['bar', 'bar2'],
-			foo: true,
-			foo2: true,
+			_: ['123'],
+			fooBar: true,
 		});
 	});
 
-	test('Boolean negative', () => {
-		let argv = argMate('--no-foo bar --foo2 bar2'.split(' '));
+	test('Turned off', () => {
+		let argv = argMate('--foo-bar 123'.split(' '), {}, {autoCamelKebabCase: false});
 		expect(argv).toEqual({
-			_: ['bar', 'bar2'],
-			foo: false,
-			foo2: true,
+			_: ['123'],
+			'foo-bar': true,
 		});
 	});
 });

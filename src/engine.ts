@@ -41,18 +41,16 @@ const defaultConf = {
 		throw msg;
 	},
 	allowUnknown: true,
-	camelCaseUnknown: true,
-	kebabCaseAsAlias: true,
+	autoCamelKebabCase: true,
 	allowNegatingFlags: true,
 	allowKeyNumValues: true,
 };
 
 const strictConf = {
 	allowUnknown: false,
-	camelCaseUnknown: false,
+	autoCamelKebabCase: false,
 	allowNegatingFlags: false,
 	allowKeyNumValues: false,
-	kebabCaseAsAlias: false,
 };
 
 export function engine(args: string[], params: ArgMateParams, conf_: ArgMateConfig) {
@@ -86,22 +84,28 @@ export function engine(args: string[], params: ArgMateParams, conf_: ArgMateConf
 		param.key = key;
 		param.alias = param.alias || [];
 		param.conflict = param.conflict || [];
-		param.type = param.type?.toLowerCase() || findType(param.default) || 'boolean';
 
 		if (undefined !== param.valid) {
 			validate.push(key);
 			if (undefined === param.default && Array.isArray(param.valid)) {
-				if (param.type.match(re.arrayType)) param.default = param.valid;
-				else if (1 < param.valid.length) param.default = param.valid[0];
+				if (!param.valid.length)
+					return conf.panic(`Empty array found for valid values of '${key}'`);
+
+				if (undefined === param.type) {
+					param.type = findType(param.valid[0]);
+				}
+				param.default = param.valid[0];
 			}
 		}
+
+		param.type = param.type?.toLowerCase() || findType(param.default) || 'boolean';
 
 		if (undefined !== param.default) {
 			if (Array.isArray(param.default)) {
 				arrayTypeDefaults[key] = param.default;
 			} else if ('count' == param.type) {
 				return conf.error(
-					`Default parameters like "${param.default}" are not allowed on parameters like "${key}" with the type "${param.type}"`
+					`Default parameters like '${param.default}' are not allowed on parameters like '${key}' with the type '${param.type}'`
 				);
 			} else {
 				result[key] = param.default;
@@ -109,7 +113,7 @@ export function engine(args: string[], params: ArgMateParams, conf_: ArgMateConf
 		}
 
 		if ('count' == param.type) {
-			param = 0;
+			result[key] = 0;
 		}
 
 		if (param.type.match(re.arrayType)) {
@@ -121,7 +125,7 @@ export function engine(args: string[], params: ArgMateParams, conf_: ArgMateConf
 			mandatory.push(key);
 		}
 
-		if (conf.kebabCaseAsAlias) {
+		if (conf.autoCamelKebabCase) {
 			let kebab = key.replace(re.kebab, '$1-$2').toLowerCase();
 			if (kebab !== key) {
 				param.alias = [kebab].concat(param.alias || []);
@@ -167,13 +171,18 @@ export function engine(args: string[], params: ArgMateParams, conf_: ArgMateConf
 			NO = '';
 		}
 
-		if (KEYNUM && (!conf.allowKeyNumValues || LONG || ASSIGN)) {
-			KEY = KEY + (KEYNUM ? KEYNUM : '');
-			KEYNUM = '';
-		}
-
-		if (KEYNUM && !LONG && 1 < KEY.length) {
-			return conf.error(`Unsupported format: "${arg}"`);
+		if (KEYNUM) {
+			if (!conf.allowKeyNumValues || LONG || ASSIGN) {
+				KEY = KEY + (KEYNUM ? KEYNUM : '');
+				KEYNUM = '';
+			} else {
+				if (!LONG && 1 < KEY.length) {
+					return conf.error(
+						`Unsupported format: '${arg}'. Did you miss a dash before that?`
+					);
+				}
+				VAL = ASSIGN = KEYNUM;
+			}
 		}
 
 		if (!LONG && 1 < KEY.length) {
@@ -188,9 +197,9 @@ export function engine(args: string[], params: ArgMateParams, conf_: ArgMateConf
 		// Key not defined as a parameter
 		if (!params[KEY]) {
 			if (!conf.allowUnknown)
-				return conf.error(`Unspecified parameters like "${KEY}" not allowed.`);
+				return conf.error(`Unspecified parameters like '${KEY}' not allowed.`);
 
-			if (conf.camelCaseUnknown) {
+			if (conf.autoCamelKebabCase) {
 				KEY = KEY.replace(re.camel, function (match, letter) {
 					return letter.toUpperCase();
 				});
@@ -200,7 +209,7 @@ export function engine(args: string[], params: ArgMateParams, conf_: ArgMateConf
 				if (!VAL) {
 					if (args.length === 0)
 						return conf.error(
-							`Expected one more parameter to fill the value of "${KEY}"`
+							`Expected one more parameter to fill the value of '${KEY}'`
 						);
 					VAL = args.pop() || '';
 				}
@@ -215,14 +224,14 @@ export function engine(args: string[], params: ArgMateParams, conf_: ArgMateConf
 		if ('boolean' === params[KEY].type) {
 			if (ASSIGN)
 				return conf.error(
-					`You asked for the parameter "${KEY}" to be boolean but you are trying to assign a value: "${arg}"`
+					`You asked for the parameter '${KEY}' to be boolean but you are trying to assign a value: '${arg}'`
 				);
 			result[params[KEY].key] = !NO;
 			continue;
 		}
 
 		if (NO) {
-			return conf.error(`Can't negate "${KEY}" as the type is set to "${params[KEY].type}"`);
+			return conf.error(`Can't negate '${KEY}' as the type is set to '${params[KEY].type}'`);
 		}
 
 		if ('count' === params[KEY].type) {
@@ -231,7 +240,7 @@ export function engine(args: string[], params: ArgMateParams, conf_: ArgMateConf
 		}
 
 		if (0 === args.length)
-			return conf.error(`Expected one more parameter to fill the value of "${KEY}"`);
+			return conf.error(`Expected one more parameter to fill the value of '${KEY}'`);
 
 		VAL ||= args.pop() || '';
 
@@ -249,37 +258,31 @@ export function engine(args: string[], params: ArgMateParams, conf_: ArgMateConf
 
 			case 'number':
 			case 'float':
-				num = +VAL;
-				break;
-
-			case 'int':
-				num = +VAL | 0;
-				break;
-
-			case 'hex':
-				num = parseInt(VAL, 16);
-				break;
-
 			case 'number[]':
 			case 'float[]':
 				num = +VAL;
 				break;
 
+			case 'int':
 			case 'int[]':
+				debugger;
 				num = +VAL | 0;
+				if ('' + num !== VAL) num = NaN;
+
 				break;
 
+			case 'hex':
 			case 'hex[]':
 				num = parseInt(VAL, 16);
-
+				break;
 			default:
 				return conf.panic(
-					`The parameter "${KEY}" is configured with an invalid type: "${params[KEY].type}"`
+					`The parameter '${KEY}' is configured with an invalid type: '${params[KEY].type}'`
 				);
 		}
 
 		if (isNaN(num) || !isFinite(num))
-			return conf.error(`The value of "${KEY}" is not a valid ${params[KEY].type}: "${VAL}"`);
+			return conf.error(`The value of '${KEY}' is not a valid ${params[KEY].type}: '${VAL}'`);
 		if (params[KEY].type.match(re.arrayType)) {
 			result[params[KEY].key].push(num);
 		} else {
@@ -290,33 +293,33 @@ export function engine(args: string[], params: ArgMateParams, conf_: ArgMateConf
 	for (let key in arrayTypeDefaults) {
 		if (!params.hasOwnProperty(key)) continue;
 
-		if (undefined === result[key] || !result[key].length) result[key] = arrayTypeDefaults[key];
+		if (undefined === result[key] || !result[key].length) {
+			result[key] = arrayTypeDefaults[key];
+		}
 	}
 
-	for (let key in validate) {
-		if (!params.hasOwnProperty(key) || undefined === result[key]) continue;
-
+	for (let key of validate) {
 		let help = '';
 		if ('function' === typeof params[key].valid) {
 			if (params[key].valid(result[key])) continue;
 		} else {
 			if (!Array.isArray(params[key].valid))
 				return conf.panic(
-					`The "valid" property of the "${key}" parameter must be a function or an array of valid values`
+					`The "valid" property of the '${key}' parameter must be a function or an array of valid values`
 				);
 			if (params[key].valid.includes(result[key])) continue;
 			help = '. Please use one of the following values: ' + JSON.stringify(params[key].valid);
 		}
 
 		return conf.error(
-			`The value provided for parameter "${key}" is not valid: "${result[key]}"` + help
+			`The value provided for parameter '${key}' is not valid: '${result[key]}'` + help
 		);
 	}
 
 	mandatory.forEach(key => {
 		if (undefined === result[key])
 			return conf.error(
-				`The parameter "${key}" is mandatory.` +
+				`The parameter '${key}' is mandatory.` +
 					(params[key].alias.length
 						? ` You can also provide an alias: ${params[key].alias.join(', ')}`
 						: '')
