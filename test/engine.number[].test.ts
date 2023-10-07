@@ -7,22 +7,28 @@ import {expect, test, describe} from 'bun:test';
 
 import argMate from '../src/argMate';
 
-describe.todo('Boolean', () => {
-	test('Default to boolean', () => {
-		let argv = argMate('--foo bar --foo2 bar2'.split(' '));
+describe('number[]', () => {
+	test('Plain', () => {
+		let argv = argMate('--foo 9.2 --foo 2.9'.split(' '), {foo: {type: 'number[]'}});
 		expect(argv).toEqual({
-			_: ['bar', 'bar2'],
-			foo: true,
-			foo2: true,
+			_: [],
+			foo: [9.2, 2.9],
 		});
 	});
 
-	test('Boolean negative', () => {
-		let argv = argMate('--no-foo bar --foo2 bar2'.split(' '));
+	test('Single', () => {
+		let argv = argMate('--foo 9.2'.split(' '), {foo: {type: 'number[]'}});
 		expect(argv).toEqual({
-			_: ['bar', 'bar2'],
-			foo: false,
-			foo2: true,
+			_: [],
+			foo: [9.2],
+		});
+	});
+	test('None', () => {
+		let argv = argMate('--bar 9.2'.split(' '), {foo: {type: 'number[]'}});
+		expect(argv).toEqual({
+			_: ['9.2'],
+			foo: [],
+			bar: true,
 		});
 	});
 });

@@ -3,26 +3,40 @@
 // @ts-ignore
 import {expect, test, describe} from 'bun:test';
 
-// also include array
+// also include array as type
 
 import argMate from '../src/argMate';
 
-describe('Boolean', () => {
-	test('Default to boolean', () => {
-		let argv = argMate('--foo bar --foo2 bar2'.split(' '));
+describe('string[]', () => {
+	test('Explicit', () => {
+		let argv = argMate('--foo a  --foo b  --foo c'.split(/\s+/), {foo: {type: 'string[]'}});
+
 		expect(argv).toEqual({
-			_: ['bar', 'bar2'],
-			foo: true,
-			foo2: true,
+			_: [],
+			foo: ['a', 'b', 'c'],
 		});
 	});
 
-	test('Boolean negative', () => {
-		let argv = argMate('--no-foo bar --foo2 bar2'.split(' '));
+	test('Implicit', () => {
+		let argv = argMate('--foo a  --foo b  --foo c'.split(/\s+/), {
+			foo: {default: ['x', 'y', 'z']},
+		});
+
 		expect(argv).toEqual({
-			_: ['bar', 'bar2'],
-			foo: false,
-			foo2: true,
+			_: [],
+			foo: ['a', 'b', 'c'],
+		});
+	});
+
+	test('Implicit default', () => {
+		let argv = argMate('--foo a  --foo b  --foo c'.split(/\s+/), {
+			bar: {default: ['x', 'y', 'z']},
+		});
+
+		expect(argv).toEqual({
+			_: ['a', 'b', 'c'],
+			bar: ['x', 'y', 'z'],
+			foo: true,
 		});
 	});
 });
