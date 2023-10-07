@@ -1,15 +1,15 @@
 // @ts-ignore
-import {ArgMateParams, ArgMateConfig, ArgMateHelpTextConfig} from './types.js';
+import {ArgMateParams, ArgMateConfig, ArgMateParamInfoConfig} from './types.js';
 
 export default function formatParamInfo(
-	params: ArgMateParams,
-	conf: ArgMateConfig = {},
-	settings: ArgMateHelpTextConfig = {
+	settings: ArgMateParamInfoConfig = {
 		width: 100,
 		format: 'cli',
 		voidIntro: false,
 		voidOutro: false,
-	}
+	},
+	conf: ArgMateConfig = {},
+	params: ArgMateParams
 ) {
 	debugger;
 

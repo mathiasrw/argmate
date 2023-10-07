@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 
 // @ts-ignore
-//export {ArgMateParams, ArgMateConfig, ArgMateHelpTextConfig} from './types.d.ts';
+//export {ArgMateParams, ArgMateConfig, ArgMateParamInfoConfig} from './types.d.ts';
 
 // @ts-ignore
-import {ArgMateParams, ArgMateConfig} from './types.d.ts';
+import {ArgMateParams, ArgMateConfig, ArgMateParamInfoConfig} from './types.d.ts';
 
 import {engine} from './engine';
 
-import formatParamInfo from './helpText';
+// @ts-ignore
+import formatParamInfo from './paramInfo.ts';
 
 let params_;
 
@@ -25,14 +26,24 @@ export default function argMate(
 	return engine(args, params, conf);
 }
 
-export function helpText(settings: any = {}) {
-	return formatParamInfo(JSON.parse(params_), conf_, {
-		...{
-			width: 100,
-			format: 'cli',
-			voidIntro: false,
-			voidOutro: false,
+export function paramInfo(
+	settings: ArgMateParamInfoConfig = {},
+	conf: ArgMateConfig = {},
+	params?: ArgMateParams
+) {
+	return formatParamInfo(
+		{
+			...{
+				preIntro: '',
+				showIntro: true,
+				showOutrp: true,
+				postOutro: '',
+				format: 'cli',
+				width: 100,
+			},
+			...settings,
 		},
-		...settings,
-	});
+		{...conf_, ...conf},
+		params || JSON.parse(params_)
+	);
 }

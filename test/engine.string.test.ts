@@ -5,7 +5,7 @@ import {expect, test, describe} from 'bun:test';
 
 import argMate from '../src/argMate';
 
-describe('String', () => {
+describe('string', () => {
 	test('Default', () => {
 		let argv = argMate('--foo bar --foo2 bar2'.trim().split(/\s+/), {
 			foo: {type: 'string'},

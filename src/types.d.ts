@@ -41,9 +41,11 @@ export interface ArgMateConfig {
 	outro?: IntroOutroType;
 }
 
-export interface ArgMateHelpTextConfig {
+export interface ArgMateParamInfoConfig {
 	width?: number;
 	format?: 'cli' | 'markdown' | 'json';
-	voidIntro?: boolean;
-	voidOutro?: boolean;
+	preIntro?: IntroOutroType;
+	showIntro?: boolean;
+	showOutrp?: boolean;
+	postOutro?: IntroOutroType;
 }
