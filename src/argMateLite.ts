@@ -9,19 +9,19 @@ import {ArgMateParams, ArgMateConfig, ArgMateParamInfoConfig} from './types.js';
 import {configPrep} from './configPrep.js';
 
 // @ts-ignore
-import paramEngine from './paramEngine.js';
+import paramEngine from './paramEngineLite.js';
 
 // @ts-ignore
-import formatParamInfo from './paramInfo.js';
+import formatParamInfo from './formatParamInfo.js';
 
-let params_;
+let params_ = {};
 
-let conf_;
+let conf_ = {};
 
-export default function argMate(args: string[], params: ArgMateParams, conf: ArgMateConfig) {
+export default function argMate(args: string[], params?: ArgMateParams, conf?: ArgMateConfig) {
 	if (!params && !conf) return paramEngine(args);
 
-	if (params) params_ = JSON.stringify(params);
+	if (params) params_ = params;
 
 	if (conf) conf_ = conf;
 
@@ -46,6 +46,6 @@ export function paramInfo(
 			...settings,
 		},
 		{...conf_, ...conf},
-		params || JSON.parse(params_)
+		params || JSON.parse(JSON.stringify(params_))
 	);
 }

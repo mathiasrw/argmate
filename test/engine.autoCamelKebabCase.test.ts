@@ -4,25 +4,31 @@
 import {expect, test, describe} from 'bun:test';
 
 import argMate from '../src/argMate';
+import argMateLight from '../src/argMateLite';
 
-describe('autoCamelKebabCase', () => {
-	test('Plane', () => {
-		let argv = argMate('--foo-bar 234'.split(' '), {fooBar: {type: 'int'}});
-		expect(argv).toEqual({
-			_: [],
-			fooBar: 234,
+run(argMate);
+run(argMateLight, ' light');
+
+function run(argMate, type = '') {
+	describe('autoCamelKebabCase' + type, () => {
+		test('Plane', () => {
+			let argv = argMate('--foo-bar 234'.split(' '), {fooBar: {type: 'int'}});
+			expect(argv).toEqual({
+				_: [],
+				fooBar: 234,
+			});
+		});
+
+		test('Disabled', () => {
+			let argv = argMate(
+				'--foo-bar 234'.split(' '),
+				{fooBar: {type: 'int'}},
+				{autoCamelKebabCase: false}
+			);
+			expect(argv).toEqual({
+				_: ['234'],
+				'foo-bar': true,
+			});
 		});
 	});
-
-	test('Disabled', () => {
-		let argv = argMate(
-			'--foo-bar 234'.split(' '),
-			{fooBar: {type: 'int'}},
-			{autoCamelKebabCase: false}
-		);
-		expect(argv).toEqual({
-			_: ['234'],
-			'foo-bar': true,
-		});
-	});
-});
+}

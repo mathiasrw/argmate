@@ -1,6 +1,6 @@
 // bun --inspect-brk test/manual.js      --no-foo bar --foo2 bar2
 
-import argMate, { paramInfo } from '../src/argMate.js';
+import argMate, { paramInfo } from '../src/argMateLite.js';
 
 import precompileConfig from '../src/configPrep.js'
 

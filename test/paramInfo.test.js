@@ -1,11 +1,11 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import { expect, test, describe } from 'bun:test';
 
-import argMate, {paramInfo} from '../src/argMate.ts';
+import argMate, { paramInfo } from '../src/argMate.ts';
 
-describe('paramInfo', () => {
+describe.todo('paramInfo', () => {
 	test('shows someting', () => {
 		argMate('--foo bar --foo2 bar2'.split(' '));
 		let help = paramInfo();

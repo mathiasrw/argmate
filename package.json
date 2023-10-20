@@ -26,9 +26,8 @@
 	"type": "module",
 	"types": "src/types.d.ts",
 	"scripts": {
-		"build": "    bun build --target bun src/argMate.ts --outfile dist/argMate.mjs ",
-		"postbuild": "bun build --target bun src/argMate.ts --outfile dist/argMate.min.mjs --minify",
 		"prebuild": "rm -fr dist/",
+		"build": "bun build --target bun src/argMate.ts src/argMatePlus.ts src/paramEngine.ts src/paramEnginePlus.ts --outdir dist/ --minify ",
 		"test": "yarn test-only && yarn build && yarn test-bundle",
 		"test-only": "bun test --bail",
 		"test-bundle": "sh test/test.bundle.sh",

@@ -17,12 +17,18 @@ run_hyperfine() {
 	[ -f "./argMate.deno.exe" ] && B+="./argMate.deno.exe $PARAMS "
 
 	hyperfine --warmup 5               	 	\
-		"$RUNTIME argMate.mjs $PARAMS"     	\
-		"$RUNTIME argMate.cjs $PARAMS"     	\
+		"$RUNTIME yargs.cjs $PARAMS"       	\
+		"$RUNTIME minimist.cjs $PARAMS"    	\
 		"$RUNTIME mri.cjs $PARAMS"         	\
 		"$RUNTIME nopt.cjs $PARAMS"        	\
-		"$RUNTIME minimist.cjs $PARAMS"    	\
-		"$RUNTIME yargs.cjs $PARAMS"       	\
+		"$RUNTIME argMate.mjs $PARAMS"     	\
+		"$RUNTIME argMateEngine.mjs $PARAMS"     	\
+		"$RUNTIME argMatePlus.mjs $PARAMS"     	\
+		"$RUNTIME argMateEnginePlus.mjs $PARAMS"     	\
+		"$RUNTIME argMate.cjs $PARAMS"     	\
+		"$RUNTIME argMateEngine.cjs $PARAMS"     	\
+		"$RUNTIME argMatePlus.cjs $PARAMS"     	\
+		"$RUNTIME argMateEnginePlus.cjs $PARAMS"     	\
 		#"$A"								\
 		#"$B"									
 

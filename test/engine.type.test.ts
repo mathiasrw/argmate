@@ -4,38 +4,44 @@
 import {expect, test, describe} from 'bun:test';
 
 import argMate from '../src/argMate';
+import argMateLight from '../src/argMateLite';
 
-describe('Type', () => {
-	test.todo('Set error from the outside', done => {
-		let argv = argMate(
-			'--foobar'.split(' '),
-			{
-				foo: {type: '123abc'},
-			},
-			{
-				error: msg => {
-					expect(msg).toContain('type');
-					expect(msg).toContain('123abc');
-					done();
-				},
-			}
-		);
-	});
+run(argMate);
+run(argMateLight, ' light');
 
-	test('Invalid type', () => {
-		expect(() => {
-			argMate(
-				'--foo 3'.split(' '),
+function run(argMate, type = '') {
+	describe('Type', () => {
+		test.todo('Set error from the outside' + type, done => {
+			let argv = argMate(
+				'--foobar'.split(' '),
 				{
-					foo: {type: 'xyz'},
+					foo: {type: '123abc'},
 				},
 				{
 					error: msg => {
-						console.log('bad - should panic!');
-						expect(1).toBe(0);
+						expect(msg).toContain('type');
+						expect(msg).toContain('123abc');
+						done();
 					},
 				}
 			);
-		}).toThrow();
+		});
+
+		test('Invalid type', () => {
+			expect(() => {
+				argMate(
+					'--foo 3'.split(' '),
+					{
+						foo: {type: 'xyz'},
+					},
+					{
+						error: msg => {
+							console.log('bad - should panic!');
+							expect(1).toBe(0);
+						},
+					}
+				);
+			}).toThrow();
+		});
 	});
-});
+}

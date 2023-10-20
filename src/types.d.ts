@@ -15,7 +15,7 @@ export interface ArgMateParams {
 					| 'float[]'
 					| 'int[]'
 					| 'hex[]';
-				default?: any;
+				default?: string | number | string[] | number[];
 				mandatory?: boolean;
 				alias?: string | string[];
 				conflict?: string | string[];
@@ -37,8 +37,14 @@ export interface ArgMateConfig {
 	autoCamelKebabCase?: boolean;
 	allowNegatingFlags?: boolean;
 	allowKeyNumValues?: boolean;
+	allowAssign?: boolean;
 	intro?: IntroOutroType;
 	outro?: IntroOutroType;
+}
+
+export interface ArgMateConfigMandatory extends ArgMateConfig {
+	error: (msg: string) => void;
+	panic: (msg: string) => void;
 }
 
 export interface ArgMateParamInfoConfig {
@@ -46,6 +52,35 @@ export interface ArgMateParamInfoConfig {
 	format?: 'cli' | 'markdown' | 'json';
 	preIntro?: IntroOutroType;
 	showIntro?: boolean;
-	showOutrp?: boolean;
+	showOutro?: boolean;
 	postOutro?: IntroOutroType;
 }
+
+export default function argMate(
+	args: string[],
+	params?: ArgMateParams,
+	conf?: ArgMateConfig
+): {[key: string]: any};
+
+type ParserObj = void | {
+	mandatory: string[];
+	validate: string[];
+	complexDefault: {[key: string]: string[] | number[]};
+	output: {[key: string]: any};
+	conf: ArgMateConfigMandatory;
+	params: ArgMateParams;
+};
+
+export function configPrep(
+	params: ArgMateParams,
+	conf: ArgMateConfigMandatory,
+	precompile: boolean
+): ParserObj | string;
+
+export function paramEngine(params: ParserObj): {[key: string]: any};
+
+export function paramInfo(
+	settings: ArgMateParamInfoConfig,
+	conf?: ArgMateConfig,
+	params?: ArgMateParams
+): string;

@@ -4,40 +4,46 @@
 import {expect, test, describe} from 'bun:test';
 
 import argMate from '../src/argMate';
+import argMateLight from '../src/argMateLite';
 
-describe('Valid', () => {
-	test('as function', done => {
-		let argv = argMate(
-			'--foo 3'.split(' '),
-			{
-				foo: {type: 'number', valid: v => v > 4},
-			},
-			{
-				error: msg => {
-					expect(msg).toContain('foo');
-					expect(msg).toContain('3');
-					done();
+run(argMate);
+run(argMateLight, ' light');
+
+function run(argMate, type = '') {
+	describe('Valid', () => {
+		test('as function' + type, done => {
+			let argv = argMate(
+				'--foo 3'.split(' '),
+				{
+					foo: {type: 'number', valid: v => v > 4},
 				},
-			}
-		);
-	});
-
-	test('as array', () => {
-		let argv = argMate('--foo b'.split(' '), {
-			foo: {valid: ['a', 'b', 'c']},
+				{
+					error: msg => {
+						expect(msg).toContain('foo');
+						expect(msg).toContain('3');
+						done();
+					},
+				}
+			);
 		});
 
-		expect(argv).toEqual({
-			_: [],
-			foo: 'b',
-		});
-	});
-
-	test('invalid', () => {
-		expect(() => {
-			argMate('--foo 3'.split(' '), {
-				foo: {type: 'number', valid: false},
+		test('as array', () => {
+			let argv = argMate('--foo b'.split(' '), {
+				foo: {valid: ['a', 'b', 'c']},
 			});
-		}).toThrow();
+
+			expect(argv).toEqual({
+				_: [],
+				foo: 'b',
+			});
+		});
+
+		test('invalid', () => {
+			expect(() => {
+				argMate('--foo 3'.split(' '), {
+					foo: {type: 'number', valid: false},
+				});
+			}).toThrow();
+		});
 	});
-});
+}

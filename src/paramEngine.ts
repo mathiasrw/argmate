@@ -1,11 +1,11 @@
 // @ts-ignore
-import {ArgMateParams, ArgMateConfig} from './types.d.ts';
+import {ArgMateParams, ArgMateConfig, ParserObj} from './types.js';
 interface ArgMateConfigMandatory extends ArgMateConfig {
 	error: (msg: string) => void;
 	panic: (msg: string) => void;
 }
 
-const re = {
+export const re = {
 	kebab: /([a-z0-9]|(?=[A-Z]))([A-Z])/g,
 	camel: /-+([^-])|-+$/g,
 	arrayType: /array|string\[\]|number\[\]|int\[\]|float\[\]|hex\[\]/,
@@ -34,122 +34,46 @@ const re = {
 */
 
 const defaultConf = {
-	error: msg => {
-		throw msg;
-	},
-	panic: msg => {
-		throw msg;
-	},
-	allowUnknown: true,
-	autoCamelKebabCase: true,
-	allowNegatingFlags: true,
-	allowKeyNumValues: true,
-};
-
-const strictConf = {
-	allowUnknown: false,
-	autoCamelKebabCase: false,
-	allowNegatingFlags: false,
-	allowKeyNumValues: false,
-};
-
-export function engine(args: string[], params: ArgMateParams, conf_: ArgMateConfig) {
-	const mandatory: string[] = [];
-	const validate: string[] = [];
-	let result: any = {
+	output: {
 		_: [],
-	};
-	let arrayTypeDefaults: any = {};
+	},
+	validate: [],
+	mandatory: [],
+	complexDefault: {},
+	conf: {
+		error: msg => {
+			throw msg;
+		},
+		panic: msg => {
+			throw msg;
+		},
+		allowUnknown: true,
+		autoCamelKebabCase: true,
+		allowNegatingFlags: true,
+		allowKeyNumValues: true,
+		allowAssign: true,
+	},
+	params: {},
+};
 
-	let arrayTypeKeys: any = [];
+export default function paramEngine(args: string[], parserObj: ParserObj = defaultConf) {
+	if (!parserObj) throw `parserObj not set`;
 
-	const conf: ArgMateConfigMandatory = {
-		...defaultConf,
-		...(conf_.strict ? strictConf : {}),
-		...conf_,
-	};
-
-	for (let key in params) {
-		if (!params.hasOwnProperty(key)) continue;
-		let param = params[key];
-		// If only default value is provided, then transform to object with correct type
-
-		if (param === null || typeof param !== 'object' || Array.isArray(param)) {
-			param = {
-				default: param,
-				type: findType(param),
-			};
-		}
-
-		param.key = key;
-		param.alias = param.alias || [];
-		param.conflict = param.conflict || [];
-
-		if (undefined !== param.valid) {
-			validate.push(key);
-			if (undefined === param.default && Array.isArray(param.valid)) {
-				if (!param.valid.length)
-					return conf.panic(`Empty array found for valid values of '${key}'`);
-
-				if (undefined === param.type) {
-					param.type = findType(param.valid[0]);
-				}
-				param.default = param.valid[0];
-			}
-		}
-
-		param.type = param.type?.toLowerCase() || findType(param.default) || 'boolean';
-
-		if (undefined !== param.default) {
-			if (Array.isArray(param.default)) {
-				arrayTypeDefaults[key] = param.default;
-			} else if ('count' == param.type) {
-				return conf.error(
-					`Default parameters like '${param.default}' are not allowed on parameters like '${key}' with the type '${param.type}'`
-				);
-			} else {
-				result[key] = param.default;
-			}
-		}
-
-		if ('count' == param.type) {
-			result[key] = 0;
-		}
-
-		if (param.type.match(re.arrayType)) {
-			result[key] = [];
-			arrayTypeKeys.push(key);
-		}
-
-		if (param.mandatory) {
-			mandatory.push(key);
-		}
-
-		if (conf.autoCamelKebabCase) {
-			let kebab = key.replace(re.kebab, '$1-$2').toLowerCase();
-			if (kebab !== key) {
-				param.alias = [kebab].concat(param.alias || []);
-			}
-		}
-
-		if (undefined !== param.alias && !Array.isArray(param.alias)) param.alias = [param.alias];
-
-		if (param.alias) param.alias.forEach(alias => (params[alias] = param));
-	}
+	const {mandatory, validate, complexDefault, output, conf, params} = parserObj;
 
 	args.reverse(); // Reverse, pop, push, reverse 8.77 times faster than unshft, shift
 
 	while (args.length) {
 		let arg: string = '' + args.pop();
 
-		if (!arg.startsWith('-')) {
-			result['_'].push(arg);
+		if (arg.charCodeAt(0) !== 45) {
+			output['_'].push(arg);
 			continue;
 		}
 
 		const token = arg.match(re.paramTokens);
 
-		if (undefined === token) return conf.panic('Grups not returned');
+		if (undefined === token) return conf.panic('Grup not returned');
 
 		let {STOP, LONG, NO, KEY, KEYNUM, ASSIGN, VAL} = token?.groups || {
 			STOP: '',
@@ -162,7 +86,7 @@ export function engine(args: string[], params: ArgMateParams, conf_: ArgMateConf
 		};
 
 		if (STOP) {
-			result['_'] = result['_'].concat(args.reverse());
+			output['_'] = output['_'].concat(args.reverse());
 			break;
 		}
 
@@ -192,7 +116,10 @@ export function engine(args: string[], params: ArgMateParams, conf_: ArgMateConf
 			continue;
 		}
 
-		if (!KEY) return conf.panic(`Key is never meant to be undefined`);
+		if (!KEY) {
+			output['_'].push(arg);
+			continue;
+		}
 
 		// Key not defined as a parameter
 		if (!params[KEY]) {
@@ -214,9 +141,9 @@ export function engine(args: string[], params: ArgMateParams, conf_: ArgMateConf
 					VAL = args.pop() || '';
 				}
 				// @ts-ignore
-				result[KEY] = +VAL == VAL ? +VAL : VAL;
+				output[KEY] = +VAL == VAL ? +VAL : VAL;
 			} else {
-				result[KEY] = !NO;
+				output[KEY] = !NO;
 			}
 			continue;
 		}
@@ -226,7 +153,7 @@ export function engine(args: string[], params: ArgMateParams, conf_: ArgMateConf
 				return conf.error(
 					`You asked for the parameter '${KEY}' to be boolean but you are trying to assign a value: '${arg}'`
 				);
-			result[params[KEY].key] = !NO;
+			output[params[KEY].key] = !NO;
 			continue;
 		}
 
@@ -235,7 +162,7 @@ export function engine(args: string[], params: ArgMateParams, conf_: ArgMateConf
 		}
 
 		if ('count' === params[KEY].type) {
-			result[KEY]++;
+			output[KEY]++;
 			continue;
 		}
 
@@ -248,12 +175,12 @@ export function engine(args: string[], params: ArgMateParams, conf_: ArgMateConf
 
 		switch (params[KEY].type) {
 			case 'string':
-				result[params[KEY].key] = VAL;
+				output[params[KEY].key] = VAL;
 				continue;
 
 			case 'array':
 			case 'string[]':
-				result[params[KEY].key].push(VAL);
+				output[params[KEY].key].push(VAL);
 				continue;
 
 			case 'number':
@@ -283,69 +210,50 @@ export function engine(args: string[], params: ArgMateParams, conf_: ArgMateConf
 
 		if (isNaN(num) || !isFinite(num))
 			return conf.error(`The value of '${KEY}' is not a valid ${params[KEY].type}: '${VAL}'`);
-		if (params[KEY].type.match(re.arrayType)) {
-			result[params[KEY].key].push(num);
+		if (Array.isArray(output[params[KEY].key])) {
+			output[params[KEY].key].push(num);
 		} else {
-			result[params[KEY].key] = num;
+			output[params[KEY].key] = num;
 		}
 	}
 
-	for (let key in arrayTypeDefaults) {
+	for (let key in complexDefault) {
 		if (!params.hasOwnProperty(key)) continue;
 
-		if (undefined === result[key] || !result[key].length) {
-			result[key] = arrayTypeDefaults[key];
+		if (undefined === output[key] || !output[key].length) {
+			output[key] = complexDefault[key];
 		}
 	}
 
 	for (let key of validate) {
 		let help = '';
 		if ('function' === typeof params[key].valid) {
-			if (params[key].valid(result[key])) continue;
+			if (params[key].valid(output[key])) continue;
 		} else {
 			if (!Array.isArray(params[key].valid))
 				return conf.panic(
 					`The "valid" property of the '${key}' parameter must be a function or an array of valid values`
 				);
-			if (params[key].valid.includes(result[key])) continue;
+			if (params[key].valid.includes(output[key])) continue;
 			help = '. Please use one of the following values: ' + JSON.stringify(params[key].valid);
 		}
 
 		return conf.error(
-			`The value provided for parameter '${key}' is not valid: '${result[key]}'` + help
+			`The value provided for parameter '${key}' is not valid: '${output[key]}'` + help
 		);
 	}
 
-	mandatory.forEach(key => {
-		if (undefined === result[key])
+	for (let key of mandatory) {
+		if (undefined === output[key])
 			return conf.error(
 				`The parameter '${key}' is mandatory.` +
 					(params[key].alias.length
 						? ` You can also provide an alias: ${params[key].alias.join(', ')}`
 						: '')
 			);
-	});
+	}
 
 	// todo: check for conflict
 
-	return result;
-}
-
-function findType(val) {
-	if (null === val || undefined === val) return void 0;
-
-	let type = typeof val;
-	let isArray = Array.isArray(val);
-
-	if (isArray && val.length > 0) {
-		type = typeof val[0];
-	}
-
-	switch (type) {
-		case 'boolean':
-		case 'number':
-			return type + (isArray ? '[]' : '');
-		default:
-			return 'string' + (isArray ? '[]' : '');
-	}
+	return output;
 }
