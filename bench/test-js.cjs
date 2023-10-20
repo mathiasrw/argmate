@@ -1,5 +1,5 @@
 (async () => {
-	const { Suite } = require('benchmark');
+	const {Suite} = require('benchmark');
 	console.log('Load Times:');
 
 	console.time('nopt');
@@ -41,44 +41,43 @@
 		: ['-b', '--bool', '--no-meep', '--multi=baz'];
 
 	argmateGeneratedConfig = {
-		"output": {
-			"_": [],
-			"b": false,
-			"bool": false,
-			"no-meep": false,
-			"multi": "",
+		output: {
+			_: [],
+			b: false,
+			bool: false,
+			'no-meep': false,
+			multi: '',
 		},
-		"validate": [],
-		"mandatory": [],
-		"complexDefault": {
-		},
-		"conf": {
-			"error": (msg) => {
+		validate: [],
+		mandatory: [],
+		complexDefault: {},
+		conf: {
+			error: msg => {
 				throw msg;
 			},
-			"panic": (msg) => {
+			panic: msg => {
 				throw msg;
 			},
-			"allowUnknown": true,
-			"autoCamelKebabCase": true,
-			"allowNegatingFlags": true,
-			"allowKeyNumValues": true,
+			allowUnknown: true,
+			autoCamelKebabCase: true,
+			allowNegatingFlags: true,
+			allowKeyNumValues: true,
 		},
-		"params": {
-			"b": {
-				type: 'boolean'
+		params: {
+			b: {
+				type: 'boolean',
 			},
-			"bool": {
-				type: 'boolean'
+			bool: {
+				type: 'boolean',
 			},
-			"no-meep": {
-				type: 'boolean'
+			'no-meep': {
+				type: 'boolean',
 			},
-			"multi": {
-				type: 'string'
+			multi: {
+				type: 'string',
 			},
 		},
-	}
+	};
 
 	bench
 		.add('yargs-parser        ', () => yargs(args))
@@ -86,11 +85,21 @@
 		.add('minimist            ', () => minimist(args))
 		.add('mri                 ', () => mri(args))
 		.add('argMatePlus         ', () => argMatePlus(args), {}, {})
-		.add('argMatePlus+Config  ', () => argMatePlus(args), { b: false, bool: false, "no-meep": false, multi: '' })
+		.add('argMatePlus+Config  ', () => argMatePlus(args), {
+			b: false,
+			bool: false,
+			'no-meep': false,
+			multi: '',
+		})
 		.add('argMateEngPlus+conf ', () => argMateParamEnginePlus(args, argmateGeneratedConfig))
 		.add('argMateEnginePlus   ', () => argMateParamEnginePlus(args))
 		.add('argMate             ', () => argMate(args), {}, {})
-		.add('argMate+Config  ', () => argMate(args), { b: false, bool: false, "no-meep": false, multi: '' })
+		.add('argMate+Config  ', () => argMate(args), {
+			b: false,
+			bool: false,
+			'no-meep': false,
+			multi: '',
+		})
 		.add('argMateEng+conf ', () => argMateParamEngine(args, argmateGeneratedConfig))
 		.add('argMateEngine       ', () => argMateParamEngine(args))
 		.on('cycle', e => console.log(String(e.target)))
@@ -98,11 +107,3 @@
 			cycles: 1000,
 		});
 })();
-
-
-
-
-
-
-
-

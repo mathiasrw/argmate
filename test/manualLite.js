@@ -1,35 +1,33 @@
 // bun --inspect-brk test/manual.js      --no-foo bar --foo2 bar2
 
-import argMate, { paramInfo } from '../src/argMateLite.js';
+import argMate, {paramInfo} from '../src/argMateLite.js';
 
-import precompileConfig from '../src/configPrep.js'
+import precompileConfig from '../src/configPrep.js';
 
-console.log(precompileConfig({ b: false, bool: false, "no-meep": false, multi: '' })); process.exit();
+console.log(precompileConfig({b: false, bool: false, 'no-meep': false, multi: ''}));
+process.exit();
 
 debugger;
-argMate('--foo bar --foo2 bar2'.split(' '))
-
+argMate('--foo bar --foo2 bar2'.split(' '));
 
 process.exit();
 
-
-
-let conf = precompileConfig(lotsofParamConfig())
-console.log(conf)
+let conf = precompileConfig(lotsofParamConfig());
+console.log(conf);
 
 process.exit();
 let argv = argMate('-f123'.split(' '));
 
-console.log({ argv });
+console.log({argv});
 
 console.log(
 	argMate(
 		process.argv.slice(2),
 		{
-			foo: { type: 'string' },
-			foo2: { type: 'string', alias: ['abc'] },
+			foo: {type: 'string'},
+			foo2: {type: 'string', alias: ['abc']},
 		},
-		{ intro: 'what is going on?', outro: 'Vi ses!' }
+		{intro: 'what is going on?', outro: 'Vi ses!'}
 	)
 );
 
@@ -40,17 +38,7 @@ console.log(paramInfo());
 	foo2: { type: 'string' },
 });*/
 
-
-
-
-
-
-
-
 function lotsofParamConfig() {
-
-
-
 	return {
 		version: {
 			describe: 'Print rexreplace version (can be given as only argument)',
@@ -318,7 +306,6 @@ function lotsofParamConfig() {
 		help: {
 			alias: 'h',
 			discibe: 'Display help.',
-		}
-	}
-
+		},
+	};
 }
