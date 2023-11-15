@@ -1,7 +1,5 @@
+- _Your go-to companion for lightning-fast CLI parameter parsing, seasoned with convenient features to make your development experience much more smooth._
 
-![mamate](https://github.com/mathiasrw/argmate/assets/1063454/b63fe097-dc1b-49c2-919e-cd665024e34d)
-
-# ArgMate
 
 [![CI-test](https://github.com/mathiasrw/argmate/workflows/CI-test/badge.svg)](https://github.com/mathiasrw/argmate/actions)
 [![NPM downloads](https://img.shields.io/npm/dm/argmate.svg?style=flat&label=npm%20downloads)](https://npm-stat.com/charts.html?package=argmate)
@@ -10,9 +8,13 @@
 [![OPEN open source software](https://img.shields.io/badge/Open--OSS-%E2%9C%94-brightgreen.svg)](http://open-oss.com)
 
 
+# ArgMate
 
 
-> _Your go-to companion for lightning-fast CLI parameter parsing, seasoned with convenient features to make your development experience much more smooth._
+<h2 align="center"><a href="https://github.com/mathiasrw/argmate"><img src="https://github.com/mathiasrw/argmate/assets/1063454/b63fe097-dc1b-49c2-919e-cd665024e34d" alt="ArgMate mascot Mamate as the ArgMate logo" style="max-width:80%"/></a>
+</h2>
+
+
 
 
 While developing things like [AlaSQL](https://www.npmjs.com/package/alasql) and [RexReplace](https://www.npmjs.com/package/rexreplace) I've always been caught between two types of CLI parsers. On one hand, there are feature-rich options like [yargs](https://www.npmjs.com/package/yargs) and [commander](https://www.npmjs.com/package/commander), which, despite their heavy startup time, provide useful help like easy defaults, smooth validation, and well-structured CLI help text output. On the other hand, more simple alternatives like [nopt](https://www.npmjs.com/package/nopt) and [mri](https://www.npmjs.com/package/mri) excel in performance but lack in development experience. After yet again uncovering a performance hit from using a heavyweight parser, I decided to solve this issue once and for all.
