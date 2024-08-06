@@ -1,5 +1,5 @@
 (async () => {
-	const {Suite} = require('benchmark');
+	const { Suite } = require('benchmark');
 	console.log('Load Times:');
 
 	console.time('nopt');
@@ -26,13 +26,13 @@
 	let argMatePlus = (await import('../dist/argMatePlus.mjs')).default;
 	console.timeEnd('argMatePlus');
 
-	console.time('argMateParamEngine');
-	let argMateParamEngine = (await import('../dist/paramEngine.mjs')).default;
-	console.timeEnd('argMateParamEngine');
+	console.time('argMateArgEngine');
+	let argMateArgEngine = (await import('../dist/argEngine.mjs')).default;
+	console.timeEnd('argMateArgEngine');
 
-	console.time('argMateParamEnginePlus');
-	let argMateParamEnginePlus = (await import('../dist/paramEnginePlus.mjs')).default;
-	console.timeEnd('argMateParamEnginePlus');
+	console.time('argMateArgEnginePlus');
+	let argMateArgEnginePlus = (await import('../dist/argEnginePlus.mjs')).default;
+	console.timeEnd('argMateArgEnginePlus');
 
 	console.log('\nBenchmark:');
 	const bench = new Suite();
@@ -91,8 +91,8 @@
 			'no-meep': false,
 			multi: '',
 		})
-		.add('argMateEngPlus+conf ', () => argMateParamEnginePlus(args, argmateGeneratedConfig))
-		.add('argMateEnginePlus   ', () => argMateParamEnginePlus(args))
+		.add('argMateEngPlus+conf ', () => argMateArgEnginePlus(args, argmateGeneratedConfig))
+		.add('argMateEnginePlus   ', () => argMateArgEnginePlus(args))
 		.add('argMate             ', () => argMate(args), {}, {})
 		.add('argMate+Config  ', () => argMate(args), {
 			b: false,
@@ -100,8 +100,8 @@
 			'no-meep': false,
 			multi: '',
 		})
-		.add('argMateEng+conf ', () => argMateParamEngine(args, argmateGeneratedConfig))
-		.add('argMateEngine       ', () => argMateParamEngine(args))
+		.add('argMateEng+conf ', () => argMateArgEngine(args, argmateGeneratedConfig))
+		.add('argMateEngine       ', () => argMateArgEngine(args))
 		.on('cycle', e => console.log(String(e.target)))
 		.run({
 			cycles: 1000,

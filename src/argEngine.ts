@@ -1,17 +1,12 @@
 // @ts-ignore
-import {ArgMateParams, ArgMateConfig, ParserObj} from './types.js';
+import {ArgMateParams, ArgMateConfig, ArgProcessObj} from './types.js';
 interface ArgMateConfigMandatory extends ArgMateConfig {
 	error: (msg: string) => void;
 	panic: (msg: string) => void;
 }
 
-export const re = {
-	kebab: /([a-z0-9]|(?=[A-Z]))([A-Z])/g,
-	camel: /-+([^-])|-+$/g,
-	arrayType: /array|string\[\]|number\[\]|int\[\]|float\[\]|hex\[\]/,
-	paramTokens:
-		/^(?<STOP>--)$|^-(?<LONG>-+)?(?<NO>no-)?(?<KEY>[^=\s]+?)(?<KEYNUM>[\d]*)(?<ASSIGN>=(?<VAL>.*))?$/,
-};
+// @ts-ignore
+import {re} from './common.js';
 
 /*
 /^(?<stop>--)$|^-(?<full>-)?(?<no>no-)?(?<key>[^=\s]+?)(?<keynum>[\d]*)(?<assign>=(?<val>.*))?$/,
@@ -35,8 +30,8 @@ export const re = {
 array of value as default
 */
 
-export default function paramEngine(args: string[], parserObj?: ParserObj) {
-	parserObj = parserObj || {
+export default function argEngine(args: string[], argProcessObj?: ArgProcessObj) {
+	argProcessObj = argProcessObj || {
 		output: {
 			_: [],
 		},
@@ -59,7 +54,7 @@ export default function paramEngine(args: string[], parserObj?: ParserObj) {
 		params: {},
 	};
 
-	const {mandatory, validate, complexDefault, output, conf, params} = parserObj;
+	const {mandatory, validate, complexDefault, output, conf, params} = argProcessObj;
 
 	args.reverse(); // Reverse, pop, push, reverse 8.77 times faster than unshft, shift
 

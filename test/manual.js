@@ -1,5 +1,5 @@
 // bun --inspect-brk test/manual.js      --no-foo bar --foo2 bar2
-import argMate, { paramInfo } from '../src/argMateLite.js';
+import argMate, { argInfo } from '../src/argMateLite.js';
 
 import precompileConfig from '../src/configPrep.js';
 
@@ -42,7 +42,7 @@ console.log(
 	)
 );
 
-console.log(paramInfo());
+console.log(argInfo());
 
 /*0 && argMate('--foo bar --foo2 bar2'.trim().split(/\s+/), {
 	foo: { type: 'string' },

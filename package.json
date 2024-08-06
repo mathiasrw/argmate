@@ -28,7 +28,7 @@
 	"types": "src/types.d.ts",
 	"scripts": {
 		"prebuild": "rm -fr dist/",
-		"build": "bun build --target bun src/argMate.ts src/argMateLite.ts src/paramEngine.ts src/paramEngineLite.ts --outdir dist/ --minify ",
+		"build": "bun build --target bun src/argMate.ts src/argMateLite.ts src/argEngine.ts src/argEngineLite.ts --outdir dist/ # --minify ",
 		"test": "yarn test-only && yarn build && yarn test-bundle",
 		"test-only": "bun test --bail",
 		"test-bundle": "sh test/test.bundle.sh",

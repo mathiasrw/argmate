@@ -102,7 +102,7 @@ export function tableLayout(data, conf_?: any) {
 	return ascii;
 }
 
-export default function formatParamInfo(settings_ = {}, conf = {}) {
+export default function formatArgInfo(settings_ = {}, conf = {}) {
 	return;
 	/*let settings =	{
 		...{

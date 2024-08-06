@@ -47,7 +47,7 @@ export interface ArgMateConfigMandatory extends ArgMateConfig {
 	panic: (msg: string) => void;
 }
 
-export interface ArgMateParamInfoConfig {
+export interface ArgMateArgInfoConfig {
 	width?: number;
 	format?: 'cli' | 'markdown' | 'json';
 	preIntro?: IntroOutroType;
@@ -62,11 +62,11 @@ export default function argMate(
 	conf?: ArgMateConfig
 ): {[key: string]: any};
 
-type ParserObj = void | {
+type ArgProcessObj = void | {
+	output: {[key: string]: any};
 	mandatory: string[];
 	validate: string[];
 	complexDefault: {[key: string]: string[] | number[]};
-	output: {[key: string]: any};
 	conf: ArgMateConfigMandatory;
 	params: ArgMateParams;
 };
@@ -75,12 +75,12 @@ export function configPrep(
 	params: ArgMateParams,
 	conf: ArgMateConfigMandatory,
 	precompile: boolean
-): ParserObj | string;
+): ArgProcessObj | string;
 
-export function paramEngine(params: ParserObj): {[key: string]: any};
+export function argEngine(params: ArgProcessObj): {[key: string]: any};
 
-export function paramInfo(
-	settings: ArgMateParamInfoConfig,
+export function argInfo(
+	settings: ArgMateArgInfoConfig,
 	conf?: ArgMateConfig,
 	params?: ArgMateParams
 ): string;

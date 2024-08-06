@@ -1,5 +1,5 @@
 // @ts-ignore
-import {ArgMateParams, ArgMateConfig, ParserObj} from './types.js';
+import {ArgMateParams, ArgMateConfig, ArgProcessObj} from './types.js';
 interface ArgMateConfigMandatory extends ArgMateConfig {
 	error: (msg: string) => void;
 	panic: (msg: string) => void;
@@ -29,12 +29,11 @@ export const re = {
 # -no-bca=66
 # --no-n-o--abc
 
-# array of value as default
-
+array of value as default
 */
 
-export default function paramEngineLite(args: string[], parserObj?: ParserObj) {
-	parserObj = parserObj || {
+export default function argEngineLite(args: string[], argProcessObj?: ArgProcessObj) {
+	argProcessObj = argProcessObj || {
 		output: {
 			_: [],
 		},
@@ -57,7 +56,7 @@ export default function paramEngineLite(args: string[], parserObj?: ParserObj) {
 		params: {},
 	};
 
-	const {mandatory, validate, output, conf, params, complexDefault} = parserObj;
+	const {mandatory, validate, output, conf, params, complexDefault} = argProcessObj;
 
 	args.reverse(); // Reverse, pop, push, reverse 8.77 times faster than unshft, shift
 

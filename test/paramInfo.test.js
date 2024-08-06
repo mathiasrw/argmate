@@ -1,14 +1,14 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import { expect, test, describe } from 'bun:test';
 
-import argMate, {paramInfo} from '../src/argMate.ts';
+import argMate, { argInfo } from '../src/argMate.ts';
 
-describe.todo('paramInfo', () => {
+describe.todo('argInfo', () => {
 	test('shows someting', () => {
 		argMate('--foo bar --foo2 bar2'.split(' '));
-		let help = paramInfo();
+		let help = argInfo();
 
 		expect(help).toMatch(/params/);
 	});
@@ -22,7 +22,7 @@ describe.todo('paramInfo', () => {
 				outro: 'That was amazing - thank you!',
 			}
 		);
-		let help = paramInfo();
+		let help = argInfo();
 
 		expect(help).toMatch(/first line/);
 		expect(help).toMatch(/thank you/);

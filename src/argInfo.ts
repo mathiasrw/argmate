@@ -1,8 +1,8 @@
 // @ts-ignore
-import {ArgMateParams, ArgMateConfig, ArgMateParamInfoConfig} from './types.js';
+import {ArgMateParams, ArgMateConfig, ArgMateArgInfoConfig} from './types.js';
 
-export default function formatParamInfo(
-	settings: ArgMateParamInfoConfig = {
+export default function formatArgInfo(
+	settings: ArgMateArgInfoConfig = {
 		width: 100,
 		format: 'cli',
 		preIntro: '',

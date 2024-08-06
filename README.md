@@ -72,7 +72,7 @@ const argv = argMate(args, params, config); // params and config are not mandato
 ### A More Complete Example
 
 ```js
-import argMate, {paramInfo} from 'argmate';
+import argMate, {argInfo} from 'argmate';
 
 const args = process.argv.slice(2);
 const params = {
@@ -95,7 +95,7 @@ const argv = argMate(args, params);
 
 // If the help flag is set, display the help text and exit.
 if (argv.help) {
-	console.log(paramInfo());
+	console.log(argInfo());
 	process.exit();
 }
 
@@ -136,7 +136,7 @@ const params = {
 										// If you camelCase the keyword, it will treat kebab-case of the word as an alias
 		conflict: [], 					// Other keys to be treated as conflicting. Also accepts a single string.
 		valid: () => {}, 				// Function to check if the value is valid (will call config.error if not valid)
-		describe: 'Description here', 	// A description of the parameter. Will be used for the paramInfo (see below).
+		describe: 'Description here', 	// A description of the parameter. Will be used for the argInfo (see below).
 	},
 };
 ```
@@ -156,10 +156,10 @@ const config = {
 
 ## Help Text
 
-You can call `paramInfo()` after invoking `argMate()` to get a CLI-friendly description of the options.
+You can call `argInfo()` after invoking `argMate()` to get a CLI-friendly description of the options.
 
 ```js
-import argMate, {paramInfo} from 'argmate';
+import argMate, {argInfo} from 'argmate';
 
 const argv = argMate(
 	process.argv.slice(2),
@@ -174,7 +174,7 @@ const argv = argMate(
 );
 
 console.log(
-	paramInfo({
+	argInfo({
 		width: 100,			// Max character limit in the width of the output.
 		format: 'cli', 		// cli | markdown
 		voidIntro: false, 	// Avoid including the intro.

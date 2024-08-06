@@ -22,7 +22,7 @@ function run(argMate, caliber = '') {
 			});
 		});
 
-		test.if(!caliber)('Implicit', () => {
+		test('Implicit', () => {
 			let argv = argMate('--foo a  --foo b  --foo c'.split(/\s+/), {
 				foo: {default: ['x', 'y', 'z']},
 			});

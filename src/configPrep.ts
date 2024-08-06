@@ -2,7 +2,7 @@
 import {ArgMateParams, ArgMateConfig, ArgMateConfigMandatory} from './types.js';
 
 // @ts-ignore
-import {re} from './paramEngine.js';
+import {re} from './common.js';
 
 const defaultConf: ArgMateConfigMandatory = {
 	error: msg => {
@@ -80,9 +80,6 @@ export function configPrep(params: ArgMateParams, conf_: ArgMateConfig = {}, isL
 
 		if (undefined !== param.default) {
 			if (Array.isArray(param.default)) {
-				if (isLite) {
-					throw new Error('Array default values are not allowed in lite mode');
-				}
 				complexDefault[key] = param.default;
 			} else if ('count' == param.type) {
 				return conf.error(
