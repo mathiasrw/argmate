@@ -28,35 +28,36 @@ export const re = {
 # -no-n
 # -no-bca=66
 # --no-n-o--abc
+
+# array of value as default
+
 */
 
-const defaultConf = {
-	output: {
-		_: [],
-	},
-	validate: [],
-	mandatory: [],
-	complexDefault: {},
-	conf: {
-		error: msg => {
-			throw msg;
+export default function paramEngineLite(args: string[], parserObj?: ParserObj) {
+	parserObj = parserObj || {
+		output: {
+			_: [],
 		},
-		panic: msg => {
-			throw msg;
+		validate: [],
+		mandatory: [],
+		complexDefault: {},
+		conf: {
+			error: msg => {
+				throw msg;
+			},
+			panic: msg => {
+				throw msg;
+			},
+			allowUnknown: true,
+			autoCamelKebabCase: true,
+			allowNegatingFlags: true,
+			allowKeyNumValues: true,
+			allowAssign: true,
 		},
-		allowUnknown: true,
-		autoCamelKebabCase: true,
-		allowNegatingFlags: true,
-		allowKeyNumValues: true,
-		allowAssign: true,
-	},
-	params: {},
-};
+		params: {},
+	};
 
-export default function paramEngineLight(args: string[], parserObj: ParserObj = defaultConf) {
-	if (!parserObj) throw `parserObj not set`;
-
-	const {mandatory: m, validate: v, output: o, conf: c, params: p} = parserObj;
+	const {mandatory, validate, output, conf, params, complexDefault} = parserObj;
 
 	args.reverse(); // Reverse, pop, push, reverse 8.77 times faster than unshft, shift
 
@@ -64,7 +65,7 @@ export default function paramEngineLight(args: string[], parserObj: ParserObj = 
 		let arg: string = '' + args.pop();
 
 		if (arg.charCodeAt(0) !== 45) {
-			o['_'].push(arg);
+			output['_'].push(arg);
 			continue;
 		}
 
@@ -81,16 +82,16 @@ export default function paramEngineLight(args: string[], parserObj: ParserObj = 
 
 		// STOP
 		if (LONG && !KEY) {
-			o['_'] = o['_'].concat(args.reverse());
+			output['_'] = output['_'].concat(args.reverse());
 			break;
 		}
 
 		if (!KEY) {
-			o['_'].push(arg);
+			output['_'].push(arg);
 			continue;
 		}
 
-		if (c.allowAssign) {
+		if (conf.allowAssign) {
 			let i = KEY.indexOf('=');
 			if (-1 < i) {
 				ASSIGN = true;
@@ -100,16 +101,16 @@ export default function paramEngineLight(args: string[], parserObj: ParserObj = 
 		}
 
 		if (!LONG && 1 !== KEY.length) {
-			if (ASSIGN) return c.error(`Unsupported format: '${arg}'`);
+			if (ASSIGN) return conf.error(`Unsupported format: '${arg}'`);
 			const multi = KEY.split('').map(v => '-' + v);
 			args = args.concat(multi.reverse());
 			continue;
 		}
 
-		if (!p[KEY]) {
-			if (!c.allowUnknown) return c.error(`'${KEY}' not allowed`);
+		if (!params[KEY]) {
+			if (!conf.allowUnknown) return conf.error(`'${KEY}' not allowed`);
 
-			if (c.autoCamelKebabCase) {
+			if (conf.autoCamelKebabCase) {
 				KEY = KEY.replace(re.camel, function (match, letter) {
 					return letter.toUpperCase();
 				});
@@ -117,44 +118,44 @@ export default function paramEngineLight(args: string[], parserObj: ParserObj = 
 
 			if (ASSIGN) {
 				if (!VAL) {
-					if (0 === args.length) return c.error(`No data for '${KEY}'`);
+					if (0 === args.length) return conf.error(`No data provided for '${KEY}'`);
 					VAL = args.pop() || '';
 				}
 				// @ts-ignore
-				o[KEY] = +VAL == VAL ? +VAL : VAL;
+				output[KEY] = +VAL == VAL ? +VAL : VAL;
 			} else {
-				o[KEY] = true;
+				output[KEY] = true;
 			}
 			continue;
 		}
 
-		if ('boolean' === p[KEY].type) {
-			if (ASSIGN) return c.error(`'${KEY}' is boolean, so can't assign: '${arg}'`);
-			o[p[KEY].key] = true;
+		if ('boolean' === params[KEY].type) {
+			if (ASSIGN) return conf.error(`'${KEY}' is boolean, so can't assign: '${arg}'`);
+			output[params[KEY].key] = true;
 			continue;
 		}
 
-		if ('count' === p[KEY].type) {
-			if (ASSIGN) return c.error(`'${KEY}' is count, so can't assign: '${arg}'`);
-			o[KEY]++;
+		if ('count' === params[KEY].type) {
+			if (ASSIGN) return conf.error(`'${KEY}' is count, so can't assign: '${arg}'`);
+			output[KEY]++;
 			continue;
 		}
 
 		if (!VAL) {
-			if (0 === args.length) return c.error(`No data for '${KEY}'`);
+			if (0 === args.length) return conf.error(`No data for '${KEY}'`);
 			VAL = args.pop() || '';
 		}
 
 		let num = 0;
 
-		switch (p[KEY].type) {
+		switch (params[KEY].type) {
 			case 'string':
-				o[p[KEY].key] = VAL;
+				output[params[KEY].key] = VAL;
 				continue;
 
 			case 'array':
 			case 'string[]':
-				o[p[KEY].key].push(VAL);
+				output[params[KEY].key].push(VAL);
 				continue;
 
 			case 'number':
@@ -175,45 +176,45 @@ export default function paramEngineLight(args: string[], parserObj: ParserObj = 
 				num = parseInt(VAL, 16);
 				break;
 			default:
-				return c.panic(`'${KEY}' got invalid type: '${p[KEY].type}'`);
+				return conf.panic(`'${KEY}' got invalid type: '${params[KEY].type}'`);
 		}
 
 		if (isNaN(num) || !isFinite(num)) {
-			return c.error(`'${KEY}' not a valid ${p[KEY].type}: '${VAL}'`);
+			return conf.error(`'${KEY}' not a valid ${params[KEY].type}: '${VAL}'`);
 		}
 
-		if (Array.isArray(o[p[KEY].key])) {
-			o[p[KEY].key].push(num);
+		if (Array.isArray(output[params[KEY].key])) {
+			output[params[KEY].key].push(num);
 		} else {
-			o[p[KEY].key] = num;
+			output[params[KEY].key] = num;
 		}
 	}
 
-	for (let key of v) {
+	for (let key of validate) {
 		let help = '';
-		if ('function' === typeof p[key].valid) {
-			if (p[key].valid(o[key])) continue;
+		if ('function' === typeof params[key].valid) {
+			if (params[key].valid(output[key])) continue;
 		} else {
-			if (!Array.isArray(p[key].valid)) {
-				return c.panic(`"valid" property of '${key}' must be function or array`);
+			if (!Array.isArray(params[key].valid)) {
+				return conf.panic(`"valid" property of '${key}' must be function or array`);
 			}
 
-			if (p[key].valid.includes(o[key])) {
+			if (params[key].valid.includes(output[key])) {
 				continue;
 			}
 
-			help = '. Valid values: ' + JSON.stringify(p[key].valid);
+			help = '. Valid values: ' + JSON.stringify(params[key].valid);
 		}
 
-		return c.error(`Invalid value for '${key}': '${o[key]}'` + help);
+		return conf.error(`Invalid value for '${key}': '${output[key]}'` + help);
 	}
 
-	for (let key of m) {
-		if (undefined === o[key]) {
-			return c.error(
+	for (let key of mandatory) {
+		if (undefined === output[key]) {
+			return conf.error(
 				`'${key.length > 1 ? '--' : '-'}${key}' is mandatory` +
-					(p[key].alias.length
-						? `.  Or use an alias: ${p[key].alias
+					(params[key].alias.length
+						? `.  Or use an alias: ${params[key].alias
 								.map(v => (v.length > 1 ? '--' : '-') + v)
 								.join(', ')}`
 						: '')
@@ -221,7 +222,15 @@ export default function paramEngineLight(args: string[], parserObj: ParserObj = 
 		}
 	}
 
+	for (let key in complexDefault) {
+		if (!params.hasOwnProperty(key)) continue;
+
+		if (undefined === output[key] || !output[key].length) {
+			output[key] = complexDefault[key];
+		}
+	}
+
 	// todo: check for conflict
 
-	return o;
+	return output;
 }

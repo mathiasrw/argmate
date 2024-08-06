@@ -6,13 +6,13 @@ import {expect, test, describe} from 'bun:test';
 // also include array as type
 
 import argMate from '../src/argMate';
-import argMateLight from '../src/argMateLite';
+import argMateLite from '../src/argMateLite';
 
 run(argMate);
-run(argMateLight, ' light');
+run(argMateLite, ' lite');
 
-function run(argMate, type = '') {
-	describe('string[]' + type, () => {
+function run(argMate, caliber = '') {
+	describe('string[]' + caliber, () => {
 		test('Explicit', () => {
 			let argv = argMate('--foo a  --foo b  --foo c'.split(/\s+/), {foo: {type: 'string[]'}});
 
@@ -22,7 +22,7 @@ function run(argMate, type = '') {
 			});
 		});
 
-		test('Implicit', () => {
+		test.if(!caliber)('Implicit', () => {
 			let argv = argMate('--foo a  --foo b  --foo c'.split(/\s+/), {
 				foo: {default: ['x', 'y', 'z']},
 			});

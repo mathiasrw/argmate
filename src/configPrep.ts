@@ -25,11 +25,15 @@ const strictConf = {
 	allowKeyNumValues: false,
 };
 
-export default function precompileConfig(params: ArgMateParams, conf?: ArgMateConfig) {
-	return objectToCode(configPrep(params, conf));
+export default function precompileConfig(
+	params: ArgMateParams,
+	conf?: ArgMateConfig,
+	isLite = false
+) {
+	return objectToCode(configPrep(params, conf, isLite));
 }
 
-export function configPrep(params: ArgMateParams, conf_: ArgMateConfig = {}) {
+export function configPrep(params: ArgMateParams, conf_: ArgMateConfig = {}, isLite = false) {
 	const mandatory: string[] = [];
 	const validate: string[] = [];
 	let complexDefault: any = {};
@@ -76,6 +80,9 @@ export function configPrep(params: ArgMateParams, conf_: ArgMateConfig = {}) {
 
 		if (undefined !== param.default) {
 			if (Array.isArray(param.default)) {
+				if (isLite) {
+					throw new Error('Array default values are not allowed in lite mode');
+				}
 				complexDefault[key] = param.default;
 			} else if ('count' == param.type) {
 				return conf.error(

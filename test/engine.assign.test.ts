@@ -4,10 +4,10 @@
 import {expect, test, describe} from 'bun:test';
 
 import argMate from '../src/argMate';
-import argMateLight from '../src/argMateLite';
+import argMateLite from '../src/argMateLite';
 
 run(argMate);
-run(argMateLight, ' light');
+run(argMateLite, ' lite');
 
 function run(argMate, type = '') {
 	describe('Assign' + type, () => {
@@ -71,7 +71,7 @@ function run(argMate, type = '') {
 				{},
 				{
 					error: msg => {
-						expect(msg).toContain('one more parameter');
+						expect(msg).toContain('No data provided for');
 						expect(msg).toContain('foo');
 						done();
 					},
@@ -85,7 +85,7 @@ function run(argMate, type = '') {
 				{},
 				{
 					error: msg => {
-						expect(msg).toContain('one more parameter');
+						expect(msg).toContain('No data provided');
 						expect(msg).toContain('foo');
 						done();
 					},
@@ -98,7 +98,7 @@ function run(argMate, type = '') {
 				{},
 				{
 					error: msg => {
-						expect(msg).toContain('one more parameter');
+						expect(msg).toContain('No data provided');
 						expect(msg).toContain('f');
 						done();
 					},

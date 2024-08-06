@@ -6,10 +6,10 @@ import {expect, test, describe} from 'bun:test';
 // also test float
 
 import argMate from '../src/argMate';
-import argMateLight from '../src/argMateLite';
+import argMateLite from '../src/argMateLite';
 
 run(argMate);
-run(argMateLight, ' light');
+run(argMateLite, ' lite');
 
 function run(argMate, type = '') {
 	describe.todo('number' + type, () => {

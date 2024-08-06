@@ -14,16 +14,16 @@ import paramEngine from './paramEngine.js';
 // @ts-ignore
 import formatParamInfo from './paramInfo.js';
 
-let params_;
+var params_;
 
-let conf_;
+var conf_;
 
 export default function argMate(args: string[], params: ArgMateParams, conf: ArgMateConfig) {
 	if (!params && !conf) return paramEngine(args);
 
 	if (params) params_ = JSON.stringify(params);
 
-	if (conf) conf_ = conf;
+	if (conf) conf_ = {...conf};
 
 	return paramEngine(args, configPrep(params || {}, conf || {}));
 }

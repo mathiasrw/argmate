@@ -4,10 +4,10 @@
 import {expect, test, describe} from 'bun:test';
 
 import argMate from '../src/argMate';
-import argMateLight from '../src/argMateLite';
+import argMateLite from '../src/argMateLite';
 
 run(argMate);
-run(argMateLight, ' light');
+run(argMateLite, ' lite');
 
 function run(argMate, type = '') {
 	// Enum is really a parameter where an array of values have been set as valid. Will default to first element if default is not provided.

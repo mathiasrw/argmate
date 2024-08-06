@@ -7,12 +7,13 @@ import argMate from '../src/argMate';
 import argMateLite from '../src/argMateLite';
 
 run(argMate);
-run(argMateLite, ' light');
+run(argMateLite, ' lite');
 
 function run(argMate, type = '') {
 	describe('Boolean' + type, () => {
 		test('Default to boolean', () => {
 			let argv = argMate('--foo bar --foo2 bar2'.split(' '));
+			console.log(argv);
 			expect(argv).toEqual({
 				_: ['bar', 'bar2'],
 				foo: true,
@@ -22,6 +23,7 @@ function run(argMate, type = '') {
 
 		test.if(!type)('Negate', () => {
 			let argv = argMate('--no-foo bar --foo2 bar2'.split(' '));
+			console.log(argv);
 			expect(argv).toEqual({
 				_: ['bar', 'bar2'],
 				foo: false,

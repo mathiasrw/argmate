@@ -31,33 +31,33 @@ export const re = {
 -no-n
 -no-bca=66
 --no-n-o--abc
+
+array of value as default
 */
 
-const defaultConf = {
-	output: {
-		_: [],
-	},
-	validate: [],
-	mandatory: [],
-	complexDefault: {},
-	conf: {
-		error: msg => {
-			throw msg;
+export default function paramEngine(args: string[], parserObj?: ParserObj) {
+	parserObj = parserObj || {
+		output: {
+			_: [],
 		},
-		panic: msg => {
-			throw msg;
+		validate: [],
+		mandatory: [],
+		complexDefault: {},
+		conf: {
+			error: msg => {
+				throw msg;
+			},
+			panic: msg => {
+				throw msg;
+			},
+			allowUnknown: true,
+			autoCamelKebabCase: true,
+			allowNegatingFlags: true,
+			allowKeyNumValues: true,
+			allowAssign: true,
 		},
-		allowUnknown: true,
-		autoCamelKebabCase: true,
-		allowNegatingFlags: true,
-		allowKeyNumValues: true,
-		allowAssign: true,
-	},
-	params: {},
-};
-
-export default function paramEngine(args: string[], parserObj: ParserObj = defaultConf) {
-	if (!parserObj) throw `parserObj not set`;
+		params: {},
+	};
 
 	const {mandatory, validate, complexDefault, output, conf, params} = parserObj;
 
@@ -134,10 +134,7 @@ export default function paramEngine(args: string[], parserObj: ParserObj = defau
 
 			if (ASSIGN) {
 				if (!VAL) {
-					if (args.length === 0)
-						return conf.error(
-							`Expected one more parameter to fill the value of '${KEY}'`
-						);
+					if (args.length === 0) return conf.error(`No data provided for '${KEY}'`);
 					VAL = args.pop() || '';
 				}
 				// @ts-ignore
@@ -166,8 +163,7 @@ export default function paramEngine(args: string[], parserObj: ParserObj = defau
 			continue;
 		}
 
-		if (0 === args.length)
-			return conf.error(`Expected one more parameter to fill the value of '${KEY}'`);
+		if (0 === args.length) return conf.error(`No data provided for  '${KEY}'`);
 
 		VAL ||= args.pop() || '';
 

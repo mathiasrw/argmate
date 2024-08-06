@@ -4,10 +4,10 @@
 import {expect, test, describe} from 'bun:test';
 
 import argMate from '../src/argMate';
-import argMateLight from '../src/argMateLite';
+import argMateLite from '../src/argMateLite';
 
 run(argMate);
-run(argMateLight, ' light');
+run(argMateLite, ' lite');
 
 function run(argMate, type = '') {
 	describe('autoCamelKebabCase' + type, () => {
@@ -28,6 +28,18 @@ function run(argMate, type = '') {
 			expect(argv).toEqual({
 				_: ['234'],
 				'foo-bar': true,
+			});
+		});
+
+		test('Disabled but configured', () => {
+			let argv = argMate(
+				'--foo-bar 234'.split(' '),
+				{'foo-bar': {type: 'int'}},
+				{autoCamelKebabCase: false}
+			);
+			expect(argv).toEqual({
+				_: [],
+				'foo-bar': 234,
 			});
 		});
 	});
