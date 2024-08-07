@@ -10,15 +10,15 @@ run(argMate);
 run(argMateLite, ' lite');
 
 function run(argMate, type = '') {
-	describe.todo('Inspired by mri' + type, () => {
+	describe('Inspired by mri' + type, () => {
 		// Note that we default to boolean
 
-		test('Parse args', () => {
+		test.if(!type)('Parse args', () => {
 			let argv = argMate(['--no-moo']);
 			expect(argv).toEqual({_: [], moo: false});
 		});
 
-		test('comprehensive', () => {
+		test.if(!type)('comprehensive', () => {
 			let argv = argMate([
 				'--name=meowmers',
 				'bare',
