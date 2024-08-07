@@ -1,9 +1,6 @@
 #!/usr/bin/env node
 
 // @ts-ignore
-//export {ArgMateParams, ArgMateConfig, ArgMateArgInfoConfig} from './types.d.ts';
-
-// @ts-ignore
 import {ArgMateParams, ArgMateConfig, ArgMateArgInfoConfig} from './types.js';
 
 // @ts-ignore

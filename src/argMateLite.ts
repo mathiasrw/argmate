@@ -1,21 +1,19 @@
 #!/usr/bin/env node
 
 // @ts-ignore
-import {ArgMateParams, ArgMateConfig, ArgMateArgInfoConfig} from './types.d.js';
-// @ts-ignore
-export {ArgMateParams, ArgMateConfig, ArgMateArgInfoConfig} from './types.d.js';
+import {ArgMateParams, ArgMateConfig} from './types.js';
 
 // @ts-ignore
-export {compileConfig, precompileConfig} from './compileConfig.ts';
+export {compileConfig, precompileConfig} from './compileConfig.js';
 
 // @ts-ignore
-export {argInfo} from './argService.ts';
+export {argInfo} from './argService.js';
 
 // @ts-ignore
-import {argService} from './argService.ts';
+import {argService} from './argService.js';
 
 // @ts-ignore
-import argEngineLite from './argEngineLite.ts';
+import argEngineLite from './argEngineLite.js';
 
 export default function argMate(args: string[], params?: ArgMateParams, conf?: ArgMateConfig) {
 	return argService(argEngineLite, args, params, conf);

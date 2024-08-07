@@ -25,15 +25,11 @@ const strictConf = {
 	allowKeyNumValues: false,
 };
 
-export default function precompileConfig(
-	params: ArgMateParams,
-	conf?: ArgMateConfig,
-	isLite = false
-) {
-	return objectToCode(compileConfig(params, conf, isLite));
+export  function precompileConfig(params: ArgMateParams, conf?: ArgMateConfig) {
+	return objectToCode(compileConfig(params, conf));
 }
 
-export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}, isLite = false) {
+export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) {
 	const mandatory: string[] = [];
 	const validate: string[] = [];
 	let complexDefault: any = {};
