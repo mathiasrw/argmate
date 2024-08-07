@@ -6,10 +6,10 @@ command -v node || brew install node
 run() {
 	local PARAMS="$1"
 
-	echo "Running Node with $PARAMS"
+	echo "\n\n\n About to run Node with $PARAMS"
 	node test-js.cjs -- $PARAMS
 
-	echo "Running Bun with $PARAMS"
+	echo "\n\n\n About to run Bun with $PARAMS"
 	bun test-js.cjs -- $PARAMS
 }
 

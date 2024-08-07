@@ -1,3 +1,12 @@
 const minimist = require('minimist');
 
-let x = JSON.stringify(minimist(process.argv.slice(2))).length;
+const asTable = require('as-table');
+
+let x = minimist(process.argv.slice(2));
+console.log(
+	asTable(
+		Object.entries(x).map(([key, value]) => {
+			return {Parameter: key, Value: value};
+		})
+	)
+);

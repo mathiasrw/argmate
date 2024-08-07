@@ -43,85 +43,131 @@ npm install argmate
 ## Usage
 
 ```js
-argMate(arguments, [parameters [, config ]]);
+argMate(arguments, [parameterDetails [, config ]]);
 ```
 
-## Examples
+# Examples
 
-### Getting Started
+## Getting started
 
-```js
-import argMate from 'argmate';
-
-const args = process.argv.slice(2);
-
-const params = {
-	loops: 10, 				// --loops must be an integer and will default to 10 if not set.
-	help: false
-};
-const config = {
-Defaults to true.
-	allowUnknown: false,	// Only allow parameters we have specified (--loops and --help). 
-	error: msg => {			// If there is an error (like providing parameters not allowed), this function will be invoked.
-		console.error('There was a problem:', msg);
-		process.exit(1);
-	},
-};
-
-const argv = argMate(args, params, config); // params and config are not mandatory
-```
-
-### A More Complete Example
+ArgMate follows traditional CLI notations similar to yargs and mri. Here are some simple examples:
 
 ```js
-import argMate, {helpText} from 'argmate';
-
-const args = process.argv.slice(2);
-const params = {
-	start: {
-		default: 0,
-		alias: ['s'],
-	},
-	steps: {
-		type: 'number',
-		mandatory: true,
-		alias: ['l', 'loops'],
-		valid: v => v > 0, 			// Call config.error if value is not valid
-	},
-	help: {
-		alias: ['h'],
-	},
-};
-
-const argv = argMate(args, params);
-
-// If the help flag is set, display the help text and exit.
-if (argv.help) {
-	console.log(helpText());
-	process.exit();
-}
-
-// Run a loop based on parsed arguments.
-for (let i = argv.start; i < argv.start + argv.steps; i++) {
-	console.log(i);
-}
-```
-
-### Default Behavior
-
-```js
-import argMate from 'argmate';
+import ArgMate from 'ArgMate';
 
 let argv;
 
-// By default, parameters are treated as boolean.
-argv = argMate(['--foo', 'bar']);
-// Output: {_: ['bar'], foo: true}
+// By default, parameters are treated as boolean flags
+// Non-parameters are stored in the `_` property of the output
+argv = ArgMate(['--foo', 'bar']);
+// {_: ['bar'], foo: true}
 
-// If the type is explicitly set, it will be parsed accordingly.
-argv = argMate(['--foo', 'bar'], {foo: {type: 'string'}});
-// Output: {_: [], foo: 'bar'}
+// Use the `=` notation for assignment, with or without seperation to the value
+// Type is inferred from the value (string or number)
+argv = ArgMate(['--foo=', 'bar']);
+// {_: [], foo: 'bar'}
+argv = ArgMate(['-i=123']);
+// {_: [], i: 123}
+
+// Setting a default value makes the parser treat it as a parameter that must be assigned
+// The type is guessed based on the default value
+argv = ArgMate(['--foo', 'bar2'], { foo: 'bar' });
+// {_: [], foo: 'bar2'}
+
+// Specify the type explicitly to avoid the guessing game and improving performance 
+argv = ArgMate(['--foo', 'bar'], { foo: { type: 'string' } });
+// {_: [], foo: 'bar'}
+
+// Example of parsing actual command-line arguments
+// Running `node index.js --foo=bar -X .md`
+// Assuming the following code is in index.js:
+argv = ArgMate(process.argv.slice(2));
+// { _: ['.md'], foo: "bar", X: true }
 ```
+
+## Enforcing parameter types and limiting allowed values
+
+You can provide default values and enforce that no other parameters are allowed:
+
+```js
+import ArgMate from 'ArgMate';
+
+const args = process.argv.slice(2);
+
+// Define parameter types and default values
+const params = {
+    foo: 10,    // --foo is expected to be an integer, default: 10
+    bar: false  // --bar is expected to be a boolean, default: false
+};
+
+const config = {
+    allowUnknown: false  // Only allow specified parameters (--foo and --bar)
+};
+
+const argv = ArgMate(args, params, config);
+```
+
+Same example but a bit shorter
+
+```js
+import ArgMate from 'ArgMate';
+
+const argv = ArgMate(process.argv.slice(2), 
+	{
+		foo: 10,   
+		bar: false 
+	}, {
+    	allowUnknown: false 
+	});
+```
+
+## Real world example
+
+Here's a more comprehensive example demonstrating additional features:
+
+```javascript
+import ArgMate, { argInfo } from 'ArgMate';
+
+const args = process.argv.slice(2);
+
+const params = {
+    start: {
+        default: 0,
+        alias: ['s']
+    },
+    steps: {
+        type: 'number',
+        mandatory: true,
+        alias: ['l', 'loops'],
+        valid: v => v > 0  // Validate the input
+    },
+    help: {
+        alias: ['h']
+    }
+};
+
+const config = {
+    allowUnknown: false,
+    error: msg => {
+        console.error('Error:', msg);
+        process.exit(1);
+    }
+};
+
+const argv = ArgMate(args, params, config);
+
+// Display help and exit if the help flag is set
+if (argv.help) {
+    console.log(argInfo());
+    process.exit(0);
+}
+
+// Use the parsed arguments
+for (let i = argv.start; i < argv.start + argv.steps; i++) {
+    console.log(i);
+}
+```
+
 
 ## Configuration
 
@@ -129,16 +175,16 @@ argv = argMate(['--foo', 'bar'], {foo: {type: 'string'}});
 
 ```js
 const params = {
-	// The object returned from argMate will only have propety names provided in this object
+	// The object returned from argMate will only have propety names provided in this object (foo in this example)
 	foo: {
-		type: 'string', 				// boolean | string | number/float | int | hex | array/string[] | number[]/float[] | int[] | hex[]
-		default: 'val', 				// The default value for the parameter. If the type is not specified, the type will be determined from this field.
+		type: 'string', 				// boolean | string/number | float | int | hex | array7string[] | number[]/float[] | int[] | hex[]. Optional. Defaults to boolean.
+		default: 'val', 				// The default value for the parameter. If the type is not specified, the type will be determined from this field. Optional. 
 		mandatory: true, 				// Calls config.error if the value is not provided. No effect if used in combination with "default".
-		alias: [], 						// Other values to be treated as this parameter. Also accepts a single string.
-										// If you camelCase the keyword, it will treat kebab-case of the word as an alias
+		alias: [], 						// Other values to be treated as this parameter. Also accepts a string with a single value.
+										// If you camelCase the property name, it will treat kebab-case of the word as an alias (so fooBar will automaticly have foo-bar as alias)
 		conflict: [], 					// Other keys to be treated as conflicting. Also accepts a single string.
 		valid: () => {}, 				// Function to check if the value is valid (will call config.error if not valid)
-		describe: 'Description here', 	// A description of the parameter. Will be used for the helpText (see below).
+		describe: 'Description here', 	// A description of the parameter. Will be used for the help text (see below).
 	},
 };
 ```
@@ -158,10 +204,10 @@ const config = {
 
 ## Help Text
 
-You can call `helpText()` after invoking `argMate()` to get a CLI-friendly description of the options.
+You can call `argInfo()` after invoking `argMate()` to get a CLI-friendly description.
 
 ```js
-import argMate, {helpText} from 'argmate';
+import argMate, {argInfo} from 'argmate';
 
 const argv = argMate(
 	process.argv.slice(2),
@@ -176,14 +222,18 @@ const argv = argMate(
 );
 
 console.log(
-	helpText({
-		width: 100,			// Max character limit in the width of the output.
-		format: 'cli', 		// cli | markdown
-		voidIntro: false, 	// Avoid including the intro.
-		voidOutro: false, 	// Avoid including the outro.
+	argInfo({
+		width: 100,			// Max character limit of the width of the output. 
+		format: 'cli', 		// cli | markdown. Default CLI. 
+		voidIntro: false, 	// Avoid including the intro. Default false.
+		voidOutro: false, 	// Avoid including the outro. Default false .
 	})
 );
 ```
+
+## Notes
+- If you provide array kind of types (like string[]) you can trust the value is alwas an array. If no values provided the array is emptly. 
+- If you provide the same alias to two parameters, the alias will stay with the first parameter you define. 
 
 ---
 
@@ -195,3 +245,5 @@ This means that individuals making significant and valuable contributions are gi
 ## License
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmathiasrw%2Fargmate.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmathiasrw%2Fargmate?ref=badge_large)
+
+

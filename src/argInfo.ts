@@ -1,26 +1,28 @@
 // @ts-ignore
-import {ArgMateParams, ArgMateConfig, ArgMateHelpTextConfig} from './types.js';
+import {ArgMateParams, ArgMateConfig, ArgMateArgInfoConfig} from './types.js';
 
-export default function formatParamInfo(
-	params: ArgMateParams,
-	conf: ArgMateConfig = {},
-	settings: ArgMateHelpTextConfig = {
+export default function formatArgInfo(
+	settings: ArgMateArgInfoConfig = {
 		width: 100,
 		format: 'cli',
-		voidIntro: false,
-		voidOutro: false,
-	}
+		preIntro: '',
+		showIntro: true,
+		showOutro: true,
+		postOutro: '',
+	},
+	conf: ArgMateConfig = {},
+	params: ArgMateParams
 ) {
 	debugger;
 
 	let info: any = {};
-	if (!settings.voidIntro && conf.intro) {
+	if (settings.showIntro && conf.intro) {
 		info.intro = conf.intro;
 	}
 
 	info.params = JSON.parse(JSON.stringify(params));
 
-	if (!settings.voidOutro && conf.outro) {
+	if (settings.showOutro && conf.outro) {
 		info.outro = conf.outro;
 	}
 

@@ -4,23 +4,35 @@
 import {expect, test, describe} from 'bun:test';
 
 import argMate from '../src/argMate';
+import argMateLite from '../src/argMateLite';
 
-describe.todo('Boolean', () => {
-	test('Default to boolean', () => {
-		let argv = argMate('--foo bar --foo2 bar2'.split(' '));
-		expect(argv).toEqual({
-			_: ['bar', 'bar2'],
-			foo: true,
-			foo2: true,
+run(argMate);
+run(argMateLite, ' lite');
+
+function run(argMate, type = '') {
+	describe('int' + type, () => {
+		test('Default', () => {
+			let argv = argMate('--foo 9'.split(' '), {foo: {type: 'int'}});
+			expect(argv).toEqual({
+				_: [],
+				foo: 9,
+			});
+		});
+
+		test('Multiple', () => {
+			let argv = argMate('--foo 9 --foo 2'.split(' '), {foo: {type: 'int'}});
+			expect(argv).toEqual({
+				_: [],
+				foo: 2,
+			});
+		});
+
+		test('None', () => {
+			let argv = argMate('--bar 9'.split(' '), {foo: {type: 'int'}});
+			expect(argv).toEqual({
+				_: ['9'],
+				bar: true,
+			});
 		});
 	});
-
-	test('Boolean negative', () => {
-		let argv = argMate('--no-foo bar --foo2 bar2'.split(' '));
-		expect(argv).toEqual({
-			_: ['bar', 'bar2'],
-			foo: false,
-			foo2: true,
-		});
-	});
-});
+}

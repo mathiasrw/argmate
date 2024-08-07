@@ -1,7 +1,7 @@
 const asTable = require('as-table');
 
 (async () => {
-	let argMate = (await import('../dist/argMate.mjs')).default;
+	let argMate = (await import('../dist/argMatePlus.mjs')).default;
 
 	let x = argMate((process?.argv || Deno.args).slice(2));
 	console.log(

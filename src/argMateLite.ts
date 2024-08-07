@@ -13,8 +13,8 @@ export {argInfo} from './argService.js';
 import {argService} from './argService.js';
 
 // @ts-ignore
-import argEngine from './argEngine.js';
+import argEngineLite from './argEngineLite.js';
 
 export default function argMate(args: string[], params?: ArgMateParams, conf?: ArgMateConfig) {
-	return argService(argEngine, args, params, conf);
+	return argService(argEngineLite, args, params, conf);
 }
