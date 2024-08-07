@@ -46,7 +46,7 @@
 	"devDependencies": {
 		"bun-types": "1.1.21",
 		"columnify": "^1.6.0",
-		"husky": "^8.0.3",
+		"husky": "^9.0.0",
 		"prettier": "3.3.3",
 		"rexreplace": "^7.1.3"
 	},
