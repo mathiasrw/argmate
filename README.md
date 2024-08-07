@@ -193,3 +193,7 @@ This means that individuals making significant and valuable contributions are gi
 ## License
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmathiasrw%2Fargmate.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmathiasrw%2Fargmate?ref=badge_large)
+
+
+> Notes
+> If you provide array kind of types (like string[]) you can trust the value is alwas an array. If no values provided the array is emptly. 
