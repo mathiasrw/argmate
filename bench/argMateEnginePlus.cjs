@@ -7,7 +7,7 @@ const asTable = require('as-table');
 	console.log(
 		asTable(
 			Object.entries(x).map(([key, value]) => {
-				return { Parameter: key, Value: value };
+				return {Parameter: key, Value: value};
 			})
 		)
 	);

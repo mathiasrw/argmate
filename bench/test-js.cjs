@@ -1,5 +1,5 @@
 (async () => {
-	const { Suite } = require('benchmark');
+	const {Suite} = require('benchmark');
 	console.log('Load Times:');
 
 	console.time('nopt');

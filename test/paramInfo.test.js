@@ -1,9 +1,9 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import { expect, test, describe } from 'bun:test';
+import {expect, test, describe} from 'bun:test';
 
-import argMate, { argInfo } from '../src/argMate.ts';
+import argMate, {argInfo} from '../src/argMate.ts';
 
 describe.todo('argInfo', () => {
 	test('shows someting', () => {
