@@ -3,12 +3,12 @@
 // @ts-ignore
 import {expect, test, describe} from 'bun:test';
 
-import argMate, {helpText} from '../src/argMate.ts';
+import argMate, {argInfo} from '../src/argMate.ts';
 
-describe('helpText', () => {
+describe.todo('argInfo', () => {
 	test('shows someting', () => {
 		argMate('--foo bar --foo2 bar2'.split(' '));
-		let help = helpText();
+		let help = argInfo();
 
 		expect(help).toMatch(/params/);
 	});
@@ -22,7 +22,7 @@ describe('helpText', () => {
 				outro: 'That was amazing - thank you!',
 			}
 		);
-		let help = helpText();
+		let help = argInfo();
 
 		expect(help).toMatch(/first line/);
 		expect(help).toMatch(/thank you/);

@@ -15,7 +15,7 @@ export interface ArgMateParams {
 					| 'float[]'
 					| 'int[]'
 					| 'hex[]';
-				default?: any;
+				default?: string | number | string[] | number[];
 				mandatory?: boolean;
 				alias?: string | string[];
 				conflict?: string | string[];
@@ -37,13 +37,50 @@ export interface ArgMateConfig {
 	autoCamelKebabCase?: boolean;
 	allowNegatingFlags?: boolean;
 	allowKeyNumValues?: boolean;
+	allowAssign?: boolean;
 	intro?: IntroOutroType;
 	outro?: IntroOutroType;
 }
 
-export interface ArgMateHelpTextConfig {
+export interface ArgMateConfigMandatory extends ArgMateConfig {
+	error: (msg: string) => void;
+	panic: (msg: string) => void;
+}
+
+export interface ArgMateArgInfoConfig {
 	width?: number;
 	format?: 'cli' | 'markdown' | 'json';
-	voidIntro?: boolean;
-	voidOutro?: boolean;
+	preIntro?: IntroOutroType;
+	showIntro?: boolean;
+	showOutro?: boolean;
+	postOutro?: IntroOutroType;
 }
+
+export default function argMate(
+	args: string[],
+	params?: ArgMateParams,
+	conf?: ArgMateConfig
+): {[key: string]: any};
+
+type ArgProcessObj = void | {
+	output: {[key: string]: any};
+	mandatory: string[];
+	validate: string[];
+	complexDefault: {[key: string]: string[] | number[]};
+	conf: ArgMateConfigMandatory;
+	params: ArgMateParams;
+};
+
+export function compileConfig(
+	params: ArgMateParams,
+	conf: ArgMateConfigMandatory,
+	precompile: boolean
+): ArgProcessObj | string;
+
+export function argEngine(params: ArgProcessObj): {[key: string]: any};
+
+export function argInfo(
+	settings: ArgMateArgInfoConfig,
+	conf?: ArgMateConfig,
+	params?: ArgMateParams
+): string;
