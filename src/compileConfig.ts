@@ -30,10 +30,10 @@ export default function precompileConfig(
 	conf?: ArgMateConfig,
 	isLite = false
 ) {
-	return objectToCode(configPrep(params, conf, isLite));
+	return objectToCode(compileConfig(params, conf, isLite));
 }
 
-export function configPrep(params: ArgMateParams, conf_: ArgMateConfig = {}, isLite = false) {
+export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}, isLite = false) {
 	const mandatory: string[] = [];
 	const validate: string[] = [];
 	let complexDefault: any = {};

@@ -71,7 +71,7 @@ type ArgProcessObj = void | {
 	params: ArgMateParams;
 };
 
-export function configPrep(
+export function compileConfig(
 	params: ArgMateParams,
 	conf: ArgMateConfigMandatory,
 	precompile: boolean

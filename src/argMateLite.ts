@@ -1,51 +1,22 @@
 #!/usr/bin/env node
 
 // @ts-ignore
-//export {ArgMateParams, ArgMateConfig, ArgMateArgInfoConfig} from './types.d.ts';
+import {ArgMateParams, ArgMateConfig, ArgMateArgInfoConfig} from './types.d.js';
 // @ts-ignore
-import {ArgMateParams, ArgMateConfig, ArgMateArgInfoConfig} from './types.js';
-
-// @ts-ignore
-import {configPrep} from './configPrep.js';
+export {ArgMateParams, ArgMateConfig, ArgMateArgInfoConfig} from './types.d.js';
 
 // @ts-ignore
-import argEngine from './argEngineLite.js';
+export {compileConfig, precompileConfig} from './compileConfig.ts';
 
 // @ts-ignore
-import formatArgInfo from './formatArgInfo.js';
+export {argInfo} from './argService.ts';
 
-let params_ = {};
+// @ts-ignore
+import {argService} from './argService.ts';
 
-let conf_ = {};
+// @ts-ignore
+import argEngineLite from './argEngineLite.ts';
 
 export default function argMate(args: string[], params?: ArgMateParams, conf?: ArgMateConfig) {
-	if (!params && !conf) return argEngine(args);
-
-	if (params) params_ = params;
-
-	if (conf) conf_ = conf;
-
-	return argEngine(args, configPrep(params || {}, conf || {}));
-}
-
-export function argInfo(
-	settings: ArgMateArgInfoConfig = {},
-	conf: ArgMateConfig = {},
-	params?: ArgMateParams
-) {
-	return formatArgInfo(
-		{
-			...{
-				preIntro: '',
-				showIntro: true,
-				showOutrp: true,
-				postOutro: '',
-				format: 'cli',
-				width: 100,
-			},
-			...settings,
-		},
-		{...conf_, ...conf},
-		params || JSON.parse(JSON.stringify(params_))
-	);
+	return argService(argEngineLite, args, params, conf);
 }

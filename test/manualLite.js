@@ -2,7 +2,7 @@
 
 import argMate, { argInfo } from '../src/argMateLite.js';
 
-import precompileConfig from '../src/configPrep.js';
+import precompileConfig from '../src/compileConfig.js';
 
 console.log(precompileConfig({ b: false, bool: false, 'no-meep': false, multi: '' }));
 process.exit();
