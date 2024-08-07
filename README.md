@@ -90,12 +90,12 @@ const args = process.argv.slice(2);
 
 // Define parameter types and default values
 const params = {
-    foo: 10,    // --foo is expected to be an integer, default: 10
-    bar: false  // --bar is expected to be a boolean, default: false
+	foo: 10,	// --foo is expected to be an integer, default: 10
+	bar: false  // --bar is expected to be a boolean, default: false
 };
 
 const config = {
-    allowUnknown: false  // Only allow specified parameters (--foo and --bar)
+	allowUnknown: false  // Only allow specified parameters (--foo and --bar)
 };
 
 const argv = ArgMate(args, params, config);
@@ -111,7 +111,7 @@ const argv = ArgMate(process.argv.slice(2),
 		foo: 10,   
 		bar: false 
 	}, {
-    	allowUnknown: false 
+		allowUnknown: false 
 	});
 ```
 
@@ -125,40 +125,40 @@ import ArgMate, { argInfo } from 'ArgMate';
 const args = process.argv.slice(2);
 
 const params = {
-    start: {
-        default: 0,
-        alias: ['s']
-    },
-    steps: {
-        type: 'number',
-        mandatory: true,
-        alias: ['l', 'loops'],
-        valid: v => v > 0  // Validate the input
-    },
-    help: {
-        alias: ['h']
-    }
+	start: {
+		default: 0,
+		alias: ['s']
+	},
+	steps: {
+		type: 'number',
+		mandatory: true,
+		alias: ['l', 'loops'],
+		valid: v => v > 0  // Validate the input
+	},
+	help: {
+		alias: ['h']
+	}
 };
 
 const config = {
-    allowUnknown: false,
-    error: msg => {
-        console.error('Error:', msg);
-        process.exit(1);
-    }
+	allowUnknown: false,
+	error: msg => {
+		console.error('Error:', msg);
+		process.exit(1);
+	}
 };
 
 const argv = ArgMate(args, params, config);
 
 // Display help and exit if the help flag is set
 if (argv.help) {
-    console.log(argInfo());
-    process.exit(0);
+	console.log(argInfo());
+	process.exit(0);
 }
 
 // Use the parsed arguments
 for (let i = argv.start; i < argv.start + argv.steps; i++) {
-    console.log(i);
+	console.log(i);
 }
 ```
 
