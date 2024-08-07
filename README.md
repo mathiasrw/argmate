@@ -11,7 +11,7 @@
 
 
 
-> _Your go-to companion for lightning-fast CLI parameter parsing, enhanced with convenient features to make your development experience much smoother._
+> _Your go-to companion for performant CLI parameter parsing, with sprinkle of convinience to make your development experience much smoother. 6Kb and zero dependnecies._
 
 While developing tools like [AlaSQL](https://www.npmjs.com/package/alasql) and [RexReplace](https://www.npmjs.com/package/rexreplace), I've often been torn between two types of CLI parsers. On one hand, there are feature-rich options like [yargs](https://www.npmjs.com/package/yargs) and [commander](https://www.npmjs.com/package/commander). Despite their heavy startup time, these parsers provide useful features like easy defaults, smooth validation, and well-structured CLI help text output. On the other hand, simpler alternatives like [nopt](https://www.npmjs.com/package/nopt) and [mri](https://www.npmjs.com/package/mri) excel in performance but lack in development experience. After uncovering yet another performance hit from using a heavyweight parser, I decided to solve this issue once and for all.
 
@@ -21,7 +21,7 @@ argMate         9,089,813 ops/sec ±2.15% (98 runs sampled)        1x
 nopt            2,070,397 ops/sec ±1.21% (94 runs sampled)        4x
 mri             1,832,768 ops/sec ±0.13% (99 runs sampled)        5x
 minimist        706,265 ops/sec ±1.05% (94 runs sampled)         13x
-yargs-parser    67,417 ops/sec ±0.39% (97 runs sampled)          135x
+yargs-parser    67,417 ops/sec ±0.39% (97 runs sampled)         135x
 ```
 
 **Meet ArgMate**, a CLI parameter parser that's not just fast - it's 4-5 times faster than other parsers focused on speed, while still being feature-rich. _But how?!?_ A computer processes instructions at a set pace. To get results faster, the only option is to do fewer things. By minimising how many times variables are touched and keeping those operations close together, the implementation enables efficient caching of data, resulting in fewer CPU cycles to get stuff done.
@@ -44,7 +44,7 @@ argMate(arguments, [parameterDetails [, config ]]);
 
 ### Getting started
 
-ArgMate follows traditional CLI notations similar to yargs and mri. Here are some simple examples:
+ArgMate follows traditional CLI notations - similar to yargs and mri. Here are some simple examples:
 
 ```js
 import ArgMate from 'ArgMate';
@@ -79,9 +79,9 @@ argv = ArgMate(process.argv.slice(2));
 // { _: ['.md'], foo: "bar", X: true }
 ```
 
-### Enforcing parameter types and limiting allowed values
+### Default values and limiting input to known parameters
 
-You can provide default values and enforce that no other parameters are allowed:
+You can provide default values and enforce that no unknown parameters are allowed:
 
 ```js
 import ArgMate from 'ArgMate';
