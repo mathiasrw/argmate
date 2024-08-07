@@ -11,9 +11,9 @@ run(argMateLite, ' lite');
 
 function run(argMate, type = '') {
 	describe('Error fn' + type, () => {
-		test('Set error from the outside', done => {
+		test('Set error handeling from the outside', done => {
 			let argv = argMate(
-				'--foobar'.split(' '),
+				'--bar'.split(' '),
 				{
 					foo: {mandatory: true},
 				},

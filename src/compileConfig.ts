@@ -25,7 +25,7 @@ const strictConf = {
 	allowKeyNumValues: false,
 };
 
-export  function precompileConfig(params: ArgMateParams, conf?: ArgMateConfig) {
+export function precompileConfig(params: ArgMateParams, conf?: ArgMateConfig) {
 	return objectToCode(compileConfig(params, conf));
 }
 
@@ -88,6 +88,10 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 
 		if ('count' == param.type) {
 			output[key] = 0;
+		}
+
+		if (!param.type.match(re.validTypes)) {
+			conf.error(`Invalid type '${param.type}' for parameter '${key}'`);
 		}
 
 		if (param.type.match(re.arrayType)) {

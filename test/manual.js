@@ -1,14 +1,16 @@
 // bun --inspect-brk test/manual.js      --no-foo bar --foo2 bar2
-import argMate, { argInfo } from '../src/argMate.js';
+import argMate, { argInfo } from '../src/argMateLite.js';
 
 
 debugger;
 
+const data = argMate(
+	'--bar'.split(' '),
+	{
+		foo: { type: 'xyz' },
+	});
 
-
-console.log(argMate(''.split(/\s+/), {
-	fooX: { default: ['x', 'y', 'xxz'] },
-}))
+console.log(data);
 
 process.exit();
 

@@ -85,7 +85,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 			break;
 		}
 
-		if (NO && !conf.allowUnknown) {
+		if (NO && !conf.allowNegatingFlags) {
 			KEY = (NO ? NO : '') + KEY;
 			NO = '';
 		}

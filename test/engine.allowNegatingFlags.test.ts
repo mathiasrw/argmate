@@ -7,11 +7,11 @@ import argMate from '../src/argMate';
 import argMateLite from '../src/argMateLite';
 
 run(argMate);
-// run(argMateLite, ' lite');
+run(argMateLite, ' lite');
 
 function run(argMate, type = '') {
-	describe.todo('allowNegatingFlags' + type, () => {
-		test('Plain', () => {
+	describe('allowNegatingFlags' + type, () => {
+		test.if(!type)('Default', () => {
 			let argv = argMate('---no-foo bar'.split(' '));
 			expect(argv).toEqual({
 				_: ['bar'],
@@ -19,7 +19,7 @@ function run(argMate, type = '') {
 			});
 		});
 
-		test('Disabled', () => {
+		test.if(!type)('Disabled', () => {
 			let argv = argMate('--no-foo bar'.split(' '), {}, {allowNegatingFlags: false});
 			expect(argv).toEqual({
 				_: ['bar'],
