@@ -223,6 +223,17 @@ function run(argMate, type = '') {
 			});
 		});
 
-		test.todo('Conflicting aliases', () => {});
+		test('Reused alias - first one takes it all', () => {
+			argv = argMate('--foo bar --aa xyz -f bar2 -a xyz2 --ff bar3 --abc xyz3'.split(' '), {
+				abc: {alias: ['a', 'ff'], type: 'string[]'},
+				foo: {alias: ['f', 'ff'], type: 'string[]'},
+			});
+			expect(argv).toEqual({
+				_: ['xyz'],
+				foo: ['bar', 'bar2'],
+				abc: ['xyz2', 'bar3', 'xyz3'],
+				aa: true,
+			});
+		});
 	});
 }
