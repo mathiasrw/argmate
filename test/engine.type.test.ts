@@ -18,7 +18,7 @@ function run(argMate, caliber = '') {
 					foo: {type: 'xyz'},
 				},
 				{
-					error: msg => {
+					panic: msg => {
 						expect(msg).toContain('foo');
 						expect(msg).toContain('Invalid type');
 						expect(msg).toContain('xyz');

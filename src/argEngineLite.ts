@@ -30,6 +30,7 @@ export const re = {
 # --no-n-o--abc
 
 array of value as default
+
 */
 
 export default function argEngineLite(args: string[], argProcessObj?: ArgProcessObj) {
@@ -135,7 +136,7 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 		}
 
 		if ('count' === params[KEY].type) {
-			if (ASSIGN) return conf.error(`'${KEY}' is count, so can't assign: '${arg}'`);
+			if (ASSIGN) return conf.error(`'${KEY}' counting, so can't assign: '${arg}'`);
 			output[KEY]++;
 			continue;
 		}
@@ -179,7 +180,7 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 		}
 
 		if (isNaN(num) || !isFinite(num)) {
-			return conf.error(`'${KEY}' not a valid ${params[KEY].type}: '${VAL}'`);
+			return conf.error(`'${KEY}' value is not a valid ${params[KEY].type}: '${VAL}'`);
 		}
 
 		if (Array.isArray(output[params[KEY].key])) {

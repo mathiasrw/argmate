@@ -26,7 +26,7 @@ function run(argMate, type = '') {
 					foo: {type: 'count', default: 11},
 				},
 				{
-					error: msg => {
+					panic: msg => {
 						expect(msg).toContain('11');
 						expect(msg).toContain('foo');
 						done();

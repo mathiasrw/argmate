@@ -78,8 +78,8 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 			if (Array.isArray(param.default)) {
 				complexDefault[key] = param.default;
 			} else if ('count' == param.type) {
-				return conf.error(
-					`Default parameters like '${param.default}' are not allowed on parameters like '${key}' with the type '${param.type}'`
+				return conf.panic(
+					`Default parameter '${param.default}' is not allowed for '${key}' because of it's type '${param.type}'`
 				);
 			} else {
 				output[key] = param.default;
@@ -91,7 +91,7 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 		}
 
 		if (!param.type.match(re.validTypes)) {
-			conf.error(`Invalid type '${param.type}' for parameter '${key}'`);
+			conf.panic(`Invalid type '${param.type}' for parameter '${key}'`);
 		}
 
 		if (param.type.match(re.arrayType)) {

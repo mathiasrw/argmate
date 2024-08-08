@@ -30,15 +30,15 @@ function run(argMate, type = '') {
 				foo: 'bar',
 			});
 		});
-
 		test('missing', done => {
-			argMate(
-				'--foobar'.split(' '),
+			let argv = argMate(
+				'--bar'.split(' '),
 				{
 					foo: {mandatory: true},
 				},
 				{
 					error: msg => {
+						expect(msg).toContain('mandatory');
 						done();
 					},
 				}

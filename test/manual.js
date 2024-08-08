@@ -3,9 +3,17 @@ import argMate, {argInfo} from '../src/argMateLite.js';
 
 debugger;
 
-const data = argMate('--bar'.split(' '), {
-	foo: {type: 'xyz'},
-});
+const data = argMate(
+	'--foobar'.split(' '),
+	{
+		foo: {mandatory: true},
+	},
+	{
+		error: msg => {
+			console.log(12314);
+		},
+	}
+);
 
 console.log(data);
 

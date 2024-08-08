@@ -97,7 +97,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 			} else {
 				if (!LONG && 1 < KEY.length) {
 					return conf.error(
-						`Unsupported format: '${arg}'. Did you miss a dash before that?`
+						`Unsupported format: '${arg}'. Did you miss a dash at the beginning?`
 					);
 				}
 				VAL = ASSIGN = KEYNUM;
@@ -143,7 +143,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 		if ('boolean' === params[KEY].type) {
 			if (ASSIGN)
 				return conf.error(
-					`You asked for the parameter '${KEY}' to be boolean but you are trying to assign a value: '${arg}'`
+					`'${KEY}' is a boolean (a flag) and can't be assigned the value '${arg}'`
 				);
 			output[params[KEY].key] = !NO;
 			continue;
@@ -158,7 +158,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 			continue;
 		}
 
-		if (0 === args.length) return conf.error(`No data provided for  '${KEY}'`);
+		if (0 === args.length) return conf.error(`No data provided for '${KEY}'`);
 
 		VAL ||= args.pop() || '';
 
@@ -194,9 +194,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 				num = parseInt(VAL, 16);
 				break;
 			default:
-				return conf.panic(
-					`The parameter '${KEY}' is configured with an invalid type: '${params[KEY].type}'`
-				);
+				return conf.panic(`'${KEY}' configuration uses invalid type '${params[KEY].type}'`);
 		}
 
 		if (isNaN(num) || !isFinite(num))
@@ -223,7 +221,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 		} else {
 			if (!Array.isArray(params[key].valid))
 				return conf.panic(
-					`The "valid" property of the '${key}' parameter must be a function or an array of valid values`
+					`The "valid" property of '${key}' parameter must be a function or an array of valid values`
 				);
 			if (params[key].valid.includes(output[key])) continue;
 			help = '. Please use one of the following values: ' + JSON.stringify(params[key].valid);
@@ -239,7 +237,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 			return conf.error(
 				`The parameter '${key}' is mandatory.` +
 					(params[key].alias.length
-						? ` You can also provide an alias: ${params[key].alias.join(', ')}`
+						? ` You can also use an alias: ${params[key].alias.join(', ')}`
 						: '')
 			);
 	}

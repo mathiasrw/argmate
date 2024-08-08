@@ -47,35 +47,27 @@ argMate(arguments, [parameterDetails [, config ]]);
 ArgMate follows traditional CLI notations - similar to yargs and mri. Here are some simple examples:
 
 ```js
-import ArgMate from 'ArgMate';
+import argMate from 'argmate';
 
 let argv;
 
 // By default, parameters are treated as boolean flags
 // Non-parameters are stored in the `_` property of the output
-argv = ArgMate(['--foo', 'bar']);
-// {_: ['bar'], foo: true}
+argv = argMate(['--foo', 'bar', '-i']);
+// {_: ['bar'], foo: true, i: true}
 
 // Use the `=` notation for assignment, with or without seperation to the value
 // Type is inferred from the value (string or number)
-argv = ArgMate(['--foo=', 'bar']);
-// {_: [], foo: 'bar'}
-argv = ArgMate(['-i=123']);
-// {_: [], i: 123}
+argv = argMate(['--foo=', 'bar', '-i=123']);
+// {_: [], foo: 'bar', i: 123}
 
 // Setting a default value makes the parser treat it as a parameter that must be assigned
 // The type is guessed based on the default value
-argv = ArgMate(['--foo', 'bar2'], { foo: 'bar' });
-// {_: [], foo: 'bar2'}
+argv = argMate(['--foo', 'bar2'], { foo: 'bar', i: 42 });
+// {_: [], foo: 'bar2', i: 42}
 
-// Specify the type explicitly to avoid the guessing game and improving performance 
-argv = ArgMate(['--foo', 'bar'], { foo: { type: 'string' } });
-// {_: [], foo: 'bar'}
-
-// Example of parsing actual command-line arguments
-// Running `node index.js --foo=bar -X .md`
-// Assuming the following code is in index.js:
-argv = ArgMate(process.argv.slice(2));
+// Example running params from CLI `node index.js --foo=bar -X .md`
+argv = argMate(process.argv.slice(2));
 // { _: ['.md'], foo: "bar", X: true }
 ```
 
@@ -84,7 +76,7 @@ argv = ArgMate(process.argv.slice(2));
 You can provide default values and enforce that no unknown parameters are allowed:
 
 ```js
-import ArgMate from 'ArgMate';
+import argMate from 'argmate';
 
 const args = process.argv.slice(2);
 
@@ -98,15 +90,15 @@ const config = {
 	allowUnknown: false  // Only allow specified parameters (--foo and --bar)
 };
 
-const argv = ArgMate(args, params, config);
+const argv = argMate(args, params, config);
 ```
 
 Same example but a bit shorter
 
 ```js
-import ArgMate from 'ArgMate';
+import argMate from 'argmate';
 
-const argv = ArgMate(process.argv.slice(2), 
+const argv = argMate(process.argv.slice(2), 
 	{
 		foo: 10,   
 		bar: false 
@@ -120,7 +112,7 @@ const argv = ArgMate(process.argv.slice(2),
 Here's a more comprehensive example demonstrating additional features:
 
 ```javascript
-import ArgMate, { argInfo } from 'ArgMate';
+import argMate, { argInfo } from 'argmate';
 
 const args = process.argv.slice(2);
 
@@ -148,7 +140,7 @@ const config = {
 	}
 };
 
-const argv = ArgMate(args, params, config);
+const argv = argMate(args, params, config);
 
 // Display help and exit if the help flag is set
 if (argv.help) {
@@ -168,7 +160,7 @@ for (let i = argv.start; i < argv.start + argv.steps; i++) {
 You can provide default values and enforce that no other parameters are allowed:
 
 ```js
-import ArgMate from 'ArgMate';
+import argMate from 'argmate';
 
 const args = process.argv.slice(2);
 
@@ -182,13 +174,13 @@ const config = {
     allowUnknown: false  // Only allow specified parameters (--foo and --bar)
 };
 
-const argv = ArgMate(args, params, config);
+const argv = argMate(args, params, config);
 ```
 
 Same example but a bit shorter
 
 ```js
-import ArgMate from 'ArgMate';
+import argMate from 'argmate';
 
 const argv = ArgMate(process.argv.slice(2), 
 	{
@@ -204,7 +196,7 @@ const argv = ArgMate(process.argv.slice(2),
 Here's a more comprehensive example demonstrating additional features:
 
 ```javascript
-import ArgMate, { argInfo } from 'ArgMate';
+import argMate, { argInfo } from 'argmate';
 
 const args = process.argv.slice(2);
 
@@ -232,7 +224,7 @@ const config = {
     }
 };
 
-const argv = ArgMate(args, params, config);
+const argv = argMate(args, params, config);
 
 // Display help and exit if the help flag is set
 if (argv.help) {
@@ -255,7 +247,7 @@ for (let i = argv.start; i < argv.start + argv.steps; i++) {
 const params = {
 	// The object returned from argMate will only have propety names provided in this object (foo in this example)
 	foo: {
-		type: 'string', 				// boolean | string/number | float | int | hex | array7string[] | number[]/float[] | int[] | hex[]. Optional. Defaults to boolean.
+		type: 'string', 				// boolean | string/number | float | int | hex | array/string[] | number[]/float[] | int[] | hex[]. Optional. Defaults to boolean.
 		default: 'val', 				// The default value for the parameter. If the type is not specified, the type will be determined from this field. Optional. 
 		mandatory: true, 				// Calls config.error if the value is not provided. No effect if used in combination with "default".
 		alias: [], 						// Other values to be treated as this parameter. Also accepts a string with a single value.
@@ -271,8 +263,8 @@ const params = {
 
 ```js
 const config = {
-	error: msg => {},		// Function to be called when a problem has been detected in the parsing. Defaults to throwing an informative exception (should probably be changed to something more friendly)
-	panic: msg => {},		// Function to be called when there is a panic in the engine. Defaults to throwing an informative exception. (Mostly used for development and should probably not be changed.)
+	error: msg => {},		// Function to be called when a problem has been detected in a validation. Defaults to throwing an informative exception
+	panic: msg => {},		// Function to be called when there is a panic in the engine. Defaults to throwing an informative exception. 
 	allowUnknown: true, 	// Specify if parameters not described in "params" are allowed. If violated, config.error will be called.
 	no: true, 				// Specify if boolean flags with "no-" as the first part will be treated as a negation. If so, --no-foo will result in {'_':[], 'foo': false}. Works well with default: true;
 	intro: 'Intro Text', 	// Text to add above the information about each parameter in the help text.

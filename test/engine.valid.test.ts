@@ -10,7 +10,7 @@ run(argMate);
 run(argMateLite, ' lite');
 
 function run(argMate, type = '') {
-	describe('Valid', () => {
+	describe('Valid' + type, () => {
 		test('as function' + type, done => {
 			let argv = argMate(
 				'--foo 3'.split(' '),
