@@ -1,3 +1,10 @@
-#!/bin/sh                                                                                                                                                  
-npm run format
-git add .   
+echo "Running pre-commit hook"
+
+bun run format
+
+if [ $? -ne 0 ]; then
+  echo "Formatting failed"
+  exit 1
+fi
+
+git add -u
