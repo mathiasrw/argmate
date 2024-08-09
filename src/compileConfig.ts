@@ -47,7 +47,7 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 		if (!params.hasOwnProperty(key)) continue;
 		let param = params[key];
 		// If only default value is provided, then transform to object with correct type
-
+		debugger;
 		if (param === null || typeof param !== 'object' || Array.isArray(param)) {
 			param = {
 				default: param,
@@ -115,6 +115,8 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 			param.alias.forEach(alias => {
 				if (undefined === params[alias]) params[alias] = {type: params[key].type, key};
 			});
+
+		params[key] = param;
 	}
 
 	return {

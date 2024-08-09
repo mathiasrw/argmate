@@ -10,22 +10,39 @@ run(argMate);
 run(argMateLite, ' lite');
 
 function run(argMate, type = '') {
-	describe.todo('AllowKeyNumValues' + type, () => {
-		test('Default to boolean', () => {
-			let argv = argMate('--foo bar --foo2 bar2'.split(' '));
+	describe('AllowKeyNumValues' + type, () => {
+		test.if(!type)('Default', () => {
+			let argv = argMate('-s123'.split(' '));
 			expect(argv).toEqual({
-				_: ['bar', 'bar2'],
-				foo: true,
-				foo2: true,
+				_: [],
+				s: 123,
 			});
 		});
 
-		test('Boolean negative', () => {
-			let argv = argMate('--no-foo bar --foo2 bar2'.split(' '));
+		test.if(!type)('Disallow', () => {
+			test('Default', () => {
+				let argv = argMate(
+					'-s123'.split(' '),
+					{},
+					{
+						allowKeyNumValues: false,
+					}
+				);
+				expect(argv).toEqual({
+					_: [],
+					s: true,
+					'1': true,
+					'2': true,
+					'3': true,
+				});
+			});
+		});
+
+		test.if(!type)('No long params', () => {
+			let argv = argMate('--s123'.split(' '));
 			expect(argv).toEqual({
-				_: ['bar', 'bar2'],
-				foo: false,
-				foo2: true,
+				_: [],
+				s123: true,
 			});
 		});
 	});

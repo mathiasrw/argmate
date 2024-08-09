@@ -86,7 +86,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 		}
 
 		if (NO && !conf.allowNegatingFlags) {
-			KEY = (NO ? NO : '') + KEY;
+			KEY = (NO?.length ? NO : '') + KEY;
 			NO = '';
 		}
 
@@ -118,8 +118,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 
 		// Key not defined as a parameter
 		if (!params[KEY]) {
-			if (!conf.allowUnknown)
-				return conf.error(`Unspecified parameters like '${KEY}' not allowed.`);
+			if (!conf.allowUnknown) return conf.error(`Unknown parameter '${KEY}' not allowed.`);
 
 			if (conf.autoCamelKebabCase) {
 				KEY = KEY.replace(re.camel, function (match, letter) {

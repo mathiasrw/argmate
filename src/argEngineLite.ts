@@ -108,7 +108,7 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 		}
 
 		if (!params[KEY]) {
-			if (!conf.allowUnknown) return conf.error(`'${KEY}' not allowed`);
+			if (!conf.allowUnknown) return conf.error(`Unknown parameter '${KEY}' not allowed`);
 
 			if (conf.autoCamelKebabCase) {
 				KEY = KEY.replace(re.camel, function (match, letter) {

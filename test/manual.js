@@ -1,21 +1,13 @@
 // bun --inspect-brk test/manual.js      --no-foo bar --foo2 bar2
 import argMate, {argInfo} from '../src/argMateLite.js';
-
+let argv;
 debugger;
 
-const data = argMate(
-	'--foobar'.split(' '),
-	{
-		foo: {mandatory: true},
-	},
-	{
-		error: msg => {
-			console.log(12314);
-		},
-	}
-);
+argv = argMate('--foo= bar'.split(' '), {
+	foo: {mandatory: true},
+});
 
-console.log(data);
+console.log(argv);
 
 process.exit();
 
@@ -31,7 +23,7 @@ let conf = precompileConfig(lotsofParamConfig());
 console.log(conf);
 
 process.exit();
-let argv = argMate('-f123'.split(' '));
+argv = argMate('-f123'.split(' '));
 
 console.log({argv});
 

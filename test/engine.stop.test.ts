@@ -19,5 +19,8 @@ function run(argMate, type = '') {
 				foo: true,
 			});
 		});
+
+		let argv = argMate('-s=-- -- -p=--'.split(' '));
+		expect(argv).toEqual({_: ['-p=--'], s: '--'});
 	});
 }

@@ -34,5 +34,11 @@ function run(argMate, type = '') {
 				bar: true,
 			});
 		});
+
+		test('Will throw on problematic input', () => {
+			expect(() => argMate('--foo bar'.split(' '), {foo: {type: 'int'}})).toThrow(
+				'is not a valid '
+			);
+		});
 	});
 }

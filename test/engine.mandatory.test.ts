@@ -11,7 +11,7 @@ run(argMateLite, ' lite');
 
 function run(argMate, type = '') {
 	describe('Mandatory' + type, () => {
-		test('Plain', () => {
+		test('Default', () => {
 			let argv = argMate('--foo bar'.split(' '), {
 				foo: {mandatory: true},
 			});
