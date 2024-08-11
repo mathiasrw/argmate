@@ -1,7 +1,7 @@
 export const re = {
 	kebab: /([a-z0-9]|(?=[A-Z]))([A-Z])/g,
 	camel: /-+([^-])|-+$/g,
-	isKebab: /.-.]/,
+	isKebab: /.-.+/,
 	arrayType: /(^array|\[\])$/,
 	validTypes: /^((array|count)|(boolean|string|number|float|int|hex)(\[\])?)$/,
 	paramTokens:
