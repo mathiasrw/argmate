@@ -30,7 +30,7 @@ export const re = {
 # --no-n-o--abc
 
 array of value as default
-# conflicting values
+
 */
 
 export default function argEngineLite(args: string[], argProcessObj?: ArgProcessObj) {
@@ -40,7 +40,6 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 		},
 		validate: [],
 		mandatory: [],
-		conflict: [],
 		complexDefault: {},
 		conf: {
 			error: msg => {

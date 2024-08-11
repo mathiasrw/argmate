@@ -37,7 +37,6 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 		},
 		validate: [],
 		mandatory: [],
-		conflict: [],
 		complexDefault: {},
 		conf: {
 			error: msg => {
@@ -55,9 +54,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 		params: {},
 	};
 
-	const inputLog: string[] = [];
-
-	const {mandatory, validate, complexDefault, output, conf, params, conflict} = argProcessObj;
+	const {mandatory, validate, complexDefault, output, conf, params} = argProcessObj;
 
 	args.reverse(); // Reverse, pop, push, reverse 8.77 times faster than unshft, shift
 
@@ -119,11 +116,11 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 			continue;
 		}
 
-		// Key is not a defined parameter
+		// Key not defined as a parameter
 		if (!params[KEY]) {
 			if (!conf.allowUnknown) return conf.error(`Unknown parameter '${KEY}' not allowed.`);
 
-			if (conf.autoCamelKebabCase && re.isKebab.test(KEY)) {
+			if (conf.autoCamelKebabCase) {
 				KEY = KEY.replace(re.camel, function (match, letter) {
 					return letter.toUpperCase();
 				});
@@ -136,10 +133,8 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 				}
 				// @ts-ignore
 				output[KEY] = +VAL == VAL ? +VAL : VAL;
-				inputLog.push(KEY);
 			} else {
 				output[KEY] = !NO;
-				inputLog.push(KEY);
 			}
 			continue;
 		}
@@ -147,10 +142,9 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 		if ('boolean' === params[KEY].type) {
 			if (ASSIGN)
 				return conf.error(
-					`The parameter '${KEY}' is a boolean (a flag) and can't be assigned a value like '${arg}'`
+					`'${KEY}' is a boolean (a flag) and can't be assigned the value '${arg}'`
 				);
 			output[params[KEY].key] = !NO;
-			inputLog.push(params[KEY].key);
 			continue;
 		}
 
@@ -159,8 +153,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 		}
 
 		if ('count' === params[KEY].type) {
-			output[params[KEY].key]++;
-			inputLog.push(params[KEY].key);
+			output[KEY]++;
 			continue;
 		}
 
@@ -189,8 +182,10 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 
 			case 'int':
 			case 'int[]':
+				debugger;
 				num = +VAL | 0;
 				if ('' + num !== VAL) num = NaN;
+
 				break;
 
 			case 'hex':
@@ -203,7 +198,6 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 
 		if (isNaN(num) || !isFinite(num))
 			return conf.error(`The value of '${KEY}' is not a valid ${params[KEY].type}: '${VAL}'`);
-
 		if (Array.isArray(output[params[KEY].key])) {
 			output[params[KEY].key].push(num);
 		} else {
@@ -233,7 +227,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 		}
 
 		return conf.error(
-			`The value provided for the parameter '${key}' is not valid: '${output[key]}'` + help
+			`The value provided for parameter '${key}' is not valid: '${output[key]}'` + help
 		);
 	}
 

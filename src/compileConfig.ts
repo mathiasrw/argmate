@@ -32,7 +32,6 @@ export function precompileConfig(params: ArgMateParams, conf?: ArgMateConfig) {
 export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) {
 	const mandatory: string[] = [];
 	const validate: string[] = [];
-	const conflict: string[] = [];
 	let complexDefault: any = {};
 	let output: any = {
 		_: [],
@@ -57,16 +56,8 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 		}
 
 		param.key = key;
-
 		param.alias = param.alias || [];
-
-		param.conflict = param.conflict?.pop
-			? param.conflict
-			: ('' + param.conflict).split(re.listDeviders);
-
-		if (param.conflict.length) {
-			conflict.push(key);
-		}
+		//param.conflict = param.conflict || [];
 
 		if (undefined !== param.valid) {
 			validate.push(key);
@@ -99,11 +90,11 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 			output[key] = 0;
 		}
 
-		if (!re.validTypes.test(param.type)) {
+		if (!param.type.match(re.validTypes)) {
 			conf.panic(`Invalid type '${param.type}' for parameter '${key}'`);
 		}
 
-		if (re.arrayType.test(param.type)) {
+		if (param.type.match(re.arrayType)) {
 			output[key] = [];
 		}
 
@@ -118,15 +109,11 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 			}
 		}
 
-		if (undefined !== param.alias && !Array.isArray(param.alias)) {
-			param.alias = [param.alias];
-		}
+		if (undefined !== param.alias && !Array.isArray(param.alias)) param.alias = [param.alias];
 
 		if (param.alias)
 			param.alias.forEach(alias => {
-				if (undefined === params[alias]) {
-					params[alias] = {type: params[key].type, key};
-				}
+				if (undefined === params[alias]) params[alias] = {type: params[key].type, key};
 			});
 
 		params[key] = param;

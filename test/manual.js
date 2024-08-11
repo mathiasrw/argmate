@@ -3,7 +3,9 @@ import argMate, {argInfo} from '../src/argMateLite.js';
 let argv;
 debugger;
 
-argv = argMate('--foo-bar 234'.split(' '), {fooBar: {type: 'int'}});
+argv = argMate('--foo= bar'.split(' '), {
+	foo: {mandatory: true},
+});
 
 console.log(argv);
 

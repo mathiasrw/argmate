@@ -66,7 +66,6 @@ type ArgProcessObj = void | {
 	output: {[key: string]: any};
 	mandatory: string[];
 	validate: string[];
-	conflict: string[];
 	complexDefault: {[key: string]: string[] | number[]};
 	conf: ArgMateConfigMandatory;
 	params: ArgMateParams;

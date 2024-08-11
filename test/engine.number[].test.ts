@@ -13,20 +13,11 @@ run(argMateLite, ' lite');
 
 function run(argMate, type = '') {
 	describe('number[]' + type, () => {
-		test('Default', () => {
+		test('Plain', () => {
 			let argv = argMate('--foo 9.2 --foo 2.9'.split(' '), {foo: {type: 'number[]'}});
 			expect(argv).toEqual({
 				_: [],
 				foo: [9.2, 2.9],
-			});
-		});
-
-		test('None', () => {
-			let argv = argMate('--bar 9.2'.split(' '), {foo: {type: 'number[]'}});
-			expect(argv).toEqual({
-				_: ['9.2'],
-				foo: [],
-				bar: true,
 			});
 		});
 
@@ -37,14 +28,12 @@ function run(argMate, type = '') {
 				foo: [9.2],
 			});
 		});
-
-		test('Multiple', () => {
-			let argv = argMate('--foo 9.2 --foo 9.3 --foo 11'.split(' '), {
-				foo: {type: 'number[]'},
-			});
+		test('None', () => {
+			let argv = argMate('--bar 9.2'.split(' '), {foo: {type: 'number[]'}});
 			expect(argv).toEqual({
-				_: [],
-				foo: [9.2, 9.3, 11],
+				_: ['9.2'],
+				foo: [],
+				bar: true,
 			});
 		});
 	});

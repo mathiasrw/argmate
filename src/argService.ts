@@ -16,7 +16,7 @@ var conf_;
 export function argService(engine, args: string[], params?: ArgMateParams, conf?: ArgMateConfig) {
 	if (!params && !conf) return engine(args);
 
-	if (params) params_ = {...params};
+	if (params) params_ = JSON.stringify(params);
 
 	if (conf) conf_ = {...conf};
 
@@ -39,6 +39,6 @@ export function argInfo(
 			...settings,
 		},
 		{...conf_, ...conf},
-		{...params_, ...params}
+		params || JSON.parse(params_)
 	);
 }

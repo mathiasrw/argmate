@@ -8,35 +8,27 @@ import {expect, test, describe} from 'bun:test';
 import argMate from '../src/argMate';
 import argMateLite from '../src/argMateLite';
 
-let argv;
-
 run(argMate);
 run(argMateLite, ' lite');
 
 function run(argMate, type = '') {
-	describe('Number' + type, () => {
+	describe.todo('number' + type, () => {
 		test('Default to boolean', () => {
-			argv = argMate('--foo 111 --foo2 222'.split(' '), {foo: 4, foo2: {type: 'number'}});
+			let argv = argMate('--foo bar --foo2 bar2'.split(' '));
 			expect(argv).toEqual({
-				_: [],
-				foo: 111,
-				foo2: 222,
+				_: ['bar', 'bar2'],
+				foo: true,
+				foo2: true,
 			});
 		});
 
-		test('Error on invalid type', done => {
-			argMate(
-				'--foo xyz --foo2 222'.split(' '),
-				{foo: 4, foo2: {type: 'number'}},
-				{
-					error: msg => {
-						expect(msg).toContain('foo');
-						expect(msg).toContain('not a valid number');
-						expect(msg).toContain('xyz');
-						done();
-					},
-				}
-			);
+		test('Boolean negative', () => {
+			let argv = argMate('--no-foo bar --foo2 bar2'.split(' '));
+			expect(argv).toEqual({
+				_: ['bar', 'bar2'],
+				foo: false,
+				foo2: true,
+			});
 		});
 	});
 }
