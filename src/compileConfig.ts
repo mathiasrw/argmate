@@ -105,7 +105,7 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 			conf.panic(`Invalid type '${param.type}' for parameter '${key}'`);
 		}
 
-		if (re.arrayType.test(param.type)) {
+		if (re.isArrayType.test(param.type)) {
 			output[key] = [];
 		}
 
@@ -114,7 +114,7 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 		}
 
 		if (conf.autoCamelKebabCase) {
-			let kebab = key.replace(re.kebab, '$1-$2').toLowerCase();
+			let kebab = key.replace(re.camel, '$1-$2').toLowerCase();
 			if (kebab !== key) {
 				param.alias = [kebab].concat(param.alias || []);
 			}
