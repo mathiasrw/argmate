@@ -55,9 +55,9 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 		params: {},
 	};
 
-	const inputLog: string[] = [];
-
 	const {mandatory, validate, complexDefault, output, conf, params, conflict} = argProcessObj;
+
+	const inputLog: string[] = [];
 
 	args.reverse(); // Reverse, pop, push, reverse 8.77 times faster than unshft, shift
 
@@ -246,8 +246,11 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 						: '')
 			);
 	}
-
-	// todo: check for conflict
-
+	debugger;
+	for (let key of conflict) {
+		const conflicting = params[key].conflict.find(value => inputLog.includes(value));
+		if (conflicting)
+			return conf.error(`The parameter '${key}' conflicts with '${conflicting}'`);
+	}
 	return output;
 }

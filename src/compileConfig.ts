@@ -47,8 +47,8 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 	for (let key in params) {
 		if (!params.hasOwnProperty(key)) continue;
 		let param = params[key];
+
 		// If only default value is provided, then transform to object with correct type
-		debugger;
 		if (param === null || typeof param !== 'object' || Array.isArray(param)) {
 			param = {
 				default: param,
@@ -60,12 +60,14 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 
 		param.alias = param.alias || [];
 
-		param.conflict = param.conflict?.pop
-			? param.conflict
-			: ('' + param.conflict).split(re.listDeviders);
+		if (param.conflict) {
+			param.conflict = param.conflict?.pop
+				? param.conflict
+				: ('' + param.conflict).split(re.listDeviders);
 
-		if (param.conflict.length) {
-			conflict.push(key);
+			if (param.conflict.length) {
+				conflict.push(key);
+			}
 		}
 
 		if (undefined !== param.valid) {
@@ -135,6 +137,7 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 	return {
 		output,
 		validate,
+		conflict,
 		mandatory,
 		complexDefault,
 		conf,
