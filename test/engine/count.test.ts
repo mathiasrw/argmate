@@ -3,8 +3,8 @@
 // @ts-ignore
 import {expect, test, describe} from 'bun:test';
 
-import argMate from '../src/argMate';
-import argMateLite from '../src/argMateLite';
+import argMate from '../../src/argMate';
+import argMateLite from '../../src/argMateLite';
 
 run(argMate);
 run(argMateLite, ' lite');
@@ -26,7 +26,7 @@ function run(argMate, type = '') {
 					foo: {type: 'count', default: 11},
 				},
 				{
-					error: msg => {
+					panic: msg => {
 						expect(msg).toContain('11');
 						expect(msg).toContain('foo');
 						done();

@@ -38,6 +38,7 @@ export interface ArgMateConfig {
 	allowNegatingFlags?: boolean;
 	allowKeyNumValues?: boolean;
 	allowAssign?: boolean;
+	outputAlias?: boolean;
 	intro?: IntroOutroType;
 	outro?: IntroOutroType;
 }
@@ -66,6 +67,7 @@ type ArgProcessObj = void | {
 	output: {[key: string]: any};
 	mandatory: string[];
 	validate: string[];
+	conflict: string[];
 	complexDefault: {[key: string]: string[] | number[]};
 	conf: ArgMateConfigMandatory;
 	params: ArgMateParams;

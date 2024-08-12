@@ -3,15 +3,15 @@
 // @ts-ignore
 import {expect, test, describe} from 'bun:test';
 
-import argMate from '../src/argMate';
-import argMateLite from '../src/argMateLite';
+import argMate from '../../src/argMate';
+import argMateLite from '../../src/argMateLite';
 
 run(argMate);
 run(argMateLite, ' lite');
 
 function run(argMate, type = '') {
 	describe('Mandatory' + type, () => {
-		test('Plain', () => {
+		test('Default', () => {
 			let argv = argMate('--foo bar'.split(' '), {
 				foo: {mandatory: true},
 			});
@@ -30,15 +30,15 @@ function run(argMate, type = '') {
 				foo: 'bar',
 			});
 		});
-
 		test('missing', done => {
-			argMate(
-				'--foobar'.split(' '),
+			let argv = argMate(
+				'--bar'.split(' '),
 				{
 					foo: {mandatory: true},
 				},
 				{
 					error: msg => {
+						expect(msg).toContain('mandatory');
 						done();
 					},
 				}

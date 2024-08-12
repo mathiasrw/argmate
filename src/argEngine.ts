@@ -37,6 +37,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 		},
 		validate: [],
 		mandatory: [],
+		conflict: [],
 		complexDefault: {},
 		conf: {
 			error: msg => {
@@ -50,54 +51,63 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 			allowNegatingFlags: true,
 			allowKeyNumValues: true,
 			allowAssign: true,
+			outputAlias: false,
 		},
 		params: {},
 	};
 
-	const {mandatory, validate, complexDefault, output, conf, params} = argProcessObj;
+	const {mandatory, validate, complexDefault, output, conf, params, conflict} = argProcessObj;
 
-	args.reverse(); // Reverse, pop, push, reverse 8.77 times faster than unshft, shift
+	const inputLog: string[] = [];
+
+	// Optimization: Cache frequently used methods and properties
+	const {
+		error,
+		panic,
+		allowUnknown,
+		autoCamelKebabCase,
+		allowNegatingFlags,
+		allowKeyNumValues,
+		allowAssign,
+	} = conf;
+	const outputPush = output['_'].push.bind(output['_']);
+	const hasOwnProperty = Object.prototype.hasOwnProperty;
+
+	// Reverse, pop, push, reverse 8.77 times faster than unshft, shift
+	args.reverse();
 
 	while (args.length) {
 		let arg: string = '' + args.pop();
 
 		if (arg.charCodeAt(0) !== 45) {
-			output['_'].push(arg);
+			outputPush(arg);
 			continue;
 		}
 
 		const token = arg.match(re.paramTokens);
 
-		if (undefined === token) return conf.panic('Grup not returned');
+		if (!token) return panic('Group not returned');
 
-		let {STOP, LONG, NO, KEY, KEYNUM, ASSIGN, VAL} = token?.groups || {
-			STOP: '',
-			LONG: '',
-			NO: '',
-			KEY: '',
-			KEYNUM: '',
-			ASSIGN: '',
-			VAL: '',
-		};
+		let {STOP, LONG, NO, KEY, KEYNUM, ASSIGN, VAL} = token.groups as {[key: string]: string};
 
 		if (STOP) {
 			output['_'] = output['_'].concat(args.reverse());
 			break;
 		}
 
-		if (NO && !conf.allowNegatingFlags) {
-			KEY = (NO ? NO : '') + KEY;
+		if (NO && !allowNegatingFlags) {
+			KEY = (NO || '') + KEY;
 			NO = '';
 		}
 
 		if (KEYNUM) {
-			if (!conf.allowKeyNumValues || LONG || ASSIGN) {
-				KEY = KEY + (KEYNUM ? KEYNUM : '');
+			if (!allowKeyNumValues || LONG || ASSIGN) {
+				KEY += KEYNUM;
 				KEYNUM = '';
 			} else {
 				if (!LONG && 1 < KEY.length) {
-					return conf.error(
-						`Unsupported format: '${arg}'. Did you miss a dash before that?`
+					return error(
+						`Unsupported format: '${arg}'. Did you miss a dash at the beginning?`
 					);
 				}
 				VAL = ASSIGN = KEYNUM;
@@ -106,30 +116,27 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 
 		if (!LONG && 1 < KEY.length) {
 			const multi = KEY.split('').map(v => (NO ? '-no-' : '-') + v);
-			multi[multi.length - 1] = multi[multi.length - 1] + (ASSIGN ? ASSIGN : '');
+			multi[multi.length - 1] += ASSIGN || '';
 			args = args.concat(multi.reverse());
 			continue;
 		}
 
 		if (!KEY) {
-			output['_'].push(arg);
+			outputPush(arg);
 			continue;
 		}
 
-		// Key not defined as a parameter
+		// Key is not a defined parameter
 		if (!params[KEY]) {
-			if (!conf.allowUnknown)
-				return conf.error(`Unspecified parameters like '${KEY}' not allowed.`);
+			if (!allowUnknown) return error(`Unknown parameter '${KEY}' not allowed.`);
 
-			if (conf.autoCamelKebabCase) {
-				KEY = KEY.replace(re.camel, function (match, letter) {
-					return letter.toUpperCase();
-				});
+			if (autoCamelKebabCase && re.isKebab.test(KEY)) {
+				KEY = KEY.replace(re.kebab2camel, (_, letter) => letter.toUpperCase());
 			}
 
 			if (ASSIGN) {
 				if (!VAL) {
-					if (args.length === 0) return conf.error(`No data provided for '${KEY}'`);
+					if (args.length === 0) return error(`No data provided for '${KEY}'`);
 					VAL = args.pop() || '';
 				}
 				// @ts-ignore
@@ -137,41 +144,50 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 			} else {
 				output[KEY] = !NO;
 			}
+			inputLog.push(KEY);
 			continue;
 		}
 
-		if ('boolean' === params[KEY].type) {
+		const theKey = params[KEY].key;
+		const theType = params[theKey].type;
+
+		if ('boolean' === theType) {
 			if (ASSIGN)
-				return conf.error(
-					`You asked for the parameter '${KEY}' to be boolean but you are trying to assign a value: '${arg}'`
+				return error(
+					`The parameter '${KEY}' is a boolean (a flag) and can't be assigned a value like '${arg}'`
 				);
-			output[params[KEY].key] = !NO;
+			output[theKey] = !NO;
+			inputLog.push(theKey);
 			continue;
 		}
 
 		if (NO) {
-			return conf.error(`Can't negate '${KEY}' as the type is set to '${params[KEY].type}'`);
+			return error(`Can't negate '${KEY}' as the type is set to '${theType}'`);
 		}
 
-		if ('count' === params[KEY].type) {
-			output[KEY]++;
+		if ('count' === theType) {
+			output[theKey]++;
+			inputLog.push(theKey);
 			continue;
 		}
+		if (!VAL) {
+			if (0 === args.length) {
+				return error(`No data provided for '${KEY}'`);
+			}
 
-		if (0 === args.length) return conf.error(`No data provided for  '${KEY}'`);
-
-		VAL ||= args.pop() || '';
+			VAL ||= args.pop() || '';
+		}
 
 		let num = 0;
 
-		switch (params[KEY].type) {
+		switch (theType) {
 			case 'string':
-				output[params[KEY].key] = VAL;
+				output[theKey] = VAL;
 				continue;
 
 			case 'array':
 			case 'string[]':
-				output[params[KEY].key].push(VAL);
+				output[theKey].push(VAL);
 				continue;
 
 			case 'number':
@@ -183,68 +199,88 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 
 			case 'int':
 			case 'int[]':
-				debugger;
 				num = +VAL | 0;
-				if ('' + num !== VAL) num = NaN;
-
+				if ('' + num !== VAL && !re.isHexPrefix.test(VAL)) num = NaN;
 				break;
 
 			case 'hex':
 			case 'hex[]':
-				num = parseInt(VAL, 16);
+				if (re.isHex.test(VAL)) {
+					num = parseInt(VAL, 16);
+				} else {
+					num = NaN;
+				}
+
 				break;
 			default:
-				return conf.panic(
-					`The parameter '${KEY}' is configured with an invalid type: '${params[KEY].type}'`
-				);
+				return panic(`'${KEY}' configuration uses invalid type '${theType}'`);
 		}
 
 		if (isNaN(num) || !isFinite(num))
-			return conf.error(`The value of '${KEY}' is not a valid ${params[KEY].type}: '${VAL}'`);
-		if (Array.isArray(output[params[KEY].key])) {
-			output[params[KEY].key].push(num);
+			return error(`The value of '${KEY}' is not a valid ${theType}: '${VAL}'`);
+
+		if (Array.isArray(output[theKey])) {
+			output[theKey].push(num);
 		} else {
-			output[params[KEY].key] = num;
+			output[theKey] = num;
 		}
 	}
 
-	for (let key in complexDefault) {
-		if (!params.hasOwnProperty(key)) continue;
-
+	for (const [key, value] of Object.entries(complexDefault)) {
+		if (!hasOwnProperty.call(params, key)) continue;
 		if (undefined === output[key] || !output[key].length) {
-			output[key] = complexDefault[key];
+			output[key] = value;
 		}
 	}
 
-	for (let key of validate) {
+	for (const key of validate) {
+		const param = params[key];
 		let help = '';
-		if ('function' === typeof params[key].valid) {
-			if (params[key].valid(output[key])) continue;
+		if ('function' === typeof param.valid) {
+			if (param.valid(output[key])) continue;
 		} else {
-			if (!Array.isArray(params[key].valid))
-				return conf.panic(
-					`The "valid" property of the '${key}' parameter must be a function or an array of valid values`
+			if (!Array.isArray(param.valid))
+				return panic(
+					`The "valid" property of '${key}' parameter must be a function or an array of valid values`
 				);
-			if (params[key].valid.includes(output[key])) continue;
-			help = '. Please use one of the following values: ' + JSON.stringify(params[key].valid);
+			if (param.valid.includes(output[key])) continue;
+			help = '. Please use one of the following values: ' + JSON.stringify(param.valid);
 		}
-
-		return conf.error(
-			`The value provided for parameter '${key}' is not valid: '${output[key]}'` + help
+		return error(
+			`The value provided for the parameter '${key}' is not valid: '${output[key]}'` + help
 		);
 	}
 
-	for (let key of mandatory) {
+	for (const key of mandatory) {
 		if (undefined === output[key])
-			return conf.error(
-				`The parameter '${key}' is mandatory.` +
-					(params[key].alias.length
-						? ` You can also provide an alias: ${params[key].alias.join(', ')}`
-						: '')
+			return error(
+				`The parameter '${key}' is mandatory.${params[key]?.alias?.length ? ` You can also use an alias: ${params[key].alias.join(', ')}` : ''}`
 			);
 	}
 
-	// todo: check for conflict
+	for (const key of conflict) {
+		if (!inputLog.includes(key)) continue;
+		const conflicting = params[key]?.conflict?.find(value => inputLog.includes(value));
+		if (conflicting) {
+			return error(`The parameter '${key}' conflicts with '${conflicting}'`);
+		}
+	}
+
+	if (conf.outputAlias) {
+		const tempOutput = {};
+		for (const key in params) {
+			if (!Object.prototype.hasOwnProperty.call(params, key)) continue;
+			const result = output[key];
+			tempOutput[key] = result;
+			const alias = params[key].alias;
+			if (!alias) continue;
+			for (const a of alias) {
+				tempOutput[a] = result;
+			}
+		}
+
+		Object.assign(output, tempOutput);
+	}
 
 	return output;
 }

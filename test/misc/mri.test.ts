@@ -3,11 +3,13 @@
 // @ts-ignore
 import {expect, test, describe} from 'bun:test';
 
-import argMate from '../src/argMate';
-import argMateLite from '../src/argMateLite';
+import argMate from '../../src/argMate';
+import argMateLite from '../../src/argMateLite';
 
 run(argMate);
 run(argMateLite, ' lite');
+
+let argv;
 
 function run(argMate, type = '') {
 	describe('Inspired by mri' + type, () => {
@@ -132,12 +134,20 @@ function run(argMate, type = '') {
 			});
 		});
 
-		test('already a number', () => {
+		test('Already a number', () => {
 			let argv = argMate(['-x', '1234', '789'], {
 				x: {type: 'number'},
 			});
 
 			expect(argv).toEqual({x: 1234, _: ['789']});
+		});
+
+		test('Dash as value', () => {
+			//let argv = argMate('----'.split(' '));
+			//expect(argv).toEqual({_: ["--": true, });
+
+			argv = argMate('-s=--'.split(' '));
+			expect(argv).toEqual({_: [], s: '--'});
 		});
 	});
 }

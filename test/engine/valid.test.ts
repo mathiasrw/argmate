@@ -3,14 +3,14 @@
 // @ts-ignore
 import {expect, test, describe} from 'bun:test';
 
-import argMate from '../src/argMate';
-import argMateLite from '../src/argMateLite';
+import argMate from '../../src/argMate';
+import argMateLite from '../../src/argMateLite';
 
 run(argMate);
 run(argMateLite, ' lite');
 
 function run(argMate, type = '') {
-	describe('Valid', () => {
+	describe('Valid' + type, () => {
 		test('as function' + type, done => {
 			let argv = argMate(
 				'--foo 3'.split(' '),
