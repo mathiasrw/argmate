@@ -113,8 +113,8 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 			mandatory.push(key);
 		}
 
-		if (conf.autoCamelKebabCase) {
-			let kebab = key.replace(re.camel, '$1-$2').toLowerCase();
+		if (conf.autoCamelKebabCase && re.isCamel.test(key)) {
+			let kebab = key.replace(re.camel2kebab, '$1-$2').toLowerCase();
 			if (kebab !== key) {
 				param.alias = [kebab].concat(param.alias || []);
 			}
@@ -124,12 +124,11 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 			param.alias = [param.alias];
 		}
 
-		if (param.alias)
-			param.alias.forEach(alias => {
-				if (undefined === params[alias]) {
-					params[alias] = {type: params[key].type, key};
-				}
-			});
+		param.alias?.forEach(alias => {
+			if (undefined === params[alias]) {
+				params[alias] = {type: params[key].type, key};
+			}
+		});
 
 		params[key] = param;
 	}

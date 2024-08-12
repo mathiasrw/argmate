@@ -124,7 +124,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 			if (!conf.allowUnknown) return conf.error(`Unknown parameter '${KEY}' not allowed.`);
 
 			if (conf.autoCamelKebabCase && re.isKebab.test(KEY)) {
-				KEY = KEY.replace(re.kebab, function (match, letter) {
+				KEY = KEY.replace(re.kebab2camel, function (match, letter) {
 					return letter.toUpperCase();
 				});
 			}

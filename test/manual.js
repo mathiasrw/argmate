@@ -3,11 +3,7 @@ import argMate, {argInfo} from '../src/argMate.js';
 let argv;
 debugger;
 
-argv = argMate('--abc'.split(' '), {
-	foo: {conflict: 'abc'},
-	bar: {conflict: 'abc'},
-});
-
+argv = argMate('--foo-bar 234'.split(' '), {fooBar: {type: 'int'}});
 console.log(argv);
 
 process.exit();
