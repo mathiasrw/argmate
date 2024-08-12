@@ -216,7 +216,7 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 		if (undefined === output[key]) {
 			return conf.error(
 				`'${key.length > 1 ? '--' : '-'}${key}' is mandatory` +
-					(params[key].alias.length
+					(params[key]?.alias?.length
 						? `.  Or use an alias: ${params[key].alias
 								.map(v => (v.length > 1 ? '--' : '-') + v)
 								.join(', ')}`
@@ -233,7 +233,7 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 		}
 	}
 
-	// todo: check for conflict
+	// todo: check for conflict ?
 
 	return output;
 }

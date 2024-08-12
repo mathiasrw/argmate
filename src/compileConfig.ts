@@ -58,8 +58,6 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 
 		param.key = key;
 
-		param.alias = param.alias || [];
-
 		if (param.conflict) {
 			param.conflict = param.conflict?.pop
 				? param.conflict
@@ -113,15 +111,15 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 			mandatory.push(key);
 		}
 
+		if (param.alias && !Array.isArray(param.alias)) {
+			param.alias = ('' + param.alias).split(re.listDeviders).filter(Boolean);
+		}
+
 		if (conf.autoCamelKebabCase && re.isCamel.test(key)) {
 			let kebab = key.replace(re.camel2kebab, '$1-$2').toLowerCase();
 			if (kebab !== key) {
 				param.alias = [kebab].concat(param.alias || []);
 			}
-		}
-
-		if (undefined !== param.alias && !Array.isArray(param.alias)) {
-			param.alias = [param.alias];
 		}
 
 		param.alias?.forEach(alias => {

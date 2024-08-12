@@ -249,7 +249,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 		if (undefined === output[key])
 			return conf.error(
 				`The parameter '${key}' is mandatory.` +
-					(params[key].alias.length
+					(params[key]?.alias?.length
 						? ` You can also use an alias: ${params[key].alias.join(', ')}`
 						: '')
 			);
@@ -257,10 +257,11 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 
 	for (let key of conflict) {
 		if (!inputLog.includes(key)) continue;
-		const conflicting = params[key]?.conflict.find(value => inputLog.includes(value));
+		const conflicting = params[key]?.conflict?.find(value => inputLog.includes(value));
 		if (conflicting) {
 			return conf.error(`The parameter '${key}' conflicts with '${conflicting}'`);
 		}
 	}
+
 	return output;
 }
