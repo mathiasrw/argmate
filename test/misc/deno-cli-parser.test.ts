@@ -109,25 +109,38 @@ function run(parseArgs, type = '') {
 			expect(typeof argv.b).toEqual('boolean');
 		});
 
-		Deno.test('parseArgs() handles boolean and alias with chainable api', function () {
-			const aliased = ['-h', 'derp'];
-			const regular = ['--herp', 'derp'];
-			const aliasedArgv = parseArgs(aliased, {
-				boolean: 'herp',
-				alias: {h: 'herp'},
-			});
-			const propertyArgv = parseArgs(regular, {
-				boolean: 'herp',
-				alias: {h: 'herp'},
-			});
-			const expected = {
+		test.if(!type)('parseArgs() handles boolean and alias with chainable api', () => {
+			expect(
+				argMate(
+					['-h', 'derp'],
+					{
+						herp: {type: 'boolean', alias: 'h'},
+					},
+					{
+						outputAlias: true,
+					}
+				)
+			).toEqual({
+				_: ['derp'],
 				herp: true,
 				h: true,
-				_: ['derp'],
-			};
+			});
 
-			assertEquals(aliasedArgv, expected);
-			assertEquals(propertyArgv, expected);
+			expect(
+				argMate(
+					['--herp', 'derp'],
+					{
+						herp: {type: 'boolean', alias: 'h'},
+					},
+					{
+						outputAlias: true,
+					}
+				)
+			).toEqual({
+				_: ['derp'],
+				herp: true,
+				h: true,
+			});
 		});
 
 		Deno.test('parseArgs() handles boolean and alias with options hash', function () {

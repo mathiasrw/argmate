@@ -3,7 +3,15 @@ import argMate, {argInfo} from '../src/argMate.js';
 let argv;
 debugger;
 
-argv = argMate('--foo=bar -f=baz'.split(' '), {foo: {alias: 'f', type: 'string'}});
+argv = argMate(
+	['-h', 'derp'],
+	{
+		herp: {type: 'boolean', alias: 'h'},
+	},
+	{
+		outputAlias: true,
+	}
+);
 
 console.log(argv);
 
