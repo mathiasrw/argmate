@@ -126,7 +126,7 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 
 		param.alias?.forEach(alias => {
 			if (undefined === params[alias]) {
-				params[alias] = {type: params[key].type, key};
+				params[alias] = {key};
 			}
 		});
 

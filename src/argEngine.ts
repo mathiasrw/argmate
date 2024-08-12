@@ -144,7 +144,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 			continue;
 		}
 
-		if ('boolean' === params[KEY].type) {
+		if ('boolean' === params[params[KEY].key].type) {
 			if (ASSIGN)
 				return conf.error(
 					`The parameter '${KEY}' is a boolean (a flag) and can't be assigned a value like '${arg}'`
@@ -155,10 +155,12 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 		}
 
 		if (NO) {
-			return conf.error(`Can't negate '${KEY}' as the type is set to '${params[KEY].type}'`);
+			return conf.error(
+				`Can't negate '${KEY}' as the type is set to '${params[params[KEY].key].type}'`
+			);
 		}
 
-		if ('count' === params[KEY].type) {
+		if ('count' === params[params[KEY].key].type) {
 			output[params[KEY].key]++;
 			inputLog.push(params[KEY].key);
 			continue;
@@ -200,11 +202,15 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 				num = parseInt(VAL, 16);
 				break;
 			default:
-				return conf.panic(`'${KEY}' configuration uses invalid type '${params[KEY].type}'`);
+				return conf.panic(
+					`'${KEY}' configuration uses invalid type '${params[params[KEY].key].type}'`
+				);
 		}
 
 		if (isNaN(num) || !isFinite(num))
-			return conf.error(`The value of '${KEY}' is not a valid ${params[KEY].type}: '${VAL}'`);
+			return conf.error(
+				`The value of '${KEY}' is not a valid ${params[params[KEY].key].type}: '${VAL}'`
+			);
 
 		if (Array.isArray(output[params[KEY].key])) {
 			output[params[KEY].key].push(num);

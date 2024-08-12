@@ -130,13 +130,13 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 			continue;
 		}
 
-		if ('boolean' === params[KEY].type) {
+		if ('boolean' === params[params[KEY].key].type) {
 			if (ASSIGN) return conf.error(`'${KEY}' is boolean, so can't assign: '${arg}'`);
 			output[params[KEY].key] = true;
 			continue;
 		}
 
-		if ('count' === params[KEY].type) {
+		if ('count' === params[params[KEY].key].type) {
 			if (ASSIGN) return conf.error(`'${KEY}' counting, so can't assign: '${arg}'`);
 			output[KEY]++;
 			continue;
@@ -149,7 +149,7 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 
 		let num = 0;
 
-		switch (params[KEY].type) {
+		switch (params[params[KEY].key].type) {
 			case 'string':
 				output[params[KEY].key] = VAL;
 				continue;
@@ -177,11 +177,13 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 				num = parseInt(VAL, 16);
 				break;
 			default:
-				return conf.panic(`'${KEY}' got invalid type: '${params[KEY].type}'`);
+				return conf.panic(`'${KEY}' got invalid type: '${params[params[KEY].key].type}'`);
 		}
 
 		if (isNaN(num) || !isFinite(num)) {
-			return conf.error(`'${KEY}' value is not a valid ${params[KEY].type}: '${VAL}'`);
+			return conf.error(
+				`'${KEY}' value is not a valid ${params[params[KEY].key].type}: '${VAL}'`
+			);
 		}
 
 		if (Array.isArray(output[params[KEY].key])) {

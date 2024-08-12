@@ -304,6 +304,8 @@ console.log(
 ## Notes
 - If you provide array kind of types (like string[]) you can trust the value is alwas an array. If no values provided the array is emptly. 
 - If you provide the same alias to two parameters, the alias will stay with the first parameter you define. 
+- Demonstrate how to use macros to pregenerate engineConfig to make things even faster. manual or via https://bun.sh/docs/bundler/macros - https://bun.sh/docs/bundler/macros#export-condition-macro
+
 
 ---
 
