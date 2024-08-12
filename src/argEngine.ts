@@ -164,13 +164,15 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 			continue;
 		}
 
-		if (0 === args.length) return conf.error(`No data provided for '${KEY}'`);
+		if (0 === args.length) {
+			return conf.error(`No data provided for '${KEY}'`);
+		}
 
 		VAL ||= args.pop() || '';
 
 		let num = 0;
 
-		switch (params[KEY].type) {
+		switch (params[params[KEY].key].type) {
 			case 'string':
 				output[params[KEY].key] = VAL;
 				continue;
