@@ -248,11 +248,13 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 						: '')
 			);
 	}
-	debugger;
+
 	for (let key of conflict) {
-		const conflicting = params[key].conflict.find(value => inputLog.includes(value));
-		if (conflicting)
+		if (!inputLog.includes(key)) continue;
+		const conflicting = params[key]?.conflict.find(value => inputLog.includes(value));
+		if (conflicting) {
 			return conf.error(`The parameter '${key}' conflicts with '${conflicting}'`);
+		}
 	}
 	return output;
 }

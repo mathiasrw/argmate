@@ -3,18 +3,10 @@ import argMate, {argInfo} from '../src/argMate.js';
 let argv;
 debugger;
 
-argv = argMate(
-	'--foo --bar'.split(' '),
-	{
-		foo: false,
-		bar: {conflict: 'foo'},
-	},
-	{
-		error: msg => {
-			console.log({msg});
-		},
-	}
-);
+argv = argMate('--abc'.split(' '), {
+	foo: {conflict: 'abc'},
+	bar: {conflict: 'abc'},
+});
 
 console.log(argv);
 
