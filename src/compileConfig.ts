@@ -58,11 +58,23 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 
 		param.key = key;
 
+		param.alias = param.alias || [];
+
+		if (param.conflict) {
+			param.conflict = param.conflict?.pop
+				? param.conflict
+				: ('' + param.conflict).split(re.listDeviders);
+
+			if (param.conflict.length) {
+				conflict.push(key);
+			}
+		}
+
 		if (undefined !== param.valid) {
 			validate.push(key);
 			if (undefined === param.default && Array.isArray(param.valid)) {
 				if (!param.valid.length)
-					return conf.panic(`Empty array provided for valid values of '${key}'`);
+					return conf.panic(`Empty array found for valid values of '${key}'`);
 
 				if (undefined === param.type) {
 					param.type = findType(param.valid[0]);
@@ -101,34 +113,23 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 			mandatory.push(key);
 		}
 
-		if (param.alias && !Array.isArray(param.alias)) {
-			param.alias = ('' + param.alias).split(re.listDeviders).filter(Boolean);
-		}
-
-		if (conf.autoCamelKebabCase && re.isKebab.test(key)) {
+		if (conf.autoCamelKebabCase) {
 			let kebab = key.replace(re.camel, '$1-$2').toLowerCase();
 			if (kebab !== key) {
-				param.alias = [kebab, ...(param.alias || [])];
+				param.alias = [kebab].concat(param.alias || []);
 			}
 		}
 
-		param.alias?.forEach(alias => {
-			params[alias] = {key};
-			if (param.conflict?.lenght) {
-				conflict.push(alias);
-			}
-		});
-
-		if (param.conflict) {
-			if (!Array.isArray(param.conflict)) {
-				param.conflict = ('' + param.conflict).split(re.listDeviders).filter(Boolean);
-			}
-
-			// we can support alias conflicting later - removing support for now
-			//if (param.conflict.length) {
-			//	conflict.push(key);
-			//}
+		if (undefined !== param.alias && !Array.isArray(param.alias)) {
+			param.alias = [param.alias];
 		}
+
+		if (param.alias)
+			param.alias.forEach(alias => {
+				if (undefined === params[alias]) {
+					params[alias] = {type: params[key].type, key};
+				}
+			});
 
 		params[key] = param;
 	}
