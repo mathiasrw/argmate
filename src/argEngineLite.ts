@@ -5,10 +5,8 @@ interface ArgMateConfigMandatory extends ArgMateConfig {
 	panic: (msg: string) => void;
 }
 
-export const re = {
-	kebab: /([a-z0-9]|(?=[A-Z]))([A-Z])/g,
-	camel: /-+([^-])|-+$/g,
-};
+// @ts-ignore
+import {re} from './common.js';
 
 /*
 /^(?<stop>--)$|^-(?<full>-)?(?<no>no-)?(?<key>[^=\s]+?)(?<keynum>[\d]*)(?<assign>=(?<val>.*))?$/,
@@ -112,7 +110,7 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 			if (!conf.allowUnknown) return conf.error(`Unknown parameter '${KEY}' not allowed`);
 
 			if (conf.autoCamelKebabCase) {
-				KEY = KEY.replace(re.camel, function (match, letter) {
+				KEY = KEY.replace(re.kebab2camel, function (match, letter) {
 					return letter.toUpperCase();
 				});
 			}
@@ -174,7 +172,11 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 
 			case 'hex':
 			case 'hex[]':
-				num = parseInt(VAL, 16);
+				if (re.isHex.test(VAL)) {
+					num = parseInt(VAL, 16);
+				} else {
+					num = NaN;
+				}
 				break;
 			default:
 				return conf.panic(`'${KEY}' got invalid type: '${params[params[KEY].key].type}'`);

@@ -4,20 +4,6 @@ import {ArgMateParams, ArgMateConfig, ArgMateConfigMandatory, ArgProcessObj} fro
 // @ts-ignore
 import {re} from './common.js';
 
-const defaultConf: ArgMateConfigMandatory = {
-	error: msg => {
-		throw msg;
-	},
-	panic: msg => {
-		throw msg;
-	},
-	allowUnknown: true,
-	autoCamelKebabCase: true,
-	allowNegatingFlags: true,
-	allowKeyNumValues: true,
-	allowAssign: true,
-};
-
 const strictConf = {
 	allowUnknown: false,
 	autoCamelKebabCase: false,
@@ -38,12 +24,21 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}):
 		_: [],
 	};
 
-	const conf: ArgMateConfigMandatory = Object.assign(
-		{},
-		defaultConf,
-		conf_.strict ? strictConf : {},
-		conf_
-	);
+	const conf: ArgMateConfigMandatory = {
+		error: msg => {
+			throw msg;
+		},
+		panic: msg => {
+			throw msg;
+		},
+		allowUnknown: true,
+		autoCamelKebabCase: true,
+		allowNegatingFlags: true,
+		allowKeyNumValues: true,
+		allowAssign: true,
+		...conf_,
+		...(conf_.strict ? strictConf : {}),
+	};
 
 	const {panic} = conf;
 	const hasOwnProperty = Object.prototype.hasOwnProperty;

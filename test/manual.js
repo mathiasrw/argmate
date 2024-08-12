@@ -3,7 +3,16 @@ import argMate, {argInfo} from '../src/argMate.js';
 let argv;
 debugger;
 
-argv = argMate('--foo-bar 234'.split(' '), {fooBar: {type: 'int'}});
+argv = argMate(
+	'--foo abx4'.split(' '),
+	{foo: {type: 'hex'}},
+	{
+		error: m => {
+			console.log({m});
+		},
+	}
+);
+
 console.log(argv);
 
 process.exit();

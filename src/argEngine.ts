@@ -198,12 +198,17 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 			case 'int':
 			case 'int[]':
 				num = +VAL | 0;
-				if ('' + num !== VAL) num = NaN;
+				if ('' + num !== VAL && !re.isHexPrefix.test(VAL)) num = NaN;
 				break;
 
 			case 'hex':
 			case 'hex[]':
-				num = parseInt(VAL, 16);
+				if (re.isHex.test(VAL)) {
+					num = parseInt(VAL, 16);
+				} else {
+					num = NaN;
+				}
+
 				break;
 			default:
 				return panic(`'${KEY}' configuration uses invalid type '${theType}'`);

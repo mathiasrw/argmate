@@ -8,4 +8,6 @@ export const re = {
 	paramTokens:
 		/^(?<STOP>--)$|^-(?<LONG>-+)?(?<NO>no-)?(?<KEY>[^=\s]+?)(?<KEYNUM>[\d]*)(?<ASSIGN>=(?<VAL>.*))?$/,
 	listDeviders: /[,\s]+-?-?|^--?/,
+	isHex: /^(0x)?[A-Fa-f0-9]+$/,
+	isHexPrefix: /^(0x)[A-Fa-f0-9]+$/,
 };
