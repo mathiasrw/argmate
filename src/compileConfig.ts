@@ -36,8 +36,9 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}):
 		allowNegatingFlags: true,
 		allowKeyNumValues: true,
 		allowAssign: true,
-		...conf_,
+		outputAlias: false,
 		...(conf_.strict ? strictConf : {}),
+		...conf_,
 	};
 
 	const {panic} = conf;

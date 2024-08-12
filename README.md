@@ -306,9 +306,15 @@ console.log(
 - If you provide the same alias to two parameters, the alias will stay with the first parameter you define. 
 - Demonstrate how to use macros to pregenerate engineConfig to make things even faster. manual or via https://bun.sh/docs/bundler/macros - https://bun.sh/docs/bundler/macros#export-condition-macro
 
-###
+
+
+### lite quirks
 
 - Lite will not convert your 0x prepended hexvalues to int
+
+
+### ideas
+- flag to expand output to alias names
 
 ---
 

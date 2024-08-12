@@ -51,6 +51,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 			allowNegatingFlags: true,
 			allowKeyNumValues: true,
 			allowAssign: true,
+			outputAlias: false,
 		},
 		params: {},
 	};
@@ -263,6 +264,21 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 		if (conflicting) {
 			return error(`The parameter '${key}' conflicts with '${conflicting}'`);
 		}
+	}
+
+	if (conf.outputAlias) {
+		const tempOutput = {};
+		for (const key in params) {
+			if (!Object.prototype.hasOwnProperty.call(params, key)) continue;
+			tempOutput[key] = output[key];
+			const alias = params[key].alias;
+			if (!alias) continue;
+			for (const a of alias) {
+				tempOutput[a] = output[key];
+			}
+		}
+
+		Object.assign(output, tempOutput);
 	}
 
 	return output;

@@ -38,6 +38,7 @@ export interface ArgMateConfig {
 	allowNegatingFlags?: boolean;
 	allowKeyNumValues?: boolean;
 	allowAssign?: boolean;
+	outputAlias?: boolean;
 	intro?: IntroOutroType;
 	outro?: IntroOutroType;
 }
