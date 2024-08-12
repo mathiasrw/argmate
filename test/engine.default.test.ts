@@ -10,7 +10,7 @@ run(argMate);
 run(argMateLite, ' lite');
 
 function run(argMate, type = '') {
-	describe.todo('Default' + type, () => {
+	describe('Default' + type, () => {
 		test('Default to boolean', () => {
 			let argv = argMate('--foo bar --foo2 bar2'.split(' '));
 			expect(argv).toEqual({
@@ -20,7 +20,7 @@ function run(argMate, type = '') {
 			});
 		});
 
-		test('Boolean negative', () => {
+		test.if(!type)('Boolean negative', () => {
 			let argv = argMate('--no-foo bar --foo2 bar2'.split(' '));
 			expect(argv).toEqual({
 				_: ['bar', 'bar2'],
