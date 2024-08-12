@@ -1,6 +1,6 @@
 {
 	"name": "argmate",
-	"version": "0.8.0",
+	"version": "0.8.1",
 	"author": "Mathias Wulff",
 	"description": "CLI parameter parsing. Zero dependencies. Fast. Convenient features for better DX",
 	"license": "CC-BY-SA-4.0",
@@ -49,7 +49,7 @@
 	},
 	"dependencies": {},
 	"devDependencies": {
-		"bun-types": "1.1.22",
+		"bun-types": "1.1.21",
 		"columnify": "^1.6.0",
 		"husky": "^9.1.4",
 		"prettier": "3.3.3",
