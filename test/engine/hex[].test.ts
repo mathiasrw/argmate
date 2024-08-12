@@ -3,33 +3,33 @@
 // @ts-ignore
 import {expect, test, describe} from 'bun:test';
 
-import argMate from '../src/argMate';
-import argMateLite from '../src/argMateLite';
+import argMate from '../../src/argMate';
+import argMateLite from '../../src/argMateLite';
 
 run(argMate);
 run(argMateLite, ' lite');
 
 function run(argMate, type = '') {
-	describe('int[]' + type, () => {
+	describe('hex[]' + type, () => {
 		test('Plain', () => {
-			let argv = argMate('--foo 9 --foo 2'.split(' '), {foo: {type: 'int[]'}});
+			let argv = argMate('--foo 0xff --foo 0x01'.split(' '), {foo: {type: 'hex[]'}});
 			expect(argv).toEqual({
 				_: [],
-				foo: [9, 2],
+				foo: [255, 1],
 			});
 		});
 
 		test('Single', () => {
-			let argv = argMate('--foo 9'.split(' '), {foo: {type: 'int[]'}});
+			let argv = argMate('--foo 0xff'.split(' '), {foo: {type: 'hex[]'}});
 			expect(argv).toEqual({
 				_: [],
-				foo: [9],
+				foo: [255],
 			});
 		});
 		test('None', () => {
-			let argv = argMate('--bar 9'.split(' '), {foo: {type: 'int[]'}});
+			let argv = argMate('--bar 0xff'.split(' '), {foo: {type: 'hex[]'}});
 			expect(argv).toEqual({
-				_: ['9'],
+				_: ['0xff'],
 				foo: [],
 				bar: true,
 			});

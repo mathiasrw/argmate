@@ -3,8 +3,8 @@
 // @ts-ignore
 import {expect, test, describe} from 'bun:test';
 
-import argMate from '../src/argMate';
-import argMateLite from '../src/argMateLite';
+import argMate from '../../src/argMate';
+import argMateLite from '../../src/argMateLite';
 
 let argv;
 
@@ -124,18 +124,15 @@ function run(argMate, type = '') {
 		});
 
 		test('Undefined key', () => {
-			console.log(222);
 			argv = argMate('--abc'.split(' '), {
 				foo: {conflict: 'abc'},
 				bar: {conflict: 'abc'},
 			});
-			console.log(111);
 
 			expect(argv).toEqual({
 				_: [],
 				abc: true,
 			});
-			console.log(333);
 			expect(() =>
 				argMate(
 					'--abc --foo'.split(' '),

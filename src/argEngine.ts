@@ -169,12 +169,13 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 			inputLog.push(theKey);
 			continue;
 		}
+		if (!VAL) {
+			if (0 === args.length) {
+				return error(`No data provided for '${KEY}'`);
+			}
 
-		if (0 === args.length) {
-			return error(`No data provided for '${KEY}'`);
+			VAL ||= args.pop() || '';
 		}
-
-		VAL ||= args.pop() || '';
 
 		let num = 0;
 
