@@ -302,9 +302,38 @@ console.log(
 ```
 
 ## Notes
-- If you provide array kind of types (like string[]) you can trust the value is alwas an array. If no values provided the array is emptly. 
-- If you provide the same alias to two parameters, the alias will stay with the first parameter you define. 
 - Demonstrate how to use macros to pregenerate engineConfig to make things even faster. manual or via https://bun.sh/docs/bundler/macros - https://bun.sh/docs/bundler/macros#export-condition-macro
+- If you provide array kind of types (like string[]) you can trust the value is alwas an array. If no values provided the array is emptly. 
+- If you dont specify, you get some help, but not consistency. If you specify you know exactly what you get. 
+- Defaults to consider unknown params as flags. IF you want unknown things to be assigned you add a = behind the flag.
+- If you provide the same alias to two parameters, the alias will stay with the first parameter you define. 
+- we do not support autoconverting magic strings like "true" and "false" 
+	- maybe we should have an option to convert magic strings...
+- for defined params you need to provide int, number or float as type for it to be a number in the resulting data object
+			expect(
+				argMate(['--host', 'localhost', '--port', '555'], {
+					host: '',
+					port: 0,
+				})
+			).toEqual({
+				host: 'localhost',
+				port: 555,
+				_: [],
+			});
+
+- but if you have not defined the param and provide is as assigned then numbers will be identified and provided as value
+
+			expect(argMate(['--host=', 'localhost', '--port=', '555'], {})).toEqual({
+				host: 'localhost',
+				port: 555,
+				_: [],
+			});
+			expect(argMate(['--host=localhost', '--port=55.5'], {})).toEqual({
+				host: 'localhost',
+				port: 55.5,
+				_: [],
+			});
+
 
 
 

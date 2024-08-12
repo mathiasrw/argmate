@@ -143,46 +143,40 @@ function run(parseArgs, type = '') {
 			});
 		});
 
-		Deno.test('parseArgs() handles boolean and alias with options hash', function () {
-			const aliased = ['-h', 'derp'];
-			const regular = ['--herp', 'derp'];
+		test('parseArgs() handles boolean and alias with options hash', () => {
 			const opts = {
-				alias: {h: 'herp'},
-				boolean: 'herp',
-			} as const;
-			const aliasedArgv = parseArgs(aliased, opts);
-			const propertyArgv = parseArgs(regular, opts);
+				herp: {type: 'boolean', alias: 'h'},
+			};
+			const aliasedArgv = argMate(['-h', 'derp'], opts, {outputAlias: true});
+			const propertyArgv = argMate(['--herp', 'derp'], opts, {outputAlias: true});
+
 			const expected = {
 				herp: true,
 				h: true,
 				_: ['derp'],
 			};
-			assertEquals(aliasedArgv, expected);
-			assertEquals(propertyArgv, expected);
+			expect(aliasedArgv).toEqual(expected);
+			expect(propertyArgv).toEqual(expected);
 		});
 
-		Deno.test('parseArgs() handles boolean and alias array with options hash', function () {
-			const aliased = ['-h', 'derp'];
-			const regular = ['--herp', 'derp'];
-			const alt = ['--harp', 'derp'];
+		test.todo('parseArgs() handles boolean and alias array with options hash', () => {
 			const opts = {
-				alias: {h: ['herp', 'harp']},
-				boolean: 'h',
-			} as const;
-			const aliasedArgv = parseArgs(aliased, opts);
-			const propertyArgv = parseArgs(regular, opts);
-			const altPropertyArgv = parseArgs(alt, opts);
+				herp: {type: 'boolean', alias: ['h', 'harp']},
+			};
 			const expected = {
 				harp: true,
 				herp: true,
 				h: true,
 				_: ['derp'],
 			};
-			assertEquals(aliasedArgv, expected);
-			assertEquals(propertyArgv, expected);
-			assertEquals(altPropertyArgv, expected);
+			expect(argMate(['--harp', 'derp'], opts, {outputAlias: true})).toEqual(expected);
+
+			expect(argMate(['-h', 'derp'], opts, {outputAlias: true})).toEqual(expected);
+
+			expect(argMate(['--herp', 'derp'], opts, {outputAlias: true})).toEqual(expected);
 		});
 
+		/* we dont support magic strings
 		Deno.test('parseArgs() handles boolean and alias using explicit true', function () {
 			const aliased = ['-h', 'true'];
 			const regular = ['--herp', 'true'];
@@ -202,35 +196,35 @@ function run(parseArgs, type = '') {
 			assertEquals(propertyArgv, expected);
 		});
 
+		*/
+
 		// regression, see https://github.com/substack/node-optimist/issues/71
 		// boolean and --x=true
-		Deno.test('parseArgs() handles boolean and non-boolean', function () {
-			const parsed = parseArgs(['--boool', '--other=true'], {
-				boolean: 'boool',
-			});
+		test('parseArgs() handles boolean and non-boolean', () => {
+			const opts = {
+				boool: {type: 'boolean'},
+			};
 
-			assertEquals(parsed.boool, true);
-			assertEquals(parsed.other, 'true');
+			const parsed = argMate(['--boool', '--other=true'], opts);
+			expect(parsed.boool).toEqual(true);
+			expect(parsed.other).toEqual('true');
 
-			const parsed2 = parseArgs(['--boool', '--other=false'], {
-				boolean: 'boool',
-			});
-
-			assertEquals(parsed2.boool, true);
-			assertEquals(parsed2.other, 'false');
+			const parsed2 = argMate(['--boool', '--other=false'], opts);
+			expect(parsed2.boool).toEqual(true);
+			expect(parsed2.other).toEqual('false');
 		});
 
-		Deno.test('parseArgs() handles boolean true parsing', function () {
-			const parsed = parseArgs(['--boool=true'], {
-				default: {
-					boool: false,
-				},
-				boolean: ['boool'],
+		// Modified from the original as we dont want to convert string "true" to a boolean
+		test('parseArgs() handles boolean true parsing', () => {
+			let argv = argMate('--boool=true'.split(' '));
+			expect(argv).toEqual({
+				_: [],
+				boool: 'true',
 			});
-
-			assertEquals(parsed.boool, true);
 		});
 
+		/*
+		// If you ask for abool you will get an error when trying to assign
 		Deno.test('parseArgs() handles boolean false parsing', function () {
 			const parsed = parseArgs(['--boool=false'], {
 				default: {
@@ -241,7 +235,9 @@ function run(parseArgs, type = '') {
 
 			assertEquals(parsed.boool, false);
 		});
+		*/
 
+		/* unsupported 
 		Deno.test('parseArgs() handles boolean true-like parsing', function () {
 			const parsed = parseArgs(['-t', 'true123'], {boolean: ['t']});
 			assertEquals(parsed.t, true);
@@ -252,16 +248,15 @@ function run(parseArgs, type = '') {
 			const parsed3 = parseArgs(['-t', 'false123'], {boolean: ['t']});
 			assertEquals(parsed3.t, true);
 		});
+		*/
 
 		test('parseArgs() handles boolean after boolean negation', () => {
-			// Test for the case with `--foo` and `--no-foo`
 			argv = argMate(['--foo', '--no-foo'], {
 				foo: false,
 			});
 
 			expect(argv.foo).toEqual(false);
 
-			// Test for the case with `--foo`, `--no-foo`, and an additional argument `123`
 			argv = argMate(['--foo', '--no-foo', '123'], {
 				foo: false,
 			});
@@ -410,14 +405,13 @@ function run(parseArgs, type = '') {
 			assertEquals(argv.a.b, 11);
 		});
 
-		Deno.test('parseArgs() handles short', function () {
-			const argv = parseArgs(['-b=123']);
-			assertEquals(argv, {b: 123, _: []});
+		test('parseArgs() handles short', () => {
+			const argv = argMate(['-b=123']);
+			expect(argv).toEqual({b: 123, _: []});
 		});
 
 		test('parseArgs() handles multi short', () => {
-			argv = argMate(['-a=whatever', '-b=robots']);
-
+			const argv = argMate(['-a=whatever', '-b=robots']);
 			expect(argv).toEqual({
 				_: [],
 				a: 'whatever',
@@ -425,18 +419,45 @@ function run(parseArgs, type = '') {
 			});
 		});
 
-		Deno.test('parseArgs() handles long opts', function () {
-			assertEquals(parseArgs(['--bool']), {bool: true, _: []});
-			assertEquals(parseArgs(['--pow', 'xixxle']), {pow: 'xixxle', _: []});
-			assertEquals(parseArgs(['--pow=xixxle']), {pow: 'xixxle', _: []});
-			assertEquals(parseArgs(['--host', 'localhost', '--port', '555']), {
+		test('parseArgs() handles long opts', () => {
+			expect(
+				argMate(['--bool'], {
+					bool: false,
+				})
+			).toEqual({bool: true, _: []});
+
+			expect(
+				argMate(['--pow', 'xixxle'], {
+					pow: '',
+				})
+			).toEqual({pow: 'xixxle', _: []});
+
+			expect(
+				argMate(['--pow=xixxle'], {
+					pow: '',
+				})
+			).toEqual({pow: 'xixxle', _: []});
+
+			expect(
+				argMate(['--host', 'localhost', '--port', '555'], {
+					host: '',
+					port: 0,
+				})
+			).toEqual({
 				host: 'localhost',
 				port: 555,
 				_: [],
 			});
-			assertEquals(parseArgs(['--host=localhost', '--port=555']), {
+
+			expect(argMate(['--host=', 'localhost', '--port=', '555'], {})).toEqual({
 				host: 'localhost',
 				port: 555,
+				_: [],
+			});
+
+			expect(argMate(['--host=localhost', '--port=55.5'], {})).toEqual({
+				host: 'localhost',
+				port: 55.5,
 				_: [],
 			});
 		});
@@ -485,69 +506,89 @@ function run(parseArgs, type = '') {
 			expect(typeof argv._[0]).toEqual('string');
 		});
 
-		Deno.test('parseArgs() handles already number', function () {
-			const argv = parseArgs(['-x', '1234', '789']);
-			assertEquals(argv, {x: 1234, _: [789]});
-			assertEquals(typeof argv.x, 'number');
-			assertEquals(typeof argv._[0], 'number');
+		// edited as we dont convert input strings automagicly
+		test('parseArgs() handles already number', () => {
+			const argv = argMate(['-x=', '1234', '789']);
+			expect(argv).toEqual({x: 1234, _: ['789']});
+			expect(typeof argv.x).toBe('number');
+			expect(typeof argv._[0]).toBe('string');
 		});
 
-		Deno.test('parseArgs() parses args', function () {
-			assertEquals(parseArgs(['--no-moo']), {'no-moo': true, _: []});
-			assertEquals(parseArgs(['-v', 'a', '-v', 'b', '-v', 'c']), {
+		test('parseArgs() parses args', () => {
+			expect(
+				argMate(['--no-moo'], {}, {allowNegatingFlags: false, autoCamelKebabCase: false})
+			).toEqual({
+				'no-moo': true,
+				_: [],
+			});
+			expect(argMate(['-v', 'a', '-v', 'b', '-v', 'c'], {v: ''})).toEqual({
 				v: 'c',
 				_: [],
 			});
 		});
 
-		Deno.test('parseArgs() handles comprehensive', function () {
-			assertEquals(
-				parseArgs([
-					'--name=meowmers',
-					'bare',
-					'-cats',
-					'woo',
-					'-h',
-					'awesome',
-					'--multi=quux',
-					'--key',
-					'value',
-					'-b',
-					'--bool',
-					'--no-meep',
-					'--multi=baz',
-					'-f=abc=def',
-					'--foo=---=\\n--+34-=/=',
-					'-e==',
-					'--',
-					'--not-a-flag',
-					'eek',
-				]),
-				{
-					c: true,
-					a: true,
-					t: true,
-					e: '=',
-					f: 'abc=def',
-					foo: '---=\\n--+34-=/=',
-					s: 'woo',
-					h: 'awesome',
-					b: true,
-					bool: true,
-					key: 'value',
-					multi: 'baz',
-					'no-meep': true,
-					name: 'meowmers',
-					_: ['bare', '--not-a-flag', 'eek'],
-				}
-			);
+		test('parseArgs() handles comprehensive', () => {
+			expect(
+				argMate(
+					[
+						'--name=meowmers',
+						'bare',
+						'-cats',
+						'woo',
+						'-h',
+						'awesome',
+						'--multi=quux',
+						'--key',
+						'value',
+						'-b',
+						'--bool',
+						'--no-meep',
+						'--multi=baz',
+						'-f=abc=def',
+						'--foo=---=\\n--+34-=/=',
+						'-e==',
+						'--',
+						'--not-a-flag',
+						'eek',
+					],
+					{
+						name: '',
+						multi: '',
+						key: '',
+						foo: '',
+						f: '',
+						e: '',
+						s: '',
+						h: '',
+					},
+					{allowNegatingFlags: false, autoCamelKebabCase: false}
+				)
+			).toEqual({
+				c: true,
+				a: true,
+				t: true,
+				e: '=',
+				f: 'abc=def',
+				foo: '---=\\n--+34-=/=',
+				s: 'woo',
+				h: 'awesome',
+				b: true,
+				bool: true,
+				key: 'value',
+				multi: 'baz',
+				'no-meep': true,
+				name: 'meowmers',
+				_: ['bare', '--not-a-flag', 'eek'],
+			});
 		});
 
-		Deno.test('parseArgs() handles flag boolean', function () {
-			const argv = parseArgs(['-t', 'moo'], {boolean: 't'});
-			assertEquals(argv, {t: true, _: ['moo']});
-			assertEquals(typeof argv.t, 'boolean');
+		test('parseArgs() handles flag boolean', () => {
+			const argv = argMate(['-t', 'moo'], {t: {type: 'boolean'}});
+			expect(argv).toEqual({t: true, _: ['moo']});
+			expect(typeof argv.t).toBe('boolean');
 		});
+
+		/* we dont support boolean magic values 
 
 		Deno.test('parseArgs() handles flag boolean value', function () {
 			const argv = parseArgs(['--verbose', 'false', 'moo', '-t', 'true'], {
@@ -564,56 +605,60 @@ function run(parseArgs, type = '') {
 			assertEquals(typeof argv.verbose, 'boolean');
 			assertEquals(typeof argv.t, 'boolean');
 		});
+		*/
 
-		Deno.test('parseArgs() handles newlines in params', function () {
-			const args = parseArgs(['-s', 'X\nX']);
-			assertEquals(args, {_: [], s: 'X\nX'});
+		test('parseArgs() handles newlines in params', () => {
+			const args = argMate(['-s', 'X\nX'], {s: ''});
+			expect(args).toEqual({_: [], s: 'X\nX'});
 
-			// reproduce in bash:
-			// VALUE="new
-			// line"
-			// deno program.js --s="$VALUE"
-			const args2 = parseArgs(['--s=X\nX']);
-			assertEquals(args2, {_: [], s: 'X\nX'});
+			const args2 = argMate(['-s=', 'X\nX']); // changed from originally ['--s=X\nX']
+			expect(args2).toEqual({_: [], s: 'X\nX'});
 		});
 
-		Deno.test('parseArgs() handles strings', function () {
-			const s = parseArgs(['-s', '0001234'], {string: 's'}).s;
-			assertEquals(s, '0001234');
-			assertEquals(typeof s, 'string');
+		test('parseArgs() handles strings', () => {
+			const s = argMate(['-s', '0001234'], {s: ''}).s;
+			expect(s).toBe('0001234');
+			expect(typeof s).toBe('string');
 
-			const x = parseArgs(['-x', '56'], {string: 'x'}).x;
-			assertEquals(x, '56');
-			assertEquals(typeof x, 'string');
+			const x = argMate(['-x', '56'], {x: ''}).x;
+			expect(x).toBe('56');
+			expect(typeof x).toBe('string');
 		});
 
-		Deno.test('parseArgs() handles string args', function () {
-			const s = parseArgs(['  ', '  '], {string: '_'})._;
-			assertEquals(s.length, 2);
-			assertEquals(typeof s[0], 'string');
-			assertEquals(s[0], '  ');
-			assertEquals(typeof s[1], 'string');
-			assertEquals(s[1], '  ');
+		test('parseArgs() handles string args', () => {
+			const s = argMate(['  ', '  '])._;
+			expect(s.length).toBe(2);
+			expect(typeof s[0]).toBe('string');
+			expect(s[0]).toBe('  ');
+			expect(typeof s[1]).toBe('string');
+			expect(s[1]).toBe('  ');
 		});
 
-		Deno.test('parseArgs() handles empty strings', function () {
-			const s = parseArgs(['-s'], {string: 's'}).s;
-			assertEquals(s, '');
-			assertEquals(typeof s, 'string');
+		// I dont agree with this. If something is to be a string and its provided it needs to be assigned
+		test('parseArgs() handles empty strings', () => {
+			const s = argMate(
+				[
+					/*'-s'*/
+				],
+				{s: ''}
+			).s;
+			expect(s).toEqual('');
+			expect(typeof s).toBe('string');
 
-			const str = parseArgs(['--str'], {string: 'str'}).str;
-			assertEquals(str, '');
-			assertEquals(typeof str, 'string');
+			const str = argMate(
+				[
+					/*'--str'*/
+				],
+				{str: ''}
+			).str;
+			expect(str).toEqual('');
+			expect(typeof str).toBe('string');
 
-			const letters = parseArgs(['-art'], {
-				string: ['a', 't'],
-			});
-
-			assertEquals(letters.a, '');
-			assertEquals(letters.r, true);
-			assertEquals(letters.t, '');
+			const letters = argMate([/*'-art'*/ '-r'], {a: '', t: ''});
+			expect(letters.a).toEqual('');
+			expect(letters.r).toEqual(true);
+			expect(letters.t).toEqual('');
 		});
-
 		Deno.test('parseArgs() handles string and alias', function () {
 			const x = parseArgs(['--str', '000123'], {
 				string: 's',
