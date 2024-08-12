@@ -1,5 +1,5 @@
 // @ts-ignore
-import {ArgMateParams, ArgMateConfig, ArgMateConfigMandatory} from './types.js';
+import {ArgMateParams, ArgMateConfig, ArgMateConfigMandatory, ArgProcessObj} from './types.js';
 
 // @ts-ignore
 import {re} from './common.js';
@@ -29,23 +29,27 @@ export function precompileConfig(params: ArgMateParams, conf?: ArgMateConfig) {
 	return objectToCode(compileConfig(params, conf));
 }
 
-export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) {
+export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}): ArgProcessObj {
 	const mandatory: string[] = [];
 	const validate: string[] = [];
 	const conflict: string[] = [];
-	let complexDefault: any = {};
-	let output: any = {
+	const complexDefault: any = {};
+	const output: any = {
 		_: [],
 	};
 
-	const conf: ArgMateConfigMandatory = {
-		...defaultConf,
-		...(conf_.strict ? strictConf : {}),
-		...conf_,
-	};
+	const conf: ArgMateConfigMandatory = Object.assign(
+		{},
+		defaultConf,
+		conf_.strict ? strictConf : {},
+		conf_
+	);
 
-	for (let key in params) {
-		if (!params.hasOwnProperty(key)) continue;
+	const {panic} = conf;
+	const hasOwnProperty = Object.prototype.hasOwnProperty;
+
+	for (const key in params) {
+		if (!hasOwnProperty.call(params, key)) continue;
 		let param = params[key];
 
 		// If only default value is provided, then transform to object with correct type
@@ -59,10 +63,9 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 		param.key = key;
 
 		if (param.conflict) {
-			param.conflict = param.conflict?.pop
+			param.conflict = Array.isArray(param.conflict)
 				? param.conflict
-				: ('' + param.conflict).split(re.listDeviders);
-
+				: String(param.conflict).split(re.listDeviders);
 			if (param.conflict.length) {
 				conflict.push(key);
 			}
@@ -72,7 +75,7 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 			validate.push(key);
 			if (undefined === param.default && Array.isArray(param.valid)) {
 				if (!param.valid.length)
-					return conf.panic(`Empty array found for valid values of '${key}'`);
+					return panic(`Empty array found for valid values of '${key}'`);
 
 				if (undefined === param.type) {
 					param.type = findType(param.valid[0]);
@@ -87,8 +90,8 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 			if (Array.isArray(param.default)) {
 				complexDefault[key] = param.default;
 			} else if ('count' == param.type) {
-				return conf.panic(
-					`Default parameter '${param.default}' is not allowed for '${key}' because of it's type '${param.type}'`
+				return panic(
+					`Default parameter '${param.default}' is not allowed for '${key}' because of its type '${param.type}'`
 				);
 			} else {
 				output[key] = param.default;
@@ -100,7 +103,7 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 		}
 
 		if (!re.validTypes.test(param.type)) {
-			conf.panic(`Invalid type '${param.type}' for parameter '${key}'`);
+			panic(`Invalid type '${param.type}' for parameter '${key}'`);
 		}
 
 		if (re.isArrayType.test(param.type)) {
@@ -111,22 +114,26 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 			mandatory.push(key);
 		}
 
-		if (param.alias && !Array.isArray(param.alias)) {
-			param.alias = ('' + param.alias).split(re.listDeviders).filter(Boolean);
+		if (param.alias) {
+			param.alias = Array.isArray(param.alias)
+				? param.alias
+				: String(param.alias).split(re.listDeviders).filter(Boolean);
 		}
 
 		if (conf.autoCamelKebabCase && re.isCamel.test(key)) {
-			let kebab = key.replace(re.camel2kebab, '$1-$2').toLowerCase();
+			const kebab = key.replace(re.camel2kebab, '$1-$2').toLowerCase();
 			if (kebab !== key) {
-				param.alias = [kebab].concat(param.alias || []);
+				param.alias = param.alias ? [kebab, ...param.alias] : [kebab];
 			}
 		}
 
-		param.alias?.forEach(alias => {
-			if (undefined === params[alias]) {
-				params[alias] = {key};
+		if (param.alias) {
+			for (const alias of param.alias) {
+				if (undefined === params[alias]) {
+					params[alias] = {key};
+				}
 			}
-		});
+		}
 
 		params[key] = param;
 	}
@@ -142,15 +149,11 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}) 
 	};
 }
 
-function findType(val) {
-	if (null === val || undefined === val) return void 0;
+function findType(val: any): string | undefined {
+	if (val === null || val === undefined) return undefined;
 
-	let type = typeof val;
-	let isArray = Array.isArray(val);
-
-	if (isArray && val.length > 0) {
-		type = typeof val[0];
-	}
+	const type = typeof val;
+	const isArray = Array.isArray(val);
 
 	switch (type) {
 		case 'boolean':
@@ -161,7 +164,7 @@ function findType(val) {
 	}
 }
 
-function objectToCode(obj, level = 1) {
+function objectToCode(obj: any, level = 1): string {
 	let str = '{\n';
 
 	for (const [key, value] of Object.entries(obj)) {
