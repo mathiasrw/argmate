@@ -270,11 +270,12 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 		const tempOutput = {};
 		for (const key in params) {
 			if (!Object.prototype.hasOwnProperty.call(params, key)) continue;
-			tempOutput[key] = output[key];
+			const result = output[key];
+			tempOutput[key] = result;
 			const alias = params[key].alias;
 			if (!alias) continue;
 			for (const a of alias) {
-				tempOutput[a] = output[key];
+				tempOutput[a] = result;
 			}
 		}
 

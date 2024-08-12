@@ -314,7 +314,8 @@ console.log(
 
 
 ### ideas
-- flag to expand output to alias names
+- Flag to outoconvert _ values to int when convertable? (like deno)
+ 
 
 ---
 

@@ -1,3 +1,4 @@
+// Tests are inpsired from the Deno CLI parseArgs https://github.com/denoland/std/blob/main/cli/parse_args_test.ts
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
@@ -403,34 +404,48 @@ function run(parseArgs, type = '') {
 			});
 		});
 
-		Deno.test('parseArgs() handles numbers', function () {
-			const argv = parseArgs([
-				'-x',
-				'1234',
-				'-y',
-				'5.67',
-				'-z',
-				'1e7',
-				'-w',
-				'10f',
-				'--hex',
-				'0xdeadbeef',
-				'789',
-			]);
-			assertEquals(argv, {
+		test('parseArgs() handles numbers', () => {
+			argv = argMate(
+				[
+					'-x',
+					'1234',
+					'-y',
+					'5.67',
+					'-z',
+					'1e7',
+					'-w',
+					'10f',
+					'--hex',
+					'0xdeadbeef',
+					'789',
+				],
+				{
+					x: {type: 'int'},
+					y: {type: 'float'},
+					z: {type: 'float'},
+					w: {type: 'string'},
+					hex: {type: 'hex'},
+				},
+				{
+					outputAlias: false,
+				}
+			);
+
+			expect(argv).toEqual({
+				_: ['789'],
 				x: 1234,
 				y: 5.67,
 				z: 1e7,
 				w: '10f',
 				hex: 0xdeadbeef,
-				_: [789],
 			});
-			assertEquals(typeof argv.x, 'number');
-			assertEquals(typeof argv.y, 'number');
-			assertEquals(typeof argv.z, 'number');
-			assertEquals(typeof argv.w, 'string');
-			assertEquals(typeof argv.hex, 'number');
-			assertEquals(typeof argv._[0], 'number');
+
+			expect(typeof argv.x).toEqual('number');
+			expect(typeof argv.y).toEqual('number');
+			expect(typeof argv.z).toEqual('number');
+			expect(typeof argv.w).toEqual('string');
+			expect(typeof argv.hex).toEqual('number');
+			expect(typeof argv._[0]).toEqual('string');
 		});
 
 		Deno.test('parseArgs() handles already number', function () {
