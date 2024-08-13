@@ -12,7 +12,7 @@ run(argMateLite, ' lite');
 let argv;
 
 function run(argMate, type = '') {
-	describe.todo('Miscellaneous tests and edge cases' + type, () => {
+	describe.todo('Edge cases' + type, () => {
 		describe.todo('4o' + type, () => {
 			test('Empty input', () => {
 				expect(argMate([])).toEqual({_: []});

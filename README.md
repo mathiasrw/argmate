@@ -265,22 +265,21 @@ const params = {
 ### Config
 
 ```js
-// an example of a config object and all default values
+// THe default values of all possible porperties of the config object
 const config = {
 	error: msg => {throw msg},		// This function will be called when there is a problem with input data (foreample if you try to assign a value to a parameter you have defined as boolean). Defaults to throwing the error messages.
 	panic: msg => {throw msg},		// This function will be called when there is a problem with the configuration of the parameters. YOu should only encounter these during development. Defaults to throwing the error messages. 
-	allowUnknown: true, 	// Specify if parameters not described in "params" are allowed. If violated, config.error will be called.
-	allowNegatingFlags: true, 				// Specify if boolean flags with "no-" as the first part will be treated as a negation. If so, --no-foo will result in {'_':[], 'foo': false}. Works well with default: true;
-	
-	allowKeyNumValues: true		// Set this to false to disable ultra short notations like '-r255' to set -r = 255 
-	allowAssign: true			// allow the use of = after a parameter to indicate that the next value should to be assigned as a value.
+	allowUnknown: true, 	// Allows you to provie parameters not defined in the config objecet
+	allowNegatingFlags: true, 				// Will let you prepend boolean parameters with "no-" provide the value as false. If so, --no-foo will result in {'_':[], 'foo': false}. 
+	allowKeyNumValues: true		// Allows you to use ultra short notations like '-r255' to set -r = 255 
+	allowAssign: true			// Allow the use of = after a parameter to indicate that the next value should to be assigned as a value. Works both for the value as part of the same parameter (-p=2) or the value in the next argument (-p= 2)
 	allowBoolString: true		// Let you assign boolean parameters from strings like true|yes|on|false|no|off
+	strict: false				// Will set all allow* propeties to false. Individual paramters can overwrite this by also being provided. 
 	autoCamelKebabCase: true	// Let you treat input like 'foo-bar' as 'fooBar'
-	strict: false				// Will set allow* and auto* propeties to false in this config. Individual paramters can overwrite by being explisitly set. 
-	outputAlias: false			// In the return object only the canonical version of the parameter will appear. If outputAlias is set to true all alias naming will also appear (Normally --foo with -f as alias will only come as --foo. This this on both "foo" and "f" will be part of the return object)
-	outputInflate:false			// will allow keys with dot to be returned as nested objects (--a.b=22 will result in {_[], a:{b:22}})		
-	intro: 'Intro Text', 	// Text to add above the information about each parameter in the help text.
-	outro: 'Outro Text', 	// Text to add below the information about each parameter in the help text.
+	outputAlias: false			// If set to true the returned data object will contain one property per parameter plus one for each alias. (Normally --foo with -f as alias will only come as {foo:...}. If this option is set to true it will output {foo:..., f: ...})
+	outputInflate:false			// Will expand keys with dots in them into nested objects (--a.b=22 will result in {a:{b:22}})		
+	intro: 'Intro Text', 	// Text that goes above the information about each parameter in the help text.
+	outro: 'Outro Text', 	// Text that goes below the information about each parameter in the help text.
 };
 ```
 

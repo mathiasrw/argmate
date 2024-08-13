@@ -6,9 +6,10 @@ import {re} from './common.js';
 
 const strictConf = {
 	allowUnknown: false,
-	autoCamelKebabCase: false,
 	allowNegatingFlags: false,
 	allowKeyNumValues: false,
+	allowAssign: false,
+	allowBoolString: false,
 };
 
 export function precompileConfig(params: ArgMateParams, conf?: ArgMateConfig) {
@@ -31,12 +32,16 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}):
 		panic: msg => {
 			throw msg;
 		},
-		allowUnknown: true,
 		autoCamelKebabCase: true,
+		allowUnknown: true,
 		allowNegatingFlags: true,
 		allowKeyNumValues: true,
 		allowAssign: true,
+		allowBoolString: true,
 		outputAlias: false,
+		outputInflate: false,
+		intro: '',
+		outro: '',
 		...(conf_.strict ? strictConf : {}),
 		...conf_,
 	};
@@ -165,7 +170,7 @@ function objectToCode(obj: any, level = 1): string {
 
 	for (const [key, value] of Object.entries(obj)) {
 		str += `${'  '.repeat(level)}"${key}": `;
-		if (typeof value === 'function') {
+		if (typeof value === 'function' || value instanceof RegExp) {
 			str += value.toString();
 		} else if (typeof value === 'object' && !Array.isArray(value)) {
 			str += objectToCode(value, level + 1);

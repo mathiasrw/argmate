@@ -162,11 +162,11 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 		if ('boolean' === theType) {
 			let result = !NO;
 			if (ASSIGN) {
-				if (NO)
+				if (NO) {
 					return error(
-						`The parameter '${KEY}' cant be negated AND assigned at the same time`
+						`The parameter '${KEY}' can't be negated AND assigned at the same time`
 					);
-				if (conf.allowBoolString && re.boolStringTrue.test(VAL)) {
+				} else if (conf.allowBoolString && re.boolStringTrue.test(VAL)) {
 					result = true;
 				} else if (conf.allowBoolString && re.boolstringfalse.test(VAL)) {
 					result = false;
@@ -196,7 +196,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 				return error(`No data provided for '${KEY}'`);
 			}
 
-			VAL ||= args.pop() || '';
+			VAL = args.pop() || '';
 		}
 
 		//if(params[KEY].split) {

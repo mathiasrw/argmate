@@ -3,7 +3,7 @@ import argMate, {argInfo} from '../src/argMate.js';
 let argv;
 debugger;
 
-argv = argMate(['--color=0xff00ff']);
+argv = argMate(['--foo=こんにちは']);
 
 console.log(argv);
 
