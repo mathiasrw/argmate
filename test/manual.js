@@ -3,7 +3,7 @@ import argMate, {argInfo} from '../src/argMate.js';
 let argv;
 debugger;
 
-argv = argMate(['--foo=こんにちは']);
+argv = argMate(['--eq=a=b', '--foo', 'c=d'], {eq: '', foo: ''});
 
 console.log(argv);
 

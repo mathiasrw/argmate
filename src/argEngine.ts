@@ -191,14 +191,6 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 			continue;
 		}
 
-		if (!VAL) {
-			if (0 === args.length) {
-				return error(`No data provided for '${KEY}'`);
-			}
-
-			VAL = args.pop() || '';
-		}
-
 		//if(params[KEY].split) {
 		//VAL = VAL.split(params[KEY].split).filter(Boolean);
 		//}
