@@ -151,15 +151,32 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 		const theKey = params[KEY].key;
 		const theType = params[theKey].type;
 
-		if ('boolean' === theType) {
-			if (ASSIGN) {
-				//if (!NO && )
-
-				return error(
-					`The parameter '${KEY}' is a boolean (a flag) and can't be assigned a value like '${arg}'`
-				);
+		if (!VAL && !('count' === theType || ('boolean' === theType && !ASSIGN))) {
+			if (0 === args.length) {
+				return error(`No data provided for '${KEY}'`);
 			}
-			output[theKey] = !NO;
+
+			VAL ||= args.pop() || '';
+		}
+
+		if ('boolean' === theType) {
+			let result = !NO;
+			if (ASSIGN) {
+				if (NO)
+					return error(
+						`The parameter '${KEY}' cant be negated AND assigned at the same time`
+					);
+				if (conf.allowBoolString && re.boolStringTrue.test(VAL)) {
+					result = true;
+				} else if (conf.allowBoolString && re.boolstringfalse.test(VAL)) {
+					result = false;
+				} else {
+					return error(
+						`The parameter '${KEY}' is a boolean (a flag) and can't be assigned a value like '${arg}'`
+					);
+				}
+			}
+			output[theKey] = result;
 			inputLog.push(theKey);
 			continue;
 		}

@@ -274,7 +274,8 @@ const config = {
 	
 	allowKeyNumValues: true		// Set this to false to disable ultra short notations like '-r255' to set -r = 255 
 	allowAssign: true			// allow the use of = after a parameter to indicate that the next value should to be assigned as a value.
-	autoCamelKebabCase: true	// Set to false to avoid treating input like 'foo-bar' as 'fooBar'
+	allowBoolString: true		// Let you assign boolean parameters from strings like true|yes|on|false|no|off
+	autoCamelKebabCase: true	// Let you treat input like 'foo-bar' as 'fooBar'
 	strict: false				// Will set allow* and auto* propeties to false in this config. Individual paramters can overwrite by being explisitly set. 
 	outputAlias: false			// In the return object only the canonical version of the parameter will appear. If outputAlias is set to true all alias naming will also appear (Normally --foo with -f as alias will only come as --foo. This this on both "foo" and "f" will be part of the return object)
 	outputInflate:false			// will allow keys with dot to be returned as nested objects (--a.b=22 will result in {_[], a:{b:22}})		
