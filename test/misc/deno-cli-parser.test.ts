@@ -659,31 +659,64 @@ function run(parseArgs, type = '') {
 			expect(letters.r).toEqual(true);
 			expect(letters.t).toEqual('');
 		});
-		Deno.test('parseArgs() handles string and alias', function () {
-			const x = parseArgs(['--str', '000123'], {
-				string: 's',
-				alias: {s: 'str'},
-			});
 
-			assertEquals(x.str, '000123');
-			assertEquals(typeof x.str, 'string');
-			assertEquals(x.s, '000123');
-			assertEquals(typeof x.s, 'string');
+		test.todo('parseArgs() handles string and alias A', () => {
+			const opts1 = {
+				str: {type: 'string', alias: 's'},
+			};
+			let x = argMate(['--str', '000123'], opts1);
+			expect(x.str).toEqual('000123');
+			expect(typeof x.str).toBe('string');
+			expect(x.s).toEqual('000123');
+			expect(typeof x.s).toBe('string');
 
-			const y = parseArgs(['-s', '000123'], {
-				string: 'str',
-				alias: {str: 's'},
-			});
-
-			assertEquals(y.str, '000123');
-			assertEquals(typeof y.str, 'string');
-			assertEquals(y.s, '000123');
-			assertEquals(typeof y.s, 'string');
+			x = argMate(['-s', '000123'], opts1);
+			expect(x.str).toEqual('000123');
+			expect(typeof x.str).toBe('string');
+			expect(x.s).toEqual('000123');
+			expect(typeof x.s).toBe('string');
 		});
 
-		Deno.test('parseArgs() handles slash break', function () {
-			assertEquals(parseArgs(['-I/foo/bar/baz']), {I: '/foo/bar/baz', _: []});
-			assertEquals(parseArgs(['-xyz/foo/bar/baz']), {
+		test.todo('parseArgs() handles string and alias B', () => {
+			const opts2 = {
+				s: {type: 'string', alias: 'str'},
+			};
+			let y = argMate(['-s', '000123'], opts2);
+			expect(y.str).toEqual('000123');
+			expect(typeof y.str).toBe('string');
+			expect(y.s).toEqual('000123');
+			expect(typeof y.s).toBe('string');
+
+			y = argMate(['--str', '000123'], opts2);
+			expect(y.str).toEqual('000123');
+			expect(typeof y.str).toBe('string');
+			expect(y.s).toEqual('000123');
+			expect(typeof y.s).toBe('string');
+		});
+
+		test.todo('parseArgs() handles slash break A', () => {
+			expect(argMate(['-I/foo/bar/baz'])).toEqual({I: '/foo/bar/baz', _: []});
+			expect(argMate(['-xyz/foo/bar/baz'], {x: true, y: true, z: ''})).toEqual({
+				x: true,
+				y: true,
+				z: '/foo/bar/baz',
+				_: [],
+			});
+		});
+
+		test.todo('parseArgs() handles slash break B', () => {
+			expect(argMate(['-I=/foo/bar/baz'])).toEqual({I: '/foo/bar/baz', _: []});
+			expect(argMate(['-xyz=/foo/bar/baz'], {x: true, y: true, z: ''})).toEqual({
+				x: true,
+				y: true,
+				z: '/foo/bar/baz',
+				_: [],
+			});
+		});
+
+		test.todo('parseArgs() handles slash break C', () => {
+			expect(argMate(['-I=/foo/bar/baz'])).toEqual({I: '/foo/bar/baz', _: []});
+			expect(argMate(['-xyz=/foo/bar/baz'])).toEqual({
 				x: true,
 				y: true,
 				z: '/foo/bar/baz',
