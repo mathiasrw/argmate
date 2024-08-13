@@ -39,6 +39,7 @@ export interface ArgMateConfig {
 	allowKeyNumValues?: boolean;
 	allowAssign?: boolean;
 	outputAlias?: boolean;
+	outputInflate?: boolean;
 	intro?: IntroOutroType;
 	outro?: IntroOutroType;
 }

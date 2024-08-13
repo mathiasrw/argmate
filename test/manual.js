@@ -3,15 +3,7 @@ import argMate, {argInfo} from '../src/argMate.js';
 let argv;
 debugger;
 
-argv = argMate(
-	['-h', 'derp'],
-	{
-		herp: {type: 'boolean', alias: 'h'},
-	},
-	{
-		outputAlias: true,
-	}
-);
+argv = argMate(['--color=0xff00ff']);
 
 console.log(argv);
 

@@ -243,17 +243,20 @@ for (let i = argv.start; i < argv.start + argv.steps; i++) {
 
 ### Params
 
+the second parameter for argMate is a a configuration object defining the parameters you expect and their propeties
+
 ```js
 const params = {
-	// The object returned from argMate will only have propety names provided in this object (foo in this example)
+	// The object returned from argMate will only have propety names provided in this object (foo in this example) But see outputAlias config below 
 	foo: {
-		type: 'string', 				// boolean | string/number | float | int | hex | array/string[] | number[]/float[] | int[] | hex[]. Optional. Defaults to boolean.
+		type: 'string', 				// boolean | string | number | float | int | hex | array | string[] | number[] | float[] | int[] | hex[]. Optional. Defaults to boolean.
 		default: 'val', 				// The default value for the parameter. If the type is not specified, the type will be determined from this field. Optional. 
 		mandatory: true, 				// Calls config.error if the value is not provided. No effect if used in combination with "default".
 		alias: [], 						// Other values to be treated as this parameter. Also accepts a string with a single value.
-										// If you camelCase the property name, it will treat kebab-case of the word as an alias (so fooBar will automaticly have foo-bar as alias)
-		conflict: [], 					// Other keys to be treated as conflicting. Also accepts a single string.
-		valid: () => {}, 				// Function to check if the value is valid (will call config.error if not valid)
+										// If you camelCase the property name, it will treat kebab-case of the word as an alias (so fooBar will automaticly have foo-bar as alias). Can also be a comma seperated string
+		conflict: [], 					// Other keys to be treated as conflicting. Also accepts a single string. Can also be a comma seperated string. 
+		valid: () => {}|[], 				// Function to check if the value is valid (will call config.error if not valid). Can also be an array of valid values (case sensitive). If you want case insensitive make a function with a regex valid:v=>/foo|bar/i.test(v) will accept both Foo and BAR.
+		transform: 						// function that will transform the value. Example: trim values by using transform:v=>v.trim();
 		describe: 'Description here', 	// A description of the parameter. Will be used for the help text (see below).
 	},
 };
@@ -262,15 +265,24 @@ const params = {
 ### Config
 
 ```js
+// an example of a config object and all default values
 const config = {
-	error: msg => {},		// Function to be called when a problem has been detected in a validation. Defaults to throwing an informative exception
-	panic: msg => {},		// Function to be called when there is a panic in the engine. Defaults to throwing an informative exception. 
+	error: msg => {throw msg},		// This function will be called when there is a problem with input data (foreample if you try to assign a value to a parameter you have defined as boolean). Defaults to throwing the error messages.
+	panic: msg => {throw msg},		// This function will be called when there is a problem with the configuration of the parameters. YOu should only encounter these during development. Defaults to throwing the error messages. 
 	allowUnknown: true, 	// Specify if parameters not described in "params" are allowed. If violated, config.error will be called.
-	no: true, 				// Specify if boolean flags with "no-" as the first part will be treated as a negation. If so, --no-foo will result in {'_':[], 'foo': false}. Works well with default: true;
+	allowNegatingFlags: true, 				// Specify if boolean flags with "no-" as the first part will be treated as a negation. If so, --no-foo will result in {'_':[], 'foo': false}. Works well with default: true;
+	
+	allowKeyNumValues: true		// Set this to false to disable ultra short notations like '-r255' to set -r = 255 
+	allowAssign: true			// allow the use of = after a parameter to indicate that the next value should to be assigned as a value.
+	autoCamelKebabCase: true	// Set to false to avoid treating input like 'foo-bar' as 'fooBar'
+	strict: false				// Will set allow* and auto* propeties to false in this config. Individual paramters can overwrite by being explisitly set. 
+	outputAlias: false			// In the return object only the canonical version of the parameter will appear. If outputAlias is set to true all alias naming will also appear (Normally --foo with -f as alias will only come as --foo. This this on both "foo" and "f" will be part of the return object)
+	outputInflate:false			// will allow keys with dot to be returned as nested objects (--a.b=22 will result in {_[], a:{b:22}})		
 	intro: 'Intro Text', 	// Text to add above the information about each parameter in the help text.
 	outro: 'Outro Text', 	// Text to add below the information about each parameter in the help text.
 };
 ```
+
 
 ### Help Text
 
@@ -306,9 +318,8 @@ console.log(
 - If you provide array kind of types (like string[]) you can trust the value is alwas an array. If no values provided the array is emptly. 
 - If you dont specify, you get some help, but not consistency. If you specify you know exactly what you get. 
 - Defaults to consider unknown params as flags. IF you want unknown things to be assigned you add a = behind the flag.
+	 - undefined parameters will default to being a boolean. If you want to assign values you need to A) define a type (or a default value) in the config obj, or B) add "=" to the parameter in the inputs
 - If you provide the same alias to two parameters, the alias will stay with the first parameter you define. 
-- we do not support autoconverting magic strings like "true" and "false" 
-	- maybe we should have an option to convert magic strings...
 - for defined params you need to provide int, number or float as type for it to be a number in the resulting data object
 			expect(
 				argMate(['--host', 'localhost', '--port', '555'], {
@@ -343,7 +354,11 @@ console.log(
 
 
 ### ideas
-- Flag to outoconvert _ values to int when convertable? (like deno)
+- ? Flag to outoconvert _ values to int when convertable? (like deno)
+- We do not support autoconverting magic strings like "true" and "false" 
+	- maybe we should have an option to convert magic strings...
+- ? input type json thet is parsed and added as data?
+- ? Commaseperated list to array?
  
 
 ---

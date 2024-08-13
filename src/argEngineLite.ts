@@ -91,7 +91,7 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 		}
 
 		if (conf.allowAssign) {
-			let i = KEY.indexOf('=');
+			const i = KEY.indexOf('=');
 			if (-1 < i) {
 				ASSIGN = true;
 				VAL = KEY.slice(i + 1);
@@ -121,7 +121,7 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 					VAL = args.pop() || '';
 				}
 				// @ts-ignore
-				output[KEY] = +VAL == VAL ? +VAL : VAL;
+				output[KEY] = +VAL + '' === VAL ? +VAL : VAL;
 			} else {
 				output[KEY] = true;
 			}
@@ -167,7 +167,7 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 			case 'int':
 			case 'int[]':
 				num = +VAL | 0;
-				if ('' + num !== VAL) num = NaN;
+				if (num + '' !== VAL) num = NaN;
 				break;
 
 			case 'hex':
@@ -178,6 +178,7 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 					num = NaN;
 				}
 				break;
+
 			default:
 				return conf.panic(`'${KEY}' got invalid type: '${params[params[KEY].key].type}'`);
 		}

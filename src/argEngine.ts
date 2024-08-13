@@ -140,7 +140,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 					VAL = args.pop() || '';
 				}
 				// @ts-ignore
-				output[KEY] = +VAL == VAL ? +VAL : VAL;
+				output[KEY] = +VAL + '' === VAL ? +VAL : VAL;
 			} else {
 				output[KEY] = !NO;
 			}
@@ -152,10 +152,13 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 		const theType = params[theKey].type;
 
 		if ('boolean' === theType) {
-			if (ASSIGN)
+			if (ASSIGN) {
+				//if (!NO && )
+
 				return error(
 					`The parameter '${KEY}' is a boolean (a flag) and can't be assigned a value like '${arg}'`
 				);
+			}
 			output[theKey] = !NO;
 			inputLog.push(theKey);
 			continue;
@@ -170,6 +173,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 			inputLog.push(theKey);
 			continue;
 		}
+
 		if (!VAL) {
 			if (0 === args.length) {
 				return error(`No data provided for '${KEY}'`);
@@ -178,7 +182,11 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 			VAL ||= args.pop() || '';
 		}
 
-		let num = 0;
+		//if(params[KEY].split) {
+		//VAL = VAL.split(params[KEY].split).filter(Boolean);
+		//}
+
+		let data = 0;
 
 		switch (theType) {
 			case 'string':
@@ -194,35 +202,48 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 			case 'float':
 			case 'number[]':
 			case 'float[]':
-				num = +VAL;
+				data = +VAL;
 				break;
 
 			case 'int':
 			case 'int[]':
-				num = +VAL | 0;
-				if ('' + num !== VAL && !re.isHexPrefix.test(VAL)) num = NaN;
+				data = +VAL | 0;
+				if (data + '' !== VAL && !re.isHexPrefix.test(VAL)) data = NaN;
 				break;
 
 			case 'hex':
 			case 'hex[]':
 				if (re.isHex.test(VAL)) {
-					num = parseInt(VAL, 16);
+					data = parseInt(VAL, 16);
 				} else {
-					num = NaN;
+					data = NaN;
 				}
 
 				break;
+
+			/*
+			case 'json':
+				console.log(VAL);
+				try {
+					data = JSON.parse(VAL);
+				} catch (e) {
+					data = NaN; // I know - a bit cheeky...
+					VAL = e.message; // VAL.replace(re.truncate, '$1...');
+				}
+				break;
+			*/
+
 			default:
-				return panic(`'${KEY}' configuration uses invalid type '${theType}'`);
+				return panic(`Parameter '${KEY}' configuration has an invalid type: '${theType}'`);
 		}
 
-		if (isNaN(num) || !isFinite(num))
+		if (isNaN(data) || !isFinite(data))
 			return error(`The value of '${KEY}' is not a valid ${theType}: '${VAL}'`);
 
 		if (Array.isArray(output[theKey])) {
-			output[theKey].push(num);
+			output[theKey].push(data);
 		} else {
-			output[theKey] = num;
+			output[theKey] = data;
 		}
 	}
 
@@ -282,5 +303,32 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 		Object.assign(output, tempOutput);
 	}
 
+	if (conf.outputInflate) {
+		return inflate(output);
+	}
+
 	return output;
+}
+
+function inflate(flatObj) {
+	const result = {};
+
+	for (const key in flatObj) {
+		const keys = key.split('.');
+		let currentLevel = result;
+
+		keys.forEach((k, i) => {
+			if (!currentLevel[k]) {
+				currentLevel[k] = {};
+			}
+
+			if (i === keys.length - 1) {
+				currentLevel[k] = flatObj[key];
+			} else {
+				currentLevel = currentLevel[k];
+			}
+		});
+	}
+
+	return result;
 }
