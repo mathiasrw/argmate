@@ -1,6 +1,6 @@
 {
 	"name": "argmate",
-	"version": "0.8.1",
+	"version": "0.8.2",
 	"author": "Mathias Wulff",
 	"description": "Fast CLI parameter parsing. Zero dependencies. Good DX. Pre-compile for turbo speed.",
 	"license": "CC-BY-SA-4.0",
