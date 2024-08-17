@@ -12,7 +12,7 @@ const strictConf = {
 	allowBoolString: false,
 };
 
-export function precompileConfig(params: ArgMateParams, conf?: ArgMateConfig) {
+/** #__PURE__ */ export function precompileConfig(params: ArgMateParams, conf?: ArgMateConfig) {
 	return objectToCode(compileConfig(params, conf));
 }
 
@@ -150,7 +150,7 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}):
 	};
 }
 
-function findType(val: any): string | undefined {
+/** #__PURE__ */ function findType(val: any): string | undefined {
 	if (val === null || val === undefined) return undefined;
 
 	const type = typeof val;
@@ -165,7 +165,7 @@ function findType(val: any): string | undefined {
 	}
 }
 
-function objectToCode(obj: any, level = 1): string {
+/** #__PURE__ */ function objectToCode(obj: any, level = 1): string {
 	let str = '{\n';
 
 	for (const [key, value] of Object.entries(obj)) {

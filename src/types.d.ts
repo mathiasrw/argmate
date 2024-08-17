@@ -31,6 +31,7 @@ export interface ArgMateParams {
 type IntroOutroType = string | (string | [string, string])[];
 
 export interface ArgMateConfig {
+	panic?: (msg: string) => void;
 	error?: (msg: string) => void;
 	strict?: boolean;
 	allowUnknown?: boolean;
@@ -43,6 +44,9 @@ export interface ArgMateConfig {
 	outputInflate?: boolean;
 	intro?: IntroOutroType;
 	outro?: IntroOutroType;
+
+	//	'dot-notation': false,
+	//  'boolean-negation': false
 }
 
 export interface ArgMateConfigMandatory extends ArgMateConfig {

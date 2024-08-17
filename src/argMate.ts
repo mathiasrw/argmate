@@ -15,6 +15,8 @@ import {argService} from './argService.js';
 // @ts-ignore
 import argEngine from './argEngine.js';
 
+export {argEngine};
+
 export default function argMate(args: string[], params?: ArgMateParams, conf?: ArgMateConfig) {
 	return argService(argEngine, args, params, conf);
 }

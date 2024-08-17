@@ -1,5 +1,9 @@
 // @ts-ignore
 import {ArgMateParams, ArgMateConfig, ArgProcessObj} from './types.js';
+
+// @ts-ignore
+//import use from './strip.macro.js' with { type: 'macro' };
+
 interface ArgMateConfigMandatory extends ArgMateConfig {
 	error: (msg: string) => void;
 	panic: (msg: string) => void;
