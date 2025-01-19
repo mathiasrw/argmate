@@ -11,13 +11,13 @@
 
 
 
-> _Your go-to mate for CLI parameter parsing - friendly as a kookaburra and fast as a magpie swoop. Just 6KB and zero dependencies - cheers!_
+> _Your go-to mate for CLI parameter parsing - friendly as a kookaburra and fast as a magpie swoop. <br>6KB and zero dependencies - cheers!_
 
 While developing tools like [AlaSQL](https://www.npmjs.com/package/alasql) and [RexReplace](https://www.npmjs.com/package/rexreplace), I've often been torn between two types of CLI parsers. On one hand, there are feature-rich options like [yargs](https://www.npmjs.com/package/yargs) and [commander](https://www.npmjs.com/package/commander). Despite their heavy startup time, these parsers provide useful features like easy defaults, smooth validation, and well-structured CLI help text output. On the other hand, simpler alternatives like [nopt](https://www.npmjs.com/package/nopt) and [mri](https://www.npmjs.com/package/mri) excel in performance but lack in development experience. After uncovering yet another performance hit from using a heavyweight parser, I decided to solve this issue once and for all.
 
 ```
 Benchmark:
-argMate         9,089,813 ops/sec ±2.15% (98 runs sampled)        1x
+argmate         9,089,813 ops/sec ±2.15% (98 runs sampled)        1x
 nopt            2,070,397 ops/sec ±1.21% (94 runs sampled)        4x
 mri             1,832,768 ops/sec ±0.13% (99 runs sampled)        5x
 minimist        706,265 ops/sec ±1.05% (94 runs sampled)         13x
