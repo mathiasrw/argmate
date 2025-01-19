@@ -11,7 +11,7 @@
 
 
 
-> _Your go-to mate for CLI parameter parsing. Friendly, faster than a cut snake, and with added sprinkles of convenience to make your development experience a breeze. Only 6KB and zero dependencies - cheers!_
+> _Your go-to mate for CLI parameter parsing - friendly as a kookaburra and fast as a magpie swoop. Just 6KB and zero dependencies - cheers!_
 
 While developing tools like [AlaSQL](https://www.npmjs.com/package/alasql) and [RexReplace](https://www.npmjs.com/package/rexreplace), I've often been torn between two types of CLI parsers. On one hand, there are feature-rich options like [yargs](https://www.npmjs.com/package/yargs) and [commander](https://www.npmjs.com/package/commander). Despite their heavy startup time, these parsers provide useful features like easy defaults, smooth validation, and well-structured CLI help text output. On the other hand, simpler alternatives like [nopt](https://www.npmjs.com/package/nopt) and [mri](https://www.npmjs.com/package/mri) excel in performance but lack in development experience. After uncovering yet another performance hit from using a heavyweight parser, I decided to solve this issue once and for all.
 
