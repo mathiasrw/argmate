@@ -49,7 +49,7 @@
 	},
 	"dependencies": {},
 	"devDependencies": {
-		"bun-types": "1.2.18",
+		"bun-types": "1.2.19",
 		"columnify": "^1.6.0",
 		"husky": "^9.1.4",
 		"prettier": "3.6.2",
