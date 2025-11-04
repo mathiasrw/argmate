@@ -141,7 +141,7 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 		}
 
 		if (!VAL) {
-			if (0 === args.length) return conf.error(`No data for '${KEY}'`);
+			if (0 === args.length) return conf.error(`No data provided for '${KEY}'`);
 			VAL = args.pop() || '';
 		}
 

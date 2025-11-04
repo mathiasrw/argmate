@@ -118,7 +118,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 			}
 		}
 
-		if (!LONG && 1 < KEY.length) {
+		if (!LONG && 1 < KEY?.length) {
 			const multi = KEY.split('').map(v => (NO ? '-no-' : '-') + v);
 			multi[multi.length - 1] += ASSIGN || '';
 			args = args.concat(multi.reverse());
@@ -132,7 +132,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 
 		// Key is not a defined parameter
 		if (!params[KEY]) {
-			if (!allowUnknown) return error(`Unknown parameter '${KEY}' not allowed.`);
+			if (!allowUnknown) return error(`Unknown parameter '${KEY}' not allowed`);
 
 			if (autoCamelKebabCase && re.isKebab.test(KEY)) {
 				KEY = KEY.replace(re.kebab2camel, (_, letter) => letter.toUpperCase());

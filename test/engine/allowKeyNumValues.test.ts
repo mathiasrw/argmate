@@ -19,7 +19,7 @@ function run(argMate, type = '') {
 			});
 		});
 
-		test.if(!type)('Disallow', () => {
+		describe.if(!type)('Disallow', () => {
 			test('Default', () => {
 				let argv = argMate(
 					'-s123'.split(' '),

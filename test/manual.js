@@ -1,7 +1,19 @@
 // bun --inspect-brk test/manual.js      --no-foo bar --foo2 bar2
 import argMate, {argInfo} from '../src/argMate.js';
+import {compileConfig} from '../src/compileConfig.js';
 let argv;
 debugger;
+
+console.log(argMate(['--no-moo']));
+process.exit();
+
+console.log(argMate(['-123', '-', '4567'], {timeout: {alias: 't'}}));
+
+process.exit();
+
+console.log(compileConfig({timeout: {alias: 't'}}));
+
+process.exit();
 
 argv = argMate(['--eq=a=b', '--foo', 'c=d'], {eq: '', foo: ''});
 

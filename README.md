@@ -56,7 +56,7 @@ let argv;
 argv = argMate(['--foo', 'bar', '-i']);
 // {_: ['bar'], foo: true, i: true}
 
-// Use the `=` notation for assignment, with or without seperation to the value
+// Use the `=` notation for assignment, with or without separation to the value
 // Type is inferred from the value (string or number)
 argv = argMate(['--foo=', 'bar', '-i=123']);
 // {_: [], foo: 'bar', i: 123}
@@ -182,7 +182,7 @@ Same example but a bit shorter
 ```js
 import argMate from 'argmate';
 
-const argv = ArgMate(process.argv.slice(2), 
+const argv = argMate(process.argv.slice(2), 
 	{
 		foo: 10,   
 		bar: false 
@@ -243,18 +243,18 @@ for (let i = argv.start; i < argv.start + argv.steps; i++) {
 
 ### Params
 
-the second parameter for argMate is a a configuration object defining the parameters you expect and their propeties
+The second parameter for argMate is a configuration object defining the parameters you expect and their properties
 
 ```js
 const params = {
-	// The object returned from argMate will only have propety names provided in this object (foo in this example) But see outputAlias config below 
+	// The object returned from argMate will only have property names provided in this object (foo in this example) But see outputAlias config below 
 	foo: {
 		type: 'string', 				// boolean | string | number | float | int | hex | array | string[] | number[] | float[] | int[] | hex[]. Optional. Defaults to boolean.
 		default: 'val', 				// The default value for the parameter. If the type is not specified, the type will be determined from this field. Optional. 
 		mandatory: true, 				// Calls config.error if the value is not provided. No effect if used in combination with "default".
 		alias: [], 						// Other values to be treated as this parameter. Also accepts a string with a single value.
-										// If you camelCase the property name, it will treat kebab-case of the word as an alias (so fooBar will automaticly have foo-bar as alias). Can also be a comma seperated string
-		conflict: [], 					// Other keys to be treated as conflicting. Also accepts a single string. Can also be a comma seperated string. 
+										// If you camelCase the property name, it will treat kebab-case of the word as an alias (so fooBar will automatically have foo-bar as alias). Can also be a comma separated string
+		conflict: [], 					// Other keys to be treated as conflicting. Also accepts a single string. Can also be a comma separated string. 
 		valid: () => {}|[], 				// Function to check if the value is valid (will call config.error if not valid). Can also be an array of valid values (case sensitive). If you want case insensitive make a function with a regex valid:v=>/foo|bar/i.test(v) will accept both Foo and BAR.
 		transform: 						// function that will transform the value. Example: trim values by using transform:v=>v.trim();
 		describe: 'Description here', 	// A description of the parameter. Will be used for the help text (see below).
@@ -265,18 +265,18 @@ const params = {
 ### Config
 
 ```js
-// THe default values of all possible porperties of the config object
+// The default values of all possible properties of the config object
 const config = {
-	error: msg => {throw msg},		// This function will be called when there is a problem with input data (foreample if you try to assign a value to a parameter you have defined as boolean). Defaults to throwing the error messages.
-	panic: msg => {throw msg},		// This function will be called when there is a problem with the configuration of the parameters. YOu should only encounter these during development. Defaults to throwing the error messages. 
-	allowUnknown: true, 	// Allows you to provie parameters not defined in the config objecet
+	error: msg => {throw msg},		// This function will be called when there is a problem with input data (for example if you try to assign a value to a parameter you have defined as boolean). Defaults to throwing the error messages.
+	panic: msg => {throw msg},		// This function will be called when there is a problem with the configuration of the parameters. You should only encounter these during development. Defaults to throwing the error messages. 
+	allowUnknown: true, 	// Allows you to provide parameters not defined in the config object
 	allowNegatingFlags: true, 				// Will let you prepend boolean parameters with "no-" provide the value as false. If so, --no-foo will result in {'_':[], 'foo': false}. 
 	allowKeyNumValues: true		// Allows you to use ultra short notations like '-r255' to set -r = 255 
-	allowAssign: true			// Allow the use of = after a parameter to indicate that the next value should to be assigned as a value. Works both for the value as part of the same parameter (-p=2) or the value in the next argument (-p= 2)
+	allowAssign: true			// Allow the use of = after a parameter to indicate that the next value should be assigned as a value. Works both for the value as part of the same parameter (-p=2) or the value in the next argument (-p= 2)
 	allowBoolString: true		// Let you assign boolean parameters from strings like true|yes|on|false|no|off
-	strict: false				// Will set all allow* propeties to false. Individual paramters can overwrite this by also being provided. 
+	strict: false				// Will set all allow* properties to false. Individual parameters can overwrite this by also being provided. 
 	autoCamelKebabCase: true	// Let you treat input like 'foo-bar' as 'fooBar'
-	outputAlias: false			// If set to true the returned data object will contain one property per parameter plus one for each alias. (Normally --foo with -f as alias will only come as {foo:...}. If this option is set to true it will output {foo:..., f: ...})
+	outputAlias: false			// If set to true the returned data object will contain one property per parameter plus one for each alias. (Normally --foo with -f as alias will only come as {foo:...}. If this option is set to true it will output {foo: ..., f: ...})
 	outputInflate:false			// Will expand keys with dots in them into nested objects (--a.b=22 will result in {a:{b:22}})		
 	intro: 'Intro Text', 	// Text that goes above the information about each parameter in the help text.
 	outro: 'Outro Text', 	// Text that goes below the information about each parameter in the help text.
@@ -313,11 +313,10 @@ console.log(
 );
 ```
 
-## Notes
-- Demonstrate how to use macros to pregenerate engineConfig to make things even faster. manual or via https://bun.sh/docs/bundler/macros - https://bun.sh/docs/bundler/macros#export-condition-macro
-- If you provide array kind of types (like string[]) you can trust the value is alwas an array. If no values provided the array is emptly. 
-- If you dont specify, you get some help, but not consistency. If you specify you know exactly what you get. 
-- Defaults to consider unknown params as flags. IF you want unknown things to be assigned you add a = behind the flag.
+## Please note
+- If you provide array kind of types (like string[]) you can trust the value is always an array. If no values are provided the array is empty. 
+- If you don't specify, you get some help, but not consistency. If you specify you know exactly what you get. 
+- Defaults to consider unknown params as flags. If you want unknown things to be assigned you add a = behind the flag.
 	 - undefined parameters will default to being a boolean. If you want to assign values you need to A) define a type (or a default value) in the config obj, or B) add "=" to the parameter in the inputs
 - If you provide the same alias to two parameters, the alias will stay with the first parameter you define. 
 - for defined params you need to provide int, number or float as type for it to be a number in the resulting data object
@@ -332,7 +331,7 @@ console.log(
 				_: [],
 			});
 
-- but if you have not defined the param and provide is as assigned then numbers will be identified and provided as value
+- but if you have not defined the param and provide it as assigned then numbers will be identified and provided as a value
 
 			expect(argMate(['--host=', 'localhost', '--port=', '555'], {})).toEqual({
 				host: 'localhost',
@@ -350,15 +349,16 @@ console.log(
 
 ### lite quirks
 
-- Lite will not convert your 0x prepended hexvalues to int
+- Lite will not convert your 0x prepended hex values to int
 
 
 ### ideas
-- ? Flag to outoconvert _ values to int when convertable? (like deno)
+- ? Flag to autoconvert _ values to int when convertible? (like deno)
 - We do not support autoconverting magic strings like "true" and "false" 
 	- maybe we should have an option to convert magic strings...
-- ? input type json thet is parsed and added as data?
-- ? Commaseperated list to array?
+- ? input type json that is parsed and added as data?
+- ? comma-separated list to array?
+- Demonstrate how to use macros to pregenerate engineConfig to make things even faster. manual or via https://bun.sh/docs/bundler/macros - https://bun.sh/docs/bundler/macros#export-condition-macro
  
 
 ---
