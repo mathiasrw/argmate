@@ -288,14 +288,15 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 				`The parameter '${key}' is mandatory.${config[key]?.alias?.length ? ` You can also use an alias: ${config[key].alias.join(', ')}` : ''}`
 			);
 	}
-
-	for (const key of conflict) {
-		if (!inputLog.includes(key)) continue;
-		const conflicting = config[key]?.conflict?.find((value: string) =>
+	debugger;
+	for (const conflictingKey of conflict) {
+		if (!inputLog.includes(conflictingKey)) continue;
+		const conflicting = config[conflictingKey]?.conflict?.find((value: string) =>
+			//const conflicting = config[config[conflictingKey].key]?.conflict?.find((value: string) =>
 			inputLog.includes(value)
 		);
 		if (conflicting) {
-			return error(`The parameter '${key}' conflicts with '${conflicting}'`);
+			return error(`The parameter '${conflictingKey}' conflicts with '${conflicting}'`);
 		}
 	}
 
