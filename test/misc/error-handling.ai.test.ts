@@ -11,9 +11,9 @@ run(argMateLite, ' lite');
 
 let argv;
 
-function run(argMate, type = '') {
-	describe.todo('Error handeling' + type, () => {
-		describe.todo('4o' + type, () => {
+function run(argMate, engineType = '') {
+	describe.todo('Error handeling' + engineType, () => {
+		describe.todo('4o' + engineType, () => {
 			test('Missing required argument (boolean flag)', done => {
 				argMate(
 					['--username'],
@@ -674,7 +674,7 @@ function run(argMate, type = '') {
 				);
 			});
 		});
-		describe.todo('Sonnet 3.5' + type, () => {
+		describe.todo('Sonnet 3.5' + engineType, () => {
 			test('Basic boolean flag', () => {
 				expect(argMate(['--verbose'], {verbose: {type: 'boolean'}})).toEqual({
 					_: [],

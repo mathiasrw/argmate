@@ -11,8 +11,8 @@ run(argMateLite, ' lite');
 
 let argv;
 
-function run(argMate, type = '') {
-	describe('README Usage Examples' + type, () => {
+function run(argMate, engineType = '') {
+	describe('README Usage Examples' + engineType, () => {
 		describe('Basic boolean flags', () => {
 			test("Original example: argMate(['--foo', 'bar', '-i'])", () => {
 				expect(argMate(['--foo', 'bar', '-i'])).toEqual({_: ['bar'], foo: true, i: true});
@@ -497,7 +497,7 @@ function run(argMate, type = '') {
 				});
 			});
 
-			if (!type)
+			if (!engineType)
 				test('Conflicting parameters', () => {
 					const config = {
 						verbose: {type: 'boolean', conflict: ['quiet']},
@@ -520,7 +520,7 @@ function run(argMate, type = '') {
 				});
 			});
 
-			if (!type)
+			if (!engineType)
 				test('Negating boolean flags', () => {
 					const config = {debug: true, verbose: false};
 					const settings = {allowNegatingFlags: true};
@@ -532,7 +532,7 @@ function run(argMate, type = '') {
 					});
 				});
 
-			if (!type)
+			if (!engineType)
 				test('Ultra short notation with numbers', () => {
 					const settings = {allowKeyNumValues: true};
 					expect(argMate(['-p255', '-v80'], {}, settings)).toEqual({

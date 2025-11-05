@@ -1,17 +1,15 @@
 // https://bun.sh/docs/test/writing
 
-// @ts-ignore
+// @ts-ignore - bun:test types not available during TypeScript compilation
 import {expect, test, describe} from 'bun:test';
 
 import argMate from '../../src/argMate';
 import argMateLite from '../../src/argMateLite';
+import type {ArgMateEngine} from '../../src/types.js';
 
-run(argMate);
-run(argMateLite, ' lite');
-
-function run(argMate, type = '') {
-	describe('AllowKeyNumValues' + type, () => {
-		if (!type)
+function run(argMate: ArgMateEngine, engineType = '') {
+	describe('AllowKeyNumValues' + engineType, () => {
+		if (!engineType)
 			test('Default', () => {
 				let argv = argMate('-s123'.split(' '));
 				expect(argv).toEqual({
@@ -20,7 +18,7 @@ function run(argMate, type = '') {
 				});
 			});
 
-		if (!type)
+		if (!engineType)
 			describe('Disallow', () => {
 				test('Default', () => {
 					let argv = argMate(
@@ -40,7 +38,7 @@ function run(argMate, type = '') {
 				});
 			});
 
-		if (!type)
+		if (!engineType)
 			test('No long config', () => {
 				let argv = argMate('--s123'.split(' '));
 				expect(argv).toEqual({
@@ -50,3 +48,6 @@ function run(argMate, type = '') {
 			});
 	});
 }
+
+run(argMate);
+run(argMateLite, ' lite');

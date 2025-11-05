@@ -11,8 +11,8 @@ run(argMateLite, argInfoLite, ' lite');
 
 let help;
 
-function run(argMate, argInfo, type = '') {
-	describe('argInfo' + type, () => {
+function run(argMate, argInfo, engineType = '') {
+	describe('argInfo' + engineType, () => {
 		test('shows someting', () => {
 			argMate('--foo bar --foo2 bar2'.split(' '), {
 				foo: {type: 'string'},

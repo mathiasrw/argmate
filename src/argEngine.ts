@@ -1,7 +1,5 @@
-// @ts-ignore
 import {ArgMateConfig, ArgMateSettings, ArgProcessObj} from './types.js';
 
-// @ts-ignore
 //import use from './strip.macro.js' with { type: 'macro' };
 
 interface ArgMateSettingsMandatory extends ArgMateSettings {
@@ -9,7 +7,6 @@ interface ArgMateSettingsMandatory extends ArgMateSettings {
 	panic: (msg: string) => void;
 }
 
-// @ts-ignore
 import {re} from './common.js';
 
 /*
@@ -294,14 +291,16 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 
 	for (const key of conflict) {
 		if (!inputLog.includes(key)) continue;
-		const conflicting = config[key]?.conflict?.find(value => inputLog.includes(value));
+		const conflicting = config[key]?.conflict?.find((value: string) =>
+			inputLog.includes(value)
+		);
 		if (conflicting) {
 			return error(`The parameter '${key}' conflicts with '${conflicting}'`);
 		}
 	}
 
 	if (settings.outputAlias) {
-		const tempOutput = {};
+		const tempOutput: {[key: string]: any} = {};
 		for (const key in output) {
 			if ('_' === key || !Object.prototype.hasOwnProperty.call(output, key)) continue;
 			const result = output[key];
@@ -323,14 +322,14 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 	return output;
 }
 
-function inflate(flatObj) {
-	const result = {};
+function inflate(flatObj: {[key: string]: any}) {
+	const result: {[key: string]: any} = {};
 
 	for (const key in flatObj) {
 		const keys = key.split('.');
-		let currentLevel = result;
+		let currentLevel: {[key: string]: any} = result;
 
-		keys.forEach((k, i) => {
+		keys.forEach((k: string, i: number) => {
 			if (!currentLevel[k]) {
 				currentLevel[k] = {};
 			}

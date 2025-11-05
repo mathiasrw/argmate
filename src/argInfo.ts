@@ -1,4 +1,3 @@
-// @ts-ignore
 import {ArgMateConfig, ArgMateSettings, ArgMateArgInfoConfig} from './types.js';
 
 /** #__PURE__ */ export default function formatArgInfo(

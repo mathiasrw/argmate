@@ -9,8 +9,8 @@ import argMateLite from '../../src/argMateLite';
 run(argMate);
 run(argMateLite, ' lite');
 
-function run(argMate, type = '') {
-	describe('Error fn' + type, () => {
+function run(argMate, engineType = '') {
+	describe('Error fn' + engineType, () => {
 		test('Set error handeling from the outside', done => {
 			let argv = argMate(
 				'--bar'.split(' '),

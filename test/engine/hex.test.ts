@@ -9,8 +9,8 @@ import argMateLite from '../../src/argMateLite';
 run(argMate);
 run(argMateLite, ' lite');
 
-function run(argMate, type = '') {
-	describe('Hex' + type, () => {
+function run(argMate, engineType = '') {
+	describe('Hex' + engineType, () => {
 		describe('Real hex codes', () => {
 			test('Hex with no 0x prefix', () => {
 				let argv = argMate('--foo a1'.split(' '), {foo: {type: 'hex'}});
@@ -55,7 +55,7 @@ function run(argMate, type = '') {
 			});
 		});
 
-		describe.if(!type)('Hex via int' + type, () => {
+		describe.if(!engineType)('Hex via int' + engineType, () => {
 			test('Hex with 0x prefix', () => {
 				let argv = argMate('--foo 0xa'.split(' '), {foo: {type: 'int'}});
 				expect(argv).toEqual({

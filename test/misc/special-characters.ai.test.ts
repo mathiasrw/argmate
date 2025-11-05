@@ -11,9 +11,9 @@ run(argMateLite, ' lite');
 
 let argv;
 
-function run(argMate, type = '') {
-	describe.todo('Special characters' + type, () => {
-		describe.todo('4o' + type, () => {
+function run(argMate, engineType = '') {
+	describe.todo('Special characters' + engineType, () => {
+		describe.todo('4o' + engineType, () => {
 			describe('Spaces in Values', () => {
 				test('Value with leading and trailing spaces', () => {
 					expect(argMate(['--path=', '  /usr/local/bin  '])).toEqual({
@@ -260,7 +260,7 @@ function run(argMate, type = '') {
 				});
 			});
 		});
-		describe.todo('Sonnet 3.5' + type, () => {
+		describe.todo('Sonnet 3.5' + engineType, () => {
 			// Spaces in values
 			test('Value with spaces', () => {
 				expect(argMate(['--name', 'John Doe'], {name: {type: 'string'}})).toEqual({
@@ -566,7 +566,7 @@ function run(argMate, type = '') {
 			});
 		});
 
-		describe.todo('Exotic Input' + type, () => {
+		describe.todo('Exotic Input' + engineType, () => {
 			describe('Shorthand notation', () => {
 				test('Space in value', () => {
 					let argv = argMate(['--foo=bar baz']);

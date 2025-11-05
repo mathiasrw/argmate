@@ -9,8 +9,8 @@ import argMateLite from '../../src/argMateLite';
 run(argMate);
 run(argMateLite, ' lite');
 
-function run(argMate, type = '') {
-	describe('int[]' + type, () => {
+function run(argMate, engineType = '') {
+	describe('int[]' + engineType, () => {
 		test('Plain', () => {
 			let argv = argMate('--foo 9 --foo 2'.split(' '), {foo: {type: 'int[]'}});
 			expect(argv).toEqual({

@@ -11,9 +11,9 @@ run(argMateLite, ' lite');
 
 let argv;
 
-function run(argMate, type = '') {
-	describe('Basic Functionality' + type, () => {
-		describe('4o' + type, () => {
+function run(argMate, engineType = '') {
+	describe('Basic Functionality' + engineType, () => {
+		describe('4o' + engineType, () => {
 			test('Single flag', () => {
 				expect(argMate(['--verbose'])).toEqual({verbose: true, _: []});
 			});
@@ -65,7 +65,7 @@ function run(argMate, type = '') {
 				});
 			});
 
-			if (!type)
+			if (!engineType)
 				test('Negated flag', () => {
 					expect(argMate(['--no-cache'])).toEqual({cache: false, _: []});
 				});
@@ -395,7 +395,7 @@ function run(argMate, type = '') {
 			});
 		});
 
-		describe('Sonnet 3.5' + type, () => {
+		describe('Sonnet 3.5' + engineType, () => {
 			test('Basic single flag', () => {
 				expect(argMate(['--verbose'], {})).toEqual({_: [], verbose: true});
 			});

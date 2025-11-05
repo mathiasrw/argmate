@@ -1,8 +1,8 @@
 // https://bun.sh/docs/test/writing
 
-// @ts-ignore
 import {expect, test, describe} from 'bun:test';
 
+import type {ArgMateEngine} from '../../src/types.js';
 import argMate from '../../src/argMate';
 import argMateLite from '../../src/argMateLite';
 
@@ -11,8 +11,8 @@ let argv;
 run(argMate);
 run(argMateLite, ' lite');
 
-function run(argMate, type = '') {
-	describe.if(!type)('Conflict' + type, () => {
+function run(argMate: ArgMateEngine, engineType = '') {
+	describe.if(!engineType)('Conflict' + engineType, () => {
 		test('Opposing pairs A', () => {
 			expect(() =>
 				argMate(

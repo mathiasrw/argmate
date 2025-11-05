@@ -1,12 +1,9 @@
 #!/usr/bin/env node
 
-// @ts-ignore
-import {ArgMateConfig, ArgMateSettings, ArgMateArgInfoConfig} from './types.js';
+import {ArgMateConfig, ArgMateSettings, ArgMateArgInfoConfig, ArgProcessObj} from './types.js';
 
-// @ts-ignore
 import formatArgInfo from './argInfo.js';
 
-// @ts-ignore
 import {compileConfig} from './compileConfig.js';
 
 var config_: ArgMateConfig | undefined;
@@ -14,17 +11,17 @@ var config_: ArgMateConfig | undefined;
 var settings_: ArgMateSettings | undefined;
 
 export function argService(
-	engine,
+	engine: (args: string[], argProcessObj?: ArgProcessObj) => {[key: string]: any} | void,
 	args: string[],
 	config?: ArgMateConfig,
 	settings?: ArgMateSettings
-) {
-	if (!config && !settings) return engine(args);
+): {[key: string]: any} {
+	if (!config && !settings) return engine(args) as {[key: string]: any};
 
 	config_ = config ? {...config} : {};
 	settings_ = settings ? {...settings} : {};
 
-	return engine(args, compileConfig(config || {}, settings || {}));
+	return engine(args, compileConfig(config || {}, settings || {})) as {[key: string]: any};
 }
 
 /** #__PURE__ */ export function argInfo(

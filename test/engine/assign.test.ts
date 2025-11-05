@@ -1,16 +1,17 @@
 // https://bun.sh/docs/test/writing
 
-// @ts-ignore
 import {expect, test, describe} from 'bun:test';
 
+import type {ArgMateEngine} from '../../src/types.js';
+import type {DoneCallback, ErrorCallback} from '../../src/test-types.js';
 import argMate from '../../src/argMate';
 import argMateLite from '../../src/argMateLite';
 
 run(argMate);
 run(argMateLite, ' lite');
 
-function run(argMate, type = '') {
-	describe('Assign' + type, () => {
+function run(argMate: ArgMateEngine, engineType = '') {
+	describe('Assign' + engineType, () => {
 		test('Plain', () => {
 			let argv = argMate('--foo= bar'.split(' '));
 			expect(argv).toEqual({
@@ -43,7 +44,7 @@ function run(argMate, type = '') {
 			});
 		});
 
-		if (!type)
+		if (!engineType)
 			test('super short', () => {
 				let argv = argMate('-f123'.split(' '));
 				expect(argv).toEqual({
@@ -52,13 +53,13 @@ function run(argMate, type = '') {
 				});
 			});
 
-		if (!type)
+		if (!engineType)
 			test('Multi not allowed', done => {
 				let argv = argMate(
 					'-foo123'.split(' '),
 					{},
 					{
-						error: msg => {
+						error: (msg: string) => {
 							expect(msg).toContain('Unsupported format');
 							expect(msg).toContain('foo');
 							done();
@@ -72,7 +73,7 @@ function run(argMate, type = '') {
 				'--foo='.split(' '),
 				{},
 				{
-					error: msg => {
+					error: (msg: string) => {
 						expect(msg).toContain('No data provided for');
 						expect(msg).toContain('foo');
 						done();
@@ -86,7 +87,7 @@ function run(argMate, type = '') {
 				'--foo='.split(' '),
 				{},
 				{
-					error: msg => {
+					error: (msg: string) => {
 						expect(msg).toContain('No data provided');
 						expect(msg).toContain('foo');
 						done();
@@ -99,7 +100,7 @@ function run(argMate, type = '') {
 				'-abc ee -f='.split(' '),
 				{},
 				{
-					error: msg => {
+					error: (msg: string) => {
 						expect(msg).toContain('No data provided');
 						expect(msg).toContain('f');
 						done();

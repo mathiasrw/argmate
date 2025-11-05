@@ -1,8 +1,8 @@
 // https://bun.sh/docs/test/writing
 
-// @ts-ignore
 import {expect, test, describe} from 'bun:test';
 
+import type {ArgMateEngine} from '../../src/types.js';
 import argMate from '../../src/argMate';
 import argMateLite from '../../src/argMateLite';
 
@@ -10,9 +10,9 @@ run(argMate);
 run(argMateLite, ' lite');
 
 let argv;
-function run(argMate, type = '') {
-	if (!type)
-		describe('AI on alias' + type, () => {
+function run(argMate: ArgMateEngine, engineType = '') {
+	if (!engineType)
+		describe('AI on alias' + engineType, () => {
 			test('Alias with no corresponding long option', () => {
 				argv = argMate('-f bar'.split(' '), {foo: {alias: 'f', type: 'string'}});
 				expect(argv).toEqual({

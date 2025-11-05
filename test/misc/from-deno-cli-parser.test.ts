@@ -24,8 +24,8 @@ const assertThrows = function (a, b, c) {
 run(argMate);
 run(argMateLite, ' lite');
 
-function run(parseArgs, type = '') {
-	describe('Inspired by deno' + type, () => {
+function run(parseArgs, engineType = '') {
+	describe('Inspired by deno' + engineType, () => {
 		test('parseArgs() handles true boolean flag', () => {
 			argv = parseArgs(['moo', '--honk', 'cow']);
 
@@ -109,7 +109,7 @@ function run(parseArgs, type = '') {
 			expect(typeof argv.b).toEqual('boolean');
 		});
 
-		if (!type)
+		if (!engineType)
 			test('parseArgs() handles boolean and alias with chainable api', () => {
 				expect(
 					argMate(

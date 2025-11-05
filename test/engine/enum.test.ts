@@ -9,10 +9,10 @@ import argMateLite from '../../src/argMateLite';
 run(argMate);
 run(argMateLite, ' lite');
 
-function run(argMate, type = '') {
+function run(argMate, engineType = '') {
 	// Enum is really a parameter where an array of values have been set as valid. Will default to first element if default is not provided.
 
-	describe('Enum' + type, () => {
+	describe('Enum' + engineType, () => {
 		test('Set differently', () => {
 			let argv = argMate('--engine V8'.trim().split(/\s+/), {
 				engine: {default: 'V4', valid: ['V4', 'V8', 'V12']},

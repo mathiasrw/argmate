@@ -1,16 +1,16 @@
 // https://bun.sh/docs/test/writing
 
-// @ts-ignore
 import {expect, test, describe} from 'bun:test';
 
+import type {ArgMateEngine} from '../../src/types.js';
 import argMate from '../../src/argMate';
 import argMateLite from '../../src/argMateLite';
 
 run(argMate);
 run(argMateLite, ' lite');
 let argv;
-function run(argMate, type = '') {
-	describe('Alias' + type, () => {
+function run(argMate: ArgMateEngine, engineType = '') {
+	describe('Alias' + engineType, () => {
 		test('Long key with short alias', () => {
 			argv = argMate('--foo bar --foo2 bar2'.split(' '), {foo: {alias: 'f'}});
 			expect(argv).toEqual({

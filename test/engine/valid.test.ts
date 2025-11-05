@@ -9,9 +9,9 @@ import argMateLite from '../../src/argMateLite';
 run(argMate);
 run(argMateLite, ' lite');
 
-function run(argMate, type = '') {
-	describe('Valid' + type, () => {
-		test('as function' + type, done => {
+function run(argMate, engineType = '') {
+	describe('Valid' + engineType, () => {
+		test('as function' + engineType, done => {
 			let argv = argMate(
 				'--foo 3'.split(' '),
 				{

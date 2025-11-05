@@ -11,9 +11,9 @@ run(argMateLite, ' lite');
 
 let argv;
 
-function run(argMate, type = '') {
-	describe.todo('Edge cases' + type, () => {
-		describe.todo('4o' + type, () => {
+function run(argMate, engineType = '') {
+	describe.todo('Edge cases' + engineType, () => {
+		describe.todo('4o' + engineType, () => {
 			test('Empty input', () => {
 				expect(argMate([])).toEqual({_: []});
 			});
@@ -331,7 +331,7 @@ function run(argMate, type = '') {
 				});
 			});
 		});
-		describe.todo('Sonnet 3.5' + type, () => {
+		describe.todo('Sonnet 3.5' + engineType, () => {
 			// Empty input
 			test('Empty input', () => {
 				expect(argMate([], {})).toEqual({_: []});

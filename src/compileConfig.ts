@@ -1,7 +1,5 @@
-// @ts-ignore
 import {ArgMateConfig, ArgMateSettings, ArgMateSettingsMandatory, ArgProcessObj} from './types.js';
 
-// @ts-ignore
 import {re} from './common.js';
 
 const strictSettings = {

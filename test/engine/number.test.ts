@@ -13,8 +13,8 @@ let argv;
 run(argMate);
 run(argMateLite, ' lite');
 
-function run(argMate, type = '') {
-	describe('Number' + type, () => {
+function run(argMate, engineType = '') {
+	describe('Number' + engineType, () => {
 		test('Default to boolean', () => {
 			argv = argMate('--foo 111 --foo2 222'.split(' '), {foo: 4, foo2: {type: 'number'}});
 			expect(argv).toEqual({

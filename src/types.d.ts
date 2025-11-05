@@ -63,6 +63,12 @@ export interface ArgMateArgInfoConfig {
 	postOutro?: IntroOutroType;
 }
 
+export type ArgMateEngine = (
+	args: string[],
+	config?: ArgMateConfig,
+	settings?: ArgMateSettings
+) => {[key: string]: any};
+
 export default function argMate(
 	args: string[],
 	config?: ArgMateConfig,

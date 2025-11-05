@@ -9,8 +9,8 @@ import argMateLite from '../../src/argMateLite';
 run(argMate);
 run(argMateLite, ' lite');
 
-function run(argMate, type = '') {
-	describe('JSON' + type, () => {
+function run(argMate, engineType = '') {
+	describe('JSON' + engineType, () => {
 		test('simple value', () => {
 			let argv = argMate(['--foo=', '5'], {foo: {type: 'json'}});
 			expect(argv).toEqual({

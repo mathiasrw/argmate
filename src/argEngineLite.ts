@@ -1,11 +1,9 @@
-// @ts-ignore
 import {ArgMateConfig, ArgMateSettings, ArgProcessObj} from './types.js';
 interface ArgMateSettingsMandatory extends ArgMateSettings {
 	error: (msg: string) => void;
 	panic: (msg: string) => void;
 }
 
-// @ts-ignore
 import {re} from './common.js';
 
 /*
@@ -224,7 +222,7 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 				`'${key.length > 1 ? '--' : '-'}${key}' is mandatory` +
 					(config[key]?.alias?.length
 						? `.  Or use an alias: ${config[key].alias
-								.map(v => (v.length > 1 ? '--' : '-') + v)
+								.map((v: string) => (v.length > 1 ? '--' : '-') + v)
 								.join(', ')}`
 						: '')
 			);

@@ -9,8 +9,8 @@ import argMateLite from '../../src/argMateLite';
 run(argMate);
 run(argMateLite, ' lite');
 
-function run(argMate, type = '') {
-	describe('Mandatory' + type, () => {
+function run(argMate, engineType = '') {
+	describe('Mandatory' + engineType, () => {
 		test('Default', () => {
 			let argv = argMate('--foo bar'.split(' '), {
 				foo: {mandatory: true},

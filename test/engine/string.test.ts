@@ -9,8 +9,8 @@ import argMateLite from '../../src/argMateLite';
 run(argMate);
 run(argMateLite, ' lite');
 
-function run(argMate, type = '') {
-	describe('string' + type, () => {
+function run(argMate, engineType = '') {
+	describe('string' + engineType, () => {
 		test('Default', () => {
 			let argv = argMate('--foo bar --foo2 bar2'.trim().split(/\s+/), {
 				foo: {type: 'string'},

@@ -9,4 +9,4 @@ import argMateLite from '../../src/argMateLite';
 run(argMate);
 run(argMateLite, ' lite');
 
-function run(argMate, type = '') {}
+function run(argMate, engineType = '') {}

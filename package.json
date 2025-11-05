@@ -52,12 +52,12 @@
 		"postrelease": "npm publish && git push && git push --tags && echo \"Successfully released version $npm_package_version\"",
 		"prepare": "husky"
 	},
-	"dependencies": {},
 	"devDependencies": {
 		"bun-types": "1.1.21",
 		"columnify": "^1.6.0",
 		"husky": "^9.1.4",
 		"prettier": "3.3.3",
-		"rexreplace": "^7.1.3"
+		"rexreplace": "^7.1.3",
+		"typescript": "^5.9.3"
 	}
 }
