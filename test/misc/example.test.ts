@@ -16,7 +16,6 @@ function run(argMate, type = '') {
 		test('Long handle on single letter variations', () => {
 			expect(argMate(['--f', 'value1', '-f', 'value2'])).toEqual({f: 'value2'});
 			expect(argMate(['--foo=', 'bar', '--f=', 'baz'])).toEqual({foo: 'bar', f: 'baz'});
-			// Adjust expectations based on your chosen behavior
 		});
 	});
 }

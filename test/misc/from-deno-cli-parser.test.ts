@@ -1,4 +1,4 @@
-// Tests are inpsired from the Deno CLI parseArgs https://github.com/denoland/std/blob/main/cli/parse_args_test.ts
+// The Tests below are inpsired from the Deno CLI parseArgs https://github.com/denoland/std/blob/main/cli/parse_args_test.ts
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore

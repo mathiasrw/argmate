@@ -37,39 +37,48 @@ npm install argmate
 ## Usage
 
 ```js
-argMate(arguments, [parameterDetails [, config ]]);
+argMate(<arguments>, [<parameter config> [, <settings> ]]);
 ```
 
-## Examples
 
-### Getting started
+### Simple examples
 
-ArgMate follows traditional CLI notations - similar to yargs and mri. Here are some simple examples:
+Example running params from CLI command `node index.js --foo=bar -X .md`
 
 ```js
 import argMate from 'argmate';
-
 let argv;
-
-// By default, parameters are treated as boolean flags
-// Non-parameters are stored in the `_` property of the output
-argv = argMate(['--foo', 'bar', '-i']);
-// {_: ['bar'], foo: true, i: true}
-
-// Use the `=` notation for assignment, with or without separation to the value
-// Type is inferred from the value (string or number)
-argv = argMate(['--foo=', 'bar', '-i=123']);
-// {_: [], foo: 'bar', i: 123}
-
-// Setting a default value makes the parser treat it as a parameter that must be assigned
-// The type is guessed based on the default value
-argv = argMate(['--foo', 'bar2'], { foo: 'bar', i: 42 });
-// {_: [], foo: 'bar2', i: 42}
-
-// Example running params from CLI `node index.js --foo=bar -X .md`
 argv = argMate(process.argv.slice(2));
-// { _: ['.md'], foo: "bar", X: true }
+console.log(argv);
+// {foo: "bar", X: true, _: ['.md']}
 ```
+
+
+By default, parameters are treated as boolean flags. Non-parameters are stored in the `_` property of the output
+
+
+```js
+argMate(['--foo', 'bar', '-i']);
+// {_: ['bar'], foo: true, i: true}
+```
+
+
+
+
+Use the `=` notation for assignment, with or without separation to the value. Type is inferred from the value (string or number).
+
+```js
+argMate(['--foo=', 'bar', '-i=123']);
+// {_: [], foo: 'bar', i: 123}
+```
+
+Setting a default value of a parameter in the config will ensure the parameter is always present in the output. The type is derived from the default value.
+
+```js
+argMate(['--foo', 'bar2'], { foo: 'bar', i: 42 });
+// {_: [], foo: 'bar2', i: 42}
+```
+
 
 ### Default values and limiting input to known parameters
 
@@ -81,16 +90,16 @@ import argMate from 'argmate';
 const args = process.argv.slice(2);
 
 // Define parameter types and default values
-const params = {
-	foo: 10,	// --foo is expected to be an integer, default: 10
-	bar: false  // --bar is expected to be a boolean, default: false
+const config = {
+	foo: {default: 10},	// --foo is expected to be an integer, defaults to 10 if not set
+	bar: {default: false}  // --bar is expected to be a boolean, default to false if not set
 };
 
-const config = {
+const settings = {
 	allowUnknown: false  // Only allow specified parameters (--foo and --bar)
 };
 
-const argv = argMate(args, params, config);
+const argv = argMate(args, config, setting);
 ```
 
 Same example but a bit shorter
@@ -100,8 +109,8 @@ import argMate from 'argmate';
 
 const argv = argMate(process.argv.slice(2), 
 	{
-		foo: 10,   
-		bar: false 
+		foo: 10,   // shorthand for {default: 10} is to set the default value directly
+		bar: false // shorthand for {default: false} is to set the default value directly
 	}, {
 		allowUnknown: false 
 	});
@@ -116,23 +125,23 @@ import argMate, { argInfo } from 'argmate';
 
 const args = process.argv.slice(2);
 
-const params = {
+const config = {
 	start: {
 		default: 0,
 		alias: ['s']
 	},
 	steps: {
-		type: 'number',
+		type: 'int',
 		mandatory: true,
 		alias: ['l', 'loops'],
-		valid: v => v > 0  // Validate the input
+		valid: v => v > 0  // Validate the input is larger than zero
 	},
 	help: {
 		alias: ['h']
 	}
 };
 
-const config = {
+const settings = {
 	allowUnknown: false,
 	error: msg => {
 		console.error('Error:', msg);
@@ -140,7 +149,7 @@ const config = {
 	}
 };
 
-const argv = argMate(args, params, config);
+const argv = argMate(args, config, settings);
 
 // Display help and exit if the help flag is set
 if (argv.help) {
@@ -155,109 +164,27 @@ for (let i = argv.start; i < argv.start + argv.steps; i++) {
 ```
 
 
-### Enforcing parameter types and limiting allowed values
-
-You can provide default values and enforce that no other parameters are allowed:
-
-```js
-import argMate from 'argmate';
-
-const args = process.argv.slice(2);
-
-// Define parameter types and default values
-const params = {
-    foo: 10,    // --foo is expected to be an integer, default: 10
-    bar: false  // --bar is expected to be a boolean, default: false
-};
-
-const config = {
-    allowUnknown: false  // Only allow specified parameters (--foo and --bar)
-};
-
-const argv = argMate(args, params, config);
-```
-
-Same example but a bit shorter
-
-```js
-import argMate from 'argmate';
-
-const argv = argMate(process.argv.slice(2), 
-	{
-		foo: 10,   
-		bar: false 
-	}, {
-    	allowUnknown: false 
-	});
-```
-
-### Real world example
-
-Here's a more comprehensive example demonstrating additional features:
-
-```javascript
-import argMate, { argInfo } from 'argmate';
-
-const args = process.argv.slice(2);
-
-const params = {
-    start: {
-        default: 0,
-        alias: ['s']
-    },
-    steps: {
-        type: 'number',
-        mandatory: true,
-        alias: ['l', 'loops'],
-        valid: v => v > 0  // Validate the input
-    },
-    help: {
-        alias: ['h']
-    }
-};
-
-const config = {
-    allowUnknown: false,
-    error: msg => {
-        console.error('Error:', msg);
-        process.exit(1);
-    }
-};
-
-const argv = argMate(args, params, config);
-
-// Display help and exit if the help flag is set
-if (argv.help) {
-    console.log(argInfo());
-    process.exit(0);
-}
-
-// Use the parsed arguments
-for (let i = argv.start; i < argv.start + argv.steps; i++) {
-    console.log(i);
-}
-```
 
 
-## Configuration
+## Nobs and bobs
 
-### Params
+### Config
 
 The second parameter for argMate is a configuration object defining the parameters you expect and their properties
 
 ```js
-const params = {
+const config = {
 	// The object returned from argMate will only have property names provided in this object (foo in this example) But see outputAlias config below 
 	foo: {
 		type: 'string', 				// boolean | string | number | float | int | hex | array | string[] | number[] | float[] | int[] | hex[]. Optional. Defaults to boolean.
-		default: 'val', 				// The default value for the parameter. If the type is not specified, the type will be determined from this field. Optional. 
+		default: 'val', 				// The default value for the parameter. If the type is not specified, the type will be determined from this field. 
 		mandatory: true, 				// Calls config.error if the value is not provided. No effect if used in combination with "default".
-		alias: [], 						// Other values to be treated as this parameter. Also accepts a string with a single value.
-										// If you camelCase the property name, it will treat kebab-case of the word as an alias (so fooBar will automatically have foo-bar as alias). Can also be a comma separated string
-		conflict: [], 					// Other keys to be treated as conflicting. Also accepts a single string. Can also be a comma separated string. 
-		valid: () => {}|[], 				// Function to check if the value is valid (will call config.error if not valid). Can also be an array of valid values (case sensitive). If you want case insensitive make a function with a regex valid:v=>/foo|bar/i.test(v) will accept both Foo and BAR.
-		transform: 						// function that will transform the value. Example: trim values by using transform:v=>v.trim();
-		describe: 'Description here', 	// A description of the parameter. Will be used for the help text (see below).
+		alias: [], 						// Other parameters to be treated as this parameter. Also accepts a string with a single value or a comma separated string for multiple. 
+										// If you camelCase a property name, it will default to treat kebab-case of the word as an alias (so fooBar will automatically have foo-bar as alias). 
+		conflict: [], 					// Other keys to be treated as conflicting. Also accepts a string with a single or comma separated string for multiple. 
+		valid: () => {}, 				// Function to check if the value is valid (will call config.error if not valid). Can also be an array of valid values (case sensitive). If you want case insensitive make a function with a regex valid:v=>/foo|bar/i.test(v) will accept both Foo and BAR.
+		transform: () => {},			// function that will transform the value. Example: trim values by using transform:v=>v.trim();
+		describe: 'Info here', 	// A description of the parameter. Will be used for the help text (see below).
 	},
 };
 ```
