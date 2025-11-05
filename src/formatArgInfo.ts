@@ -1,11 +1,11 @@
-function breakLines(text, columnWidth) {
+/** #__PURE__ */ function breakLines(text, columnWidth) {
 	const regex = new RegExp(`([^\s].{0,${columnWidth - 1}})(?:[\\s]|$)`, 'g');
 	const lines = ('' + text).split('\n');
 	return lines.map(l => l.match(regex) || []).flat();
 	('');
 }
 
-function minimizeLineBreaks(data, maxWidth = 120) {
+/** #__PURE__ */ function minimizeLineBreaks(data, maxWidth = 120) {
 	const numColumns = data[0].length;
 	let columnWidths = Array(numColumns).fill(0);
 	let columnMinWidths = Array(numColumns).fill(0);
@@ -45,7 +45,7 @@ function minimizeLineBreaks(data, maxWidth = 120) {
 	return columnWidths;
 }
 
-function tupple(row, widths) {
+/** #__PURE__ */ function tupple(row, widths) {
 	const fields = row.map((v, i) => breakLines(v, widths[i]));
 
 	let active = true;
@@ -66,22 +66,22 @@ function tupple(row, widths) {
 	return lines;
 }
 
-export function tableLayout(data, conf_?: any) {
-	const conf = {
+/** #__PURE__ */ export function tableLayout(data, settings_?: any) {
+	const settings = {
 		...{
 			maxWidth: 120,
 			left: '  ',
 			join: '   ',
 			right: '  ',
 		},
-		...conf_,
+		...settings_,
 	};
 	debugger;
 	const workingWidth =
-		conf.maxWidth -
-		conf.left.length -
-		conf.join.length * (data.slice(-1).pop()?.length - 1) -
-		conf.right.length;
+		settings.maxWidth -
+		settings.left.length -
+		settings.join.length * (data.slice(-1).pop()?.length - 1) -
+		settings.right.length;
 
 	const optimizedWidths = minimizeLineBreaks(data, workingWidth);
 
@@ -91,9 +91,9 @@ export function tableLayout(data, conf_?: any) {
 
 	table.forEach(r => {
 		r.forEach(f => {
-			ascii += conf.left;
-			ascii += f.join(conf.join);
-			ascii += conf.right;
+			ascii += settings.left;
+			ascii += f.join(settings.join);
+			ascii += settings.right;
 			ascii += '\n';
 		});
 		ascii += '\n\n';
@@ -115,8 +115,8 @@ export default function formatArgInfo(settings_ = {}, conf = {}) {
 		}, 
 		...settings_,
 	}
-	{...conf_, ...settings_},
-	params || JSON.parse(JSON.stringify(params_))
+	{...settings, ...settings_},
+	config || JSON.parse(JSON.stringify(config_))
 
 
 
@@ -142,7 +142,7 @@ export default function formatArgInfo(settings_ = {}, conf = {}) {
 		]);
 	}
 
-	return tableLayout(dasData, settings);
+	return tableLayout(dasData, settings_);
 }
 
 function camelToKebab(str) {

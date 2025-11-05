@@ -4,20 +4,28 @@
 import {expect, test, describe} from 'bun:test';
 
 import argMate from '../../src/argMate';
+import {ArgMateConfig, ArgMateSettings} from '../../src/types';
 import argMateLite from '../../src/argMateLite';
 
 run(argMate);
 run(argMateLite, ' lite');
 
-function run(argMate, type = '') {
-	describe('strictConf' + type, () => {
-		test('Unknown parameter gives error', done => {
+function run(
+	argMate: (
+		args: string[],
+		config?: ArgMateConfig,
+		settings?: ArgMateSettings
+	) => {[key: string]: any},
+	type = ''
+) {
+	describe('strictSettings' + type, () => {
+		test('Unknown parameter gives error', (done: () => void) => {
 			argMate(
 				'--bar value'.split(' '),
 				{foo: {type: 'string'}},
 				{
 					strict: true,
-					error: msg => {
+					error: (msg: string) => {
 						expect(msg).toContain('Unknown parameter');
 						expect(msg).toContain('bar');
 						done();
@@ -84,13 +92,13 @@ function run(argMate, type = '') {
 			});
 		});
 
-		test.todo('Error on multiple undefined parameters', done => {
+		test.todo('Error on multiple undefined parameters', (done: () => void) => {
 			argMate(
 				'--undefined1 value1 --undefined2 value2'.split(' '),
 				{definedParam: {type: 'string'}},
 				{
 					strict: true,
-					error: msg => {
+					error: (msg: string) => {
 						expect(msg).toContain('Unknown parameter');
 						expect(msg).toContain('undefined1');
 						done();
@@ -112,13 +120,13 @@ function run(argMate, type = '') {
 			});
 		});
 
-		test.todo('Error on assigning value to boolean flag', done => {
+		test.todo('Error on assigning value to boolean flag', (done: () => void) => {
 			argMate(
 				'--flag value'.split(' '),
 				{flag: {type: 'boolean'}},
 				{
 					strict: true,
-					error: msg => {
+					error: (msg: string) => {
 						expect(msg).toContain('boolean');
 						expect(msg).toContain('flag');
 						done();

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // @ts-ignore
-import {ArgMateParams, ArgMateConfig, ArgMateArgInfoConfig} from './types.js';
+import {ArgMateConfig, ArgMateSettings, ArgMateArgInfoConfig} from './types.js';
 
 // @ts-ignore
 import formatArgInfo from './argInfo.js';
@@ -9,23 +9,28 @@ import formatArgInfo from './argInfo.js';
 // @ts-ignore
 import {compileConfig} from './compileConfig.js';
 
-var params_: ArgMateParams | undefined;
+var config_: ArgMateConfig | undefined;
 
-var conf_: ArgMateConfig | undefined;
+var settings_: ArgMateSettings | undefined;
 
-export function argService(engine, args: string[], params?: ArgMateParams, conf?: ArgMateConfig) {
-	if (!params && !conf) return engine(args);
+export function argService(
+	engine,
+	args: string[],
+	config?: ArgMateConfig,
+	settings?: ArgMateSettings
+) {
+	if (!config && !settings) return engine(args);
 
-	params_ = params ? {...params} : {};
-	conf_ = conf ? {...conf} : {};
+	config_ = config ? {...config} : {};
+	settings_ = settings ? {...settings} : {};
 
-	return engine(args, compileConfig(params || {}, conf || {}));
+	return engine(args, compileConfig(config || {}, settings || {}));
 }
 
-export function argInfo(
-	settings: ArgMateArgInfoConfig = {},
-	conf: ArgMateConfig = {},
-	params?: ArgMateParams
+/** #__PURE__ */ export function argInfo(
+	infoConfig: ArgMateArgInfoConfig = {},
+	settings?: ArgMateSettings,
+	config?: ArgMateConfig
 ) {
 	return formatArgInfo(
 		{
@@ -35,9 +40,9 @@ export function argInfo(
 			postOutro: '',
 			format: 'cli',
 			width: 100,
-			...settings,
+			...infoConfig,
 		},
-		{...(conf_ || {}), ...conf},
-		{...(params_ || {}), ...params}
+		{...(settings_ || {}), ...(settings || {})},
+		{...(config_ || {}), ...(config || {})}
 	);
 }

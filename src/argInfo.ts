@@ -1,8 +1,8 @@
 // @ts-ignore
-import {ArgMateParams, ArgMateConfig, ArgMateArgInfoConfig} from './types.js';
+import {ArgMateConfig, ArgMateSettings, ArgMateArgInfoConfig} from './types.js';
 
-export default function formatArgInfo(
-	settings: ArgMateArgInfoConfig = {
+/** #__PURE__ */ export default function formatArgInfo(
+	infoConfig: ArgMateArgInfoConfig = {
 		width: 100,
 		format: 'cli',
 		preIntro: '',
@@ -10,27 +10,27 @@ export default function formatArgInfo(
 		showOutro: true,
 		postOutro: '',
 	},
-	conf: ArgMateConfig = {},
-	params: ArgMateParams
+	settings: ArgMateSettings = {},
+	config: ArgMateConfig
 ) {
 	debugger;
 
 	let info: any = {};
-	if (settings.showIntro && conf.intro) {
-		info.intro = conf.intro;
+	if (infoConfig.showIntro && settings.intro) {
+		info.intro = settings.intro;
 	}
 
-	info.params = JSON.parse(JSON.stringify(params));
+	info.config = JSON.parse(JSON.stringify(config));
 
-	if (settings.showOutro && conf.outro) {
-		info.outro = conf.outro;
+	if (infoConfig.showOutro && settings.outro) {
+		info.outro = settings.outro;
 	}
 
-	if ('json' === settings.format) return info;
+	if ('json' === infoConfig.format) return info;
 
 	// todo: format details for cli
-	if ('cli' === settings.format) return JSON.stringify(info, null, 2);
+	if ('cli' === infoConfig.format) return JSON.stringify(info, null, 2);
 
 	// todo: format details for markdown
-	if ('markdown' === settings.format) return 'md not supported yet';
+	if ('markdown' === infoConfig.format) return 'md not supported yet';
 }

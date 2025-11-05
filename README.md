@@ -95,7 +95,7 @@ const settings = {
 	allowUnknown: false  // Only allow specified parameters (--foo and --bar)
 };
 
-const argv = argMate(args, config, setting);
+const argv = argMate(args, config, settings);
 ```
 
 Same example but a bit shorter
@@ -167,12 +167,12 @@ for (let i = argv.start; i < argv.start + argv.steps; i++) {
 The `argMate` function has the following signature:
 
 ```javascript
-argMate(<arguments>, [<parameterConfig> [, <settings> ]]);
+argMate(<arguments>, [<config> [, <settings> ]]);
 ```
 
 ### Parameter Configuration
 
-The second argument is a configuration object that defines the parameters you expect, their types, aliases, and behavior.
+The second argument is a config object that defines the parameters you expect, their types, aliases, and behavior.
 
 ```javascript
 const config = {
@@ -240,7 +240,7 @@ const settings = {
 	allowKeyNumValues: true,
 
 	// If true, allows assignment with '=' (e.g., --foo=bar).
-	// If false, params with `=` will raise an error instead of assigning 
+	// If false, parameters with `=` will raise an error instead of assigning 
 	// (`--foo=10` will raise error)
 	allowAssign: true,
 
@@ -302,7 +302,7 @@ console.log(
 - If you don't specify, you get help, but not consistency. If you specify you know exactly what you get. 
  - Unknown parameters will be treated as booleans. If you want to assign a value to an unknown parameter you need to A) define a type or a default value in the config obj, or B) add "=" at the end of the parameter in the inputs.
 - If you provide the same alias to two parameters, the alias will stay with the first parameter you define. 
-- for defined params you need to provide int, number or float as type for it to be a number in the resulting data object
+- for defined config you need to provide int, number or float as type for it to be a number in the resulting data object
 - but if you have not defined the parameter and assign a value then numerical values will beidentified and provided as a value
 
 

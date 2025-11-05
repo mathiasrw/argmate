@@ -1,10 +1,10 @@
 // @ts-ignore
-import {ArgMateParams, ArgMateConfig, ArgProcessObj} from './types.js';
+import {ArgMateConfig, ArgMateSettings, ArgProcessObj} from './types.js';
 
 // @ts-ignore
 //import use from './strip.macro.js' with { type: 'macro' };
 
-interface ArgMateConfigMandatory extends ArgMateConfig {
+interface ArgMateSettingsMandatory extends ArgMateSettings {
 	error: (msg: string) => void;
 	panic: (msg: string) => void;
 }
@@ -43,7 +43,8 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 		mandatory: [],
 		conflict: [],
 		complexDefault: {},
-		conf: {
+		config: {},
+		settings: {
 			error: msg => {
 				throw msg;
 			},
@@ -57,10 +58,9 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 			allowAssign: true,
 			outputAlias: false,
 		},
-		params: {},
 	};
 
-	const {mandatory, validate, complexDefault, output, conf, params, conflict} = argProcessObj;
+	const {mandatory, validate, complexDefault, output, settings, config, conflict} = argProcessObj;
 
 	const inputLog: string[] = [];
 
@@ -73,7 +73,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 		allowNegatingFlags,
 		allowKeyNumValues,
 		allowAssign,
-	} = conf;
+	} = settings;
 	const outputPush = output['_'].push.bind(output['_']);
 	const hasOwnProperty = Object.prototype.hasOwnProperty;
 
@@ -131,7 +131,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 		}
 
 		// Key is not a defined parameter
-		if (!params[KEY]) {
+		if (!config[KEY]) {
 			if (!allowUnknown) return error(`Unknown parameter '${KEY}' not allowed`);
 
 			if (autoCamelKebabCase && re.isKebab.test(KEY)) {
@@ -152,8 +152,8 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 			continue;
 		}
 
-		const theKey = params[KEY].key;
-		const theType = params[theKey].type;
+		const theKey = config[KEY].key;
+		const theType = config[theKey].type;
 
 		if (!VAL && !('count' === theType || ('boolean' === theType && !ASSIGN))) {
 			if (0 === args.length) {
@@ -170,9 +170,9 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 					return error(
 						`The parameter '${KEY}' can't be negated AND assigned at the same time`
 					);
-				} else if (conf.allowBoolString && re.boolStringTrue.test(VAL)) {
+				} else if (settings.allowBoolString && re.boolStringTrue.test(VAL)) {
 					result = true;
-				} else if (conf.allowBoolString && re.boolstringfalse.test(VAL)) {
+				} else if (settings.allowBoolString && re.boolstringfalse.test(VAL)) {
 					result = false;
 				} else {
 					return error(
@@ -195,8 +195,8 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 			continue;
 		}
 
-		//if(params[KEY].split) {
-		//VAL = VAL.split(params[KEY].split).filter(Boolean);
+		//if(config[KEY].split) {
+		//VAL = VAL.split(config[KEY].split).filter(Boolean);
 		//}
 
 		let data = 0;
@@ -261,14 +261,14 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 	}
 
 	for (const [key, value] of Object.entries(complexDefault)) {
-		if (!hasOwnProperty.call(params, key)) continue;
+		if (!hasOwnProperty.call(config, key)) continue;
 		if (undefined === output[key] || !output[key].length) {
 			output[key] = value;
 		}
 	}
 
 	for (const key of validate) {
-		const param = params[key];
+		const param = config[key];
 		let help = '';
 		if ('function' === typeof param.valid) {
 			if (param.valid(output[key])) continue;
@@ -288,25 +288,25 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 	for (const key of mandatory) {
 		if (undefined === output[key])
 			return error(
-				`The parameter '${key}' is mandatory.${params[key]?.alias?.length ? ` You can also use an alias: ${params[key].alias.join(', ')}` : ''}`
+				`The parameter '${key}' is mandatory.${config[key]?.alias?.length ? ` You can also use an alias: ${config[key].alias.join(', ')}` : ''}`
 			);
 	}
 
 	for (const key of conflict) {
 		if (!inputLog.includes(key)) continue;
-		const conflicting = params[key]?.conflict?.find(value => inputLog.includes(value));
+		const conflicting = config[key]?.conflict?.find(value => inputLog.includes(value));
 		if (conflicting) {
 			return error(`The parameter '${key}' conflicts with '${conflicting}'`);
 		}
 	}
 
-	if (conf.outputAlias) {
+	if (settings.outputAlias) {
 		const tempOutput = {};
 		for (const key in output) {
 			if ('_' === key || !Object.prototype.hasOwnProperty.call(output, key)) continue;
 			const result = output[key];
 			tempOutput[key] = result;
-			const alias = params[key].alias;
+			const alias = config[key].alias;
 			if (!alias) continue;
 			for (const a of alias) {
 				tempOutput[a] = result;
@@ -316,7 +316,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 		Object.assign(output, tempOutput);
 	}
 
-	if (conf.outputInflate) {
+	if (settings.outputInflate) {
 		return inflate(output);
 	}
 

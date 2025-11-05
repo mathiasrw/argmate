@@ -608,7 +608,7 @@ function run(parseArgs, type = '') {
 		});
 		*/
 
-		test('parseArgs() handles newlines in params', () => {
+		test('parseArgs() handles newlines in config', () => {
 			const args = argMate(['-s', 'X\nX'], {s: ''});
 			expect(args).toEqual({_: [], s: 'X\nX'});
 

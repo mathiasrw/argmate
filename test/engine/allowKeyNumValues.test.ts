@@ -41,7 +41,7 @@ function run(argMate, type = '') {
 			});
 
 		if (!type)
-			test('No long params', () => {
+			test('No long config', () => {
 				let argv = argMate('--s123'.split(' '));
 				expect(argv).toEqual({
 					_: [],

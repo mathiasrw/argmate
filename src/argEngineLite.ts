@@ -1,6 +1,6 @@
 // @ts-ignore
-import {ArgMateParams, ArgMateConfig, ArgProcessObj} from './types.js';
-interface ArgMateConfigMandatory extends ArgMateConfig {
+import {ArgMateConfig, ArgMateSettings, ArgProcessObj} from './types.js';
+interface ArgMateSettingsMandatory extends ArgMateSettings {
 	error: (msg: string) => void;
 	panic: (msg: string) => void;
 }
@@ -40,7 +40,7 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 		mandatory: [],
 		conflict: [],
 		complexDefault: {},
-		conf: {
+		settings: {
 			error: msg => {
 				throw msg;
 			},
@@ -53,10 +53,10 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 			allowKeyNumValues: true,
 			allowAssign: true,
 		},
-		params: {},
+		config: {},
 	};
 
-	const {mandatory, validate, output, conf, params, complexDefault} = argProcessObj;
+	const {mandatory, validate, complexDefault, output, settings, config, conflict} = argProcessObj;
 
 	args.reverse(); // Reverse, pop, push, reverse 8.77 times faster than unshft, shift
 
@@ -90,7 +90,7 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 			continue;
 		}
 
-		if (conf.allowAssign) {
+		if (settings.allowAssign) {
 			const i = KEY.indexOf('=');
 			if (-1 < i) {
 				ASSIGN = true;
@@ -100,16 +100,17 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 		}
 
 		if (!LONG && 1 !== KEY.length) {
-			if (ASSIGN) return conf.error(`Unsupported format: '${arg}'`);
+			if (ASSIGN) return settings.error(`Unsupported format: '${arg}'`);
 			const multi = KEY.split('').map(v => '-' + v);
 			args = args.concat(multi.reverse());
 			continue;
 		}
 
-		if (!params[KEY]) {
-			if (!conf.allowUnknown) return conf.error(`Unknown parameter '${KEY}' not allowed`);
+		if (!config[KEY]) {
+			if (!settings.allowUnknown)
+				return settings.error(`Unknown parameter '${KEY}' not allowed`);
 
-			if (conf.autoCamelKebabCase) {
+			if (settings.autoCamelKebabCase) {
 				KEY = KEY.replace(re.kebab2camel, function (match, letter) {
 					return letter.toUpperCase();
 				});
@@ -117,7 +118,7 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 
 			if (ASSIGN) {
 				if (!VAL) {
-					if (0 === args.length) return conf.error(`No data provided for '${KEY}'`);
+					if (0 === args.length) return settings.error(`No data provided for '${KEY}'`);
 					VAL = args.pop() || '';
 				}
 				// @ts-ignore
@@ -128,33 +129,33 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 			continue;
 		}
 
-		if ('boolean' === params[params[KEY].key].type) {
-			if (ASSIGN) return conf.error(`'${KEY}' is boolean, so can't assign: '${arg}'`);
-			output[params[KEY].key] = true;
+		if ('boolean' === config[config[KEY].key].type) {
+			if (ASSIGN) return settings.error(`'${KEY}' is boolean, so can't assign: '${arg}'`);
+			output[config[KEY].key] = true;
 			continue;
 		}
 
-		if ('count' === params[params[KEY].key].type) {
-			if (ASSIGN) return conf.error(`'${KEY}' counting, so can't assign: '${arg}'`);
+		if ('count' === config[config[KEY].key].type) {
+			if (ASSIGN) return settings.error(`'${KEY}' counting, so can't assign: '${arg}'`);
 			output[KEY]++;
 			continue;
 		}
 
 		if (!VAL) {
-			if (0 === args.length) return conf.error(`No data provided for '${KEY}'`);
+			if (0 === args.length) return settings.error(`No data provided for '${KEY}'`);
 			VAL = args.pop() || '';
 		}
 
 		let num = 0;
 
-		switch (params[params[KEY].key].type) {
+		switch (config[config[KEY].key].type) {
 			case 'string':
-				output[params[KEY].key] = VAL;
+				output[config[KEY].key] = VAL;
 				continue;
 
 			case 'array':
 			case 'string[]':
-				output[params[KEY].key].push(VAL);
+				output[config[KEY].key].push(VAL);
 				continue;
 
 			case 'number':
@@ -180,47 +181,49 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 				break;
 
 			default:
-				return conf.panic(`'${KEY}' got invalid type: '${params[params[KEY].key].type}'`);
+				return settings.panic(
+					`'${KEY}' got invalid type: '${config[config[KEY].key].type}'`
+				);
 		}
 
 		if (isNaN(num) || !isFinite(num)) {
-			return conf.error(
-				`'${KEY}' value is not a valid ${params[params[KEY].key].type}: '${VAL}'`
+			return settings.error(
+				`'${KEY}' value is not a valid ${config[config[KEY].key].type}: '${VAL}'`
 			);
 		}
 
-		if (Array.isArray(output[params[KEY].key])) {
-			output[params[KEY].key].push(num);
+		if (Array.isArray(output[config[KEY].key])) {
+			output[config[KEY].key].push(num);
 		} else {
-			output[params[KEY].key] = num;
+			output[config[KEY].key] = num;
 		}
 	}
 
 	for (let key of validate) {
 		let help = '';
-		if ('function' === typeof params[key].valid) {
-			if (params[key].valid(output[key])) continue;
+		if ('function' === typeof config[key].valid) {
+			if (config[key].valid(output[key])) continue;
 		} else {
-			if (!Array.isArray(params[key].valid)) {
-				return conf.panic(`"valid" property of '${key}' must be function or array`);
+			if (!Array.isArray(config[key].valid)) {
+				return settings.panic(`"valid" property of '${key}' must be function or array`);
 			}
 
-			if (params[key].valid.includes(output[key])) {
+			if (config[key].valid.includes(output[key])) {
 				continue;
 			}
 
-			help = '. Valid values: ' + JSON.stringify(params[key].valid);
+			help = '. Valid values: ' + JSON.stringify(config[key].valid);
 		}
 
-		return conf.error(`Invalid value for '${key}': '${output[key]}'` + help);
+		return settings.error(`Invalid value for '${key}': '${output[key]}'` + help);
 	}
 
 	for (let key of mandatory) {
 		if (undefined === output[key]) {
-			return conf.error(
+			return settings.error(
 				`'${key.length > 1 ? '--' : '-'}${key}' is mandatory` +
-					(params[key]?.alias?.length
-						? `.  Or use an alias: ${params[key].alias
+					(config[key]?.alias?.length
+						? `.  Or use an alias: ${config[key].alias
 								.map(v => (v.length > 1 ? '--' : '-') + v)
 								.join(', ')}`
 						: '')
@@ -229,7 +232,7 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 	}
 
 	for (let key in complexDefault) {
-		if (!params.hasOwnProperty(key)) continue;
+		if (!config.hasOwnProperty(key)) continue;
 
 		if (undefined === output[key] || !output[key].length) {
 			output[key] = complexDefault[key];

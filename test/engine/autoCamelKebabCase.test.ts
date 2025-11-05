@@ -4,13 +4,21 @@
 import {expect, test, describe} from 'bun:test';
 
 import argMate from '../../src/argMate';
+import {ArgMateConfig, ArgMateSettings} from '../../src/types';
 import argMateLite from '../../src/argMateLite';
 
 run(argMate);
 run(argMateLite, ' lite');
 let argv;
 
-function run(argMate, type = '') {
+function run(
+	argMate: (
+		args: string[],
+		config?: ArgMateConfig,
+		settings?: ArgMateSettings
+	) => {[key: string]: any},
+	type = ''
+) {
 	describe('autoCamelKebabCase' + type, () => {
 		test('Default', () => {
 			argv = argMate('--foo-bar 234'.split(' '), {fooBar: {type: 'int'}});
@@ -44,7 +52,7 @@ function run(argMate, type = '') {
 			});
 		});
 
-		test('CamelCaseing with single char params ?', () => {
+		test('CamelCaseing with single char config ?', () => {
 			argv = argMate('-F -f -a=1 -A=2'.split(' '), {}, {autoCamelKebabCase: false});
 			expect(argv).toEqual({
 				_: [],

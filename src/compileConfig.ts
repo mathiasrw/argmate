@@ -1,10 +1,10 @@
 // @ts-ignore
-import {ArgMateParams, ArgMateConfig, ArgMateConfigMandatory, ArgProcessObj} from './types.js';
+import {ArgMateConfig, ArgMateSettings, ArgMateSettingsMandatory, ArgProcessObj} from './types.js';
 
 // @ts-ignore
 import {re} from './common.js';
 
-const strictConf = {
+const strictSettings = {
 	allowUnknown: false,
 	allowNegatingFlags: false,
 	allowKeyNumValues: false,
@@ -12,11 +12,17 @@ const strictConf = {
 	allowBoolString: false,
 };
 
-/** #__PURE__ */ export function precompileConfig(params: ArgMateParams, conf?: ArgMateConfig) {
-	return objectToCode(compileConfig(params, conf));
+/** #__PURE__ */ export function precompileConfig(
+	config: ArgMateConfig,
+	settings?: ArgMateSettings
+) {
+	return objectToCode(compileConfig(config, settings));
 }
 
-export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}): ArgProcessObj {
+/** #__PURE__ */ export function compileConfig(
+	config: ArgMateConfig,
+	settings: ArgMateSettings = {}
+): ArgProcessObj {
 	const mandatory: string[] = [];
 	const validate: string[] = [];
 	const conflict: string[] = [];
@@ -25,7 +31,7 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}):
 		_: [],
 	};
 
-	const conf: ArgMateConfigMandatory = {
+	const finalSettings: ArgMateSettingsMandatory = {
 		error: msg => {
 			throw msg;
 		},
@@ -42,16 +48,16 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}):
 		outputInflate: false,
 		intro: '',
 		outro: '',
-		...(conf_.strict ? strictConf : {}),
-		...conf_,
+		...(settings.strict ? strictSettings : {}),
+		...settings,
 	};
 
-	const {panic} = conf;
+	const {panic} = finalSettings;
 	const hasOwnProperty = Object.prototype.hasOwnProperty;
 
-	for (const key in params) {
-		if (!hasOwnProperty.call(params, key)) continue;
-		let param = params[key];
+	for (const key in config) {
+		if (!hasOwnProperty.call(config, key)) continue;
+		let param = config[key];
 
 		// If only default value is provided, then transform to object with correct type
 		if (param === null || typeof param !== 'object' || Array.isArray(param)) {
@@ -121,7 +127,7 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}):
 				: String(param.alias).split(re.listDeviders).filter(Boolean);
 		}
 
-		if (conf.autoCamelKebabCase && re.isCamel.test(key)) {
+		if (finalSettings.autoCamelKebabCase && re.isCamel.test(key)) {
 			const kebab = key.replace(re.camel2kebab, '$1-$2').toLowerCase();
 			if (kebab !== key) {
 				param.alias = param.alias ? [kebab, ...param.alias] : [kebab];
@@ -130,23 +136,23 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}):
 
 		if (param.alias) {
 			for (const alias of param.alias) {
-				if (undefined === params[alias]) {
-					params[alias] = {key};
+				if (undefined === config[alias]) {
+					config[alias] = {key};
 				}
 			}
 		}
 
-		params[key] = param;
+		config[key] = param;
 	}
 
 	return {
+		config: config,
+		settings: finalSettings,
 		output,
 		validate,
 		conflict,
 		mandatory,
 		complexDefault,
-		conf,
-		params,
 	};
 }
 

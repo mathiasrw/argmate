@@ -45,11 +45,11 @@ function run(argMate, argInfo, type = '') {
 			expect(help).toMatch(/thank you/);
 		});
 
-		test.todo('Param details', () => {
+		test.todo('Config details', () => {
 			// Alias, type, mandatory, default, conflict,
 		});
 
-		test.todo('Conf details', () => {
+		test.todo('Settings details', () => {
 			//
 		});
 	});

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // @ts-ignore
-import {ArgMateParams, ArgMateConfig} from './types.js';
+import {ArgMateConfig, ArgMateSettings} from './types.js';
 
 // @ts-ignore
 export {compileConfig, precompileConfig} from './compileConfig.js';
@@ -17,6 +17,10 @@ import argEngine from './argEngine.js';
 
 export {argEngine};
 
-export default function argMate(args: string[], params?: ArgMateParams, conf?: ArgMateConfig) {
-	return argService(argEngine, args, params, conf);
+export default function argMate(
+	args: string[],
+	config?: ArgMateConfig,
+	settings?: ArgMateSettings
+) {
+	return argService(argEngine, args, config, settings);
 }

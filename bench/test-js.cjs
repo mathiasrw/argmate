@@ -51,7 +51,7 @@
 		validate: [],
 		mandatory: [],
 		complexDefault: {},
-		conf: {
+		settings: {
 			error: msg => {
 				throw msg;
 			},
@@ -63,7 +63,7 @@
 			allowNegatingFlags: true,
 			allowKeyNumValues: true,
 		},
-		params: {
+		config: {
 			b: {
 				type: 'boolean',
 			},
@@ -91,7 +91,7 @@
 			'no-meep': false,
 			multi: '',
 		})
-		.add('argMateEngPlus+conf ', () => argMateArgEnginePlus(args, argmateGeneratedConfig))
+		.add('argMateEngPlus+settings ', () => argMateArgEnginePlus(args, argmateGeneratedConfig))
 		.add('argMateEnginePlus   ', () => argMateArgEnginePlus(args))
 		.add('argMate             ', () => argMate(args), {}, {})
 		.add('argMate+Config  ', () => argMate(args), {
@@ -100,7 +100,7 @@
 			'no-meep': false,
 			multi: '',
 		})
-		.add('argMateEng+conf ', () => argMateArgEngine(args, argmateGeneratedConfig))
+		.add('argMateEng+settings ', () => argMateArgEngine(args, argmateGeneratedConfig))
 		.add('argMateEngine       ', () => argMateArgEngine(args))
 		.on('cycle', e => console.log(String(e.target)))
 		.run({

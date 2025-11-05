@@ -1,4 +1,4 @@
-export interface ArgMateParams {
+export interface ArgMateConfig {
 	[key: string]:
 		| {
 				type?:
@@ -30,7 +30,7 @@ export interface ArgMateParams {
 
 type IntroOutroType = string | (string | [string, string])[];
 
-export interface ArgMateConfig {
+export interface ArgMateSettings {
 	panic?: (msg: string) => void;
 	error?: (msg: string) => void;
 	strict?: boolean;
@@ -49,7 +49,7 @@ export interface ArgMateConfig {
 	//  'boolean-negation': false
 }
 
-export interface ArgMateConfigMandatory extends ArgMateConfig {
+export interface ArgMateSettingsMandatory extends ArgMateSettings {
 	error: (msg: string) => void;
 	panic: (msg: string) => void;
 }
@@ -65,8 +65,8 @@ export interface ArgMateArgInfoConfig {
 
 export default function argMate(
 	args: string[],
-	params?: ArgMateParams,
-	conf?: ArgMateConfig
+	config?: ArgMateConfig,
+	settings?: ArgMateSettings
 ): {[key: string]: any};
 
 type ArgProcessObj = void | {
@@ -75,20 +75,26 @@ type ArgProcessObj = void | {
 	validate: string[];
 	conflict: string[];
 	complexDefault: {[key: string]: string[] | number[]};
-	conf: ArgMateConfigMandatory;
-	params: ArgMateParams;
+	settings: ArgMateSettingsMandatory;
+	config: ArgMateConfig;
 };
 
 export function compileConfig(
-	params: ArgMateParams,
-	conf: ArgMateConfigMandatory,
+	config: ArgMateConfig,
+	settings: ArgMateSettingsMandatory,
 	precompile: boolean
 ): ArgProcessObj | string;
 
-export function argEngine(params: ArgProcessObj): {[key: string]: any};
+export function argEngine(config: ArgProcessObj): {[key: string]: any};
+
+export function formatArgInfo(
+	infoConfig: ArgMateArgInfoConfig,
+	settings: ArgMateSettings,
+	config: ArgMateConfig
+): string;
 
 export function argInfo(
-	settings: ArgMateArgInfoConfig,
-	conf?: ArgMateConfig,
-	params?: ArgMateParams
+	infoConfig: ArgMateArgInfoConfig,
+	settings?: ArgMateSettings,
+	config?: ArgMateConfig
 ): string;
