@@ -242,44 +242,41 @@ console.log(
 
 ## Please note
 - If you provide array kind of types (like string[]) you can trust the value is always an array. If no values are provided the array is empty. 
-- If you don't specify, you get some help, but not consistency. If you specify you know exactly what you get. 
-- Defaults to consider unknown params as flags. If you want unknown things to be assigned you add a = behind the flag.
-	 - undefined parameters will default to being a boolean. If you want to assign values you need to A) define a type (or a default value) in the config obj, or B) add "=" to the parameter in the inputs
+- If you don't specify, you get help, but not consistency. If you specify you know exactly what you get. 
+ - Unknown parameters will be treated as booleans. If you want to assign a value to an unknown parameter you need to A) define a type or a default value in the config obj, or B) add "=" at the end of the parameter in the inputs.
 - If you provide the same alias to two parameters, the alias will stay with the first parameter you define. 
 - for defined params you need to provide int, number or float as type for it to be a number in the resulting data object
-			expect(
-				argMate(['--host', 'localhost', '--port', '555'], {
-					host: '',
-					port: 0,
-				})
-			).toEqual({
-				host: 'localhost',
-				port: 555,
-				_: [],
-			});
-
-- but if you have not defined the param and provide it as assigned then numbers will be identified and provided as a value
-
-			expect(argMate(['--host=', 'localhost', '--port=', '555'], {})).toEqual({
-				host: 'localhost',
-				port: 555,
-				_: [],
-			});
-			expect(argMate(['--host=localhost', '--port=55.5'], {})).toEqual({
-				host: 'localhost',
-				port: 55.5,
-				_: [],
-			});
+- but if you have not defined the parameter and assign a value then numerical values will beidentified and provided as a value
 
 
 
+### argMateLite
 
-### lite quirks
+Sometimes all you want is speed and a minimal footprint. If you dont need too much magic and convinience like built in validation and type conversion, then argMateLite is your best friend. 
 
-- Lite will not convert your 0x prepended hex values to int
+```js
+import argMate from 'argmate/lite';
+```
 
 
-### ideas
+ArgMateLite is a stripped down version of argMate with only the essential aspects to cover most common use cases:
+- No parameter conflict detection
+- No Parameter value transformation
+- No Parameter value validation
+- No Hex conversion from `0x` notation to integer
+
+It also does not recognise slightly more escotic aspects of the tradition of CLI parameter formats:
+- No flag negation like the `--no-flag` syntax.
+- No ultra short assignments with notation like `-r255` as a shorthand for -r=255
+
+Only numeric values are auto-converted, all other values remain strings:
+- No hex conversion of `0x...`, 
+- No magic string conversion to boolean from true/false, yes/no, on/off
+
+
+
+
+# Ideas
 - ? Flag to autoconvert _ values to int when convertible? (like deno)
 - We do not support autoconverting magic strings like "true" and "false" 
 	- maybe we should have an option to convert magic strings...
@@ -287,13 +284,6 @@ console.log(
 - ? comma-separated list to array?
 - Demonstrate how to use macros to pregenerate engineConfig to make things even faster. manual or via https://bun.sh/docs/bundler/macros - https://bun.sh/docs/bundler/macros#export-condition-macro
  
-
----
-
-Please note that argMate is an [OPEN open source software](http://open-oss.com) project.
-This means that individuals making significant and valuable contributions are given commit access to the project to contribute as they see fit. This project is more like an open wiki than a standard guarded open source project.
-
-[![OPEN open source software](https://img.shields.io/badge/Open--OSS-%E2%9C%94-brightgreen.svg)](http://open-oss.com)
 
 ## License
 
