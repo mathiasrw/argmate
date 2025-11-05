@@ -1,8 +1,8 @@
 // bun --inspect-brk test/manual.js      --no-foo bar --foo2 bar2
 
-import argMate, {argInfo} from '../src/argMateLite.js';
+import argMate, {argInfo} from '../../src/argMateLite.js';
 
-import precompileConfig from '../src/compileConfig.js';
+import precompileConfig from '../../src/compileConfig.js';
 
 console.log(precompileConfig({b: false, bool: false, 'no-meep': false, multi: ''}));
 process.exit();

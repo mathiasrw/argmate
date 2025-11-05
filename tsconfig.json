@@ -12,6 +12,6 @@
 		"outDir": "./dist",
 		"allowSyntheticDefaultImports": true
 	},
-	"include": ["src/**/*"],
-	"exclude": ["node_modules", "dist", "bench", "test"]
+	"include": ["src/**/*", "test/**/*"],
+	"exclude": ["node_modules", "dist", "bench"]
 }

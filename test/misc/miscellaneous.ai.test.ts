@@ -290,7 +290,7 @@ function run(argMate, engineType = '') {
 			});
 
 			test.todo('Flag with URL as value', () => {
-				expect(argMate(['--url', 'https://example.com'])).toEqual({
+				expect(argMate(['--url=', 'https://example.com'])).toEqual({
 					url: 'https://example.com',
 					_: [],
 				});
@@ -315,8 +315,8 @@ function run(argMate, engineType = '') {
 				expect(argMate(['--name=', 'John Doe'])).toEqual({name: 'John Doe', _: []});
 			});
 
-			test.todo('Flag with multiple special characters', () => {
-				expect(argMate(['--key', '!@#$%^&*()_+'])).toEqual({key: '!@#$%^&*()_+', _: []});
+			test('Flag with multiple special characters', () => {
+				expect(argMate(['--key=', '!@#$%^&*()_+'])).toEqual({key: '!@#$%^&*()_+', _: []});
 			});
 
 			test('Mixed short and long flags', () => {
@@ -340,13 +340,14 @@ function run(argMate, engineType = '') {
 				});
 			});
 
-			test.todo('Flag with array and negated flag', () => {
-				expect(
-					argMate(['--no-cache', '--include=file1.js', '--include=file2.js'], {
-						include: {type: 'string[]'},
-					})
-				).toEqual({cache: false, include: ['file1.js', 'file2.js'], _: []});
-			});
+			if (!engineType)
+				test('Flag with array and negated flag', () => {
+					expect(
+						argMate(['--no-cache', '--include=file1.js', '--include=file2.js'], {
+							include: {type: 'string[]'},
+						})
+					).toEqual({cache: false, include: ['file1.js', 'file2.js'], _: []});
+				});
 
 			test('Invalid flag with no assignment', done => {
 				argMate(
@@ -493,15 +494,15 @@ function run(argMate, engineType = '') {
 				});
 			});
 
-			test.todo('Unknown flags', () => {
-				expect(argMate(['--unknown'], {allowUnknown: true})).toEqual({
+			test('Unknown flags', () => {
+				expect(argMate(['--unknown'], {}, {allowUnknown: true})).toEqual({
 					_: [],
 					unknown: true,
 				});
 			});
 
-			test.todo('Disallow unknown flags', () => {
-				expect(() => argMate(['--unknown'], {allowUnknown: false})).toThrow();
+			test('Disallow unknown flags', () => {
+				expect(() => argMate(['--unknown'], {}, {allowUnknown: false})).toThrow();
 			});
 
 			test('Stop parsing after --', () => {
@@ -551,8 +552,19 @@ function run(argMate, engineType = '') {
 				expect(argMate(['--dry-run'], {})).toEqual({_: [], 'dry-run': true});
 			});
 
-			test.todo('Flag names with numbers', () => {
-				expect(argMate(['--http2-server'], {})).toEqual({_: [], 'http2-server': true});
+			test('Flag names with numbers and kebabCase', () => {
+				expect(argMate(['--http1-server'], {})).toEqual({_: [], http1Server: true});
+				expect(argMate(['--http2-server'], {}, {autoCamelKebabCase: true})).toEqual({
+					_: [],
+					http2Server: true,
+				});
+			});
+
+			test('Flag names with numbers and no kebabCase', () => {
+				expect(argMate(['--http2-server'], {}, {autoCamelKebabCase: false})).toEqual({
+					_: [],
+					'http2-server': true,
+				});
 			});
 
 			test('Case sensitivity', () => {
@@ -606,8 +618,12 @@ function run(argMate, engineType = '') {
 				).toThrow();
 			});
 
-			test.todo('Custom validation', () => {
-				expect(argMate(['--age', '25'], {age: {valid: v => v >= 18 && v <= 99}})).toEqual({
+			test('Custom validation', () => {
+				expect(
+					argMate(['--age', '25'], {
+						age: {type: 'int', valid: v => v >= 18 && v <= 99},
+					} as const)
+				).toEqual({
 					_: [],
 					age: 25,
 				});
@@ -615,7 +631,9 @@ function run(argMate, engineType = '') {
 
 			test('Invalid custom validation', () => {
 				expect(() =>
-					argMate(['--age', '15'], {age: {valid: v => v >= 18 && v <= 99}})
+					argMate(['--age', '15'], {
+						age: {type: 'int', valid: v => v >= 18 && v <= 99},
+					} as const)
 				).toThrow();
 			});
 

@@ -185,10 +185,7 @@ function run(argMate, engineType = '') {
 				});
 			});
 
-			test.todo('Variation: Type mismatch should throw error', () => {
-				// Type validation errors are not supported in argMateLite
-				// This feature requires the full argMate version
-			});
+			test.todo('Variation: Type mismatch should throw error', () => {});
 
 			test('Variation: Default with object config', () => {
 				expect(

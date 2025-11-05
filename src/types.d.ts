@@ -1,31 +1,102 @@
+/**
+ * Base config properties shared by all option types
+ */
+type BaseConfigProps = {
+	mandatory?: boolean;
+	alias?: string | string[];
+	conflict?: string | string[];
+	describe?: string;
+	key?: string; // Added dynamically by compileConfig
+};
+
+/**
+ * Typed config options with proper type inference for valid and transform functions
+ */
+type TypedConfigOption =
+	| (BaseConfigProps & {
+			type: 'boolean';
+			default?: boolean;
+			valid?: ((value: boolean) => boolean) | boolean[];
+			transform?: (value: boolean) => any;
+	  })
+	| (BaseConfigProps & {
+			type: 'string' | 'array';
+			default?: string | string[];
+			valid?: ((value: string | string[]) => boolean) | string[];
+			transform?: (value: string | string[]) => any;
+	  })
+	| (BaseConfigProps & {
+			type: 'number' | 'float' | 'int' | 'hex' | 'count';
+			default?: number;
+			valid?: ((value: number) => boolean) | number[];
+			transform?: (value: number) => any;
+	  })
+	| (BaseConfigProps & {
+			type: 'string[]';
+			default?: string[];
+			valid?: ((value: string[]) => boolean) | string[];
+			transform?: (value: string[]) => any;
+	  })
+	| (BaseConfigProps & {
+			type: 'number[]' | 'float[]' | 'int[]' | 'hex[]';
+			default?: number[];
+			valid?: ((value: number[]) => boolean) | number[];
+			transform?: (value: number[]) => any;
+	  })
+	| (BaseConfigProps & {
+			default: string;
+			type?: 'string' | 'array';
+			valid?: ((value: string) => boolean) | string[];
+			transform?: (value: string) => any;
+	  })
+	| (BaseConfigProps & {
+			default: number;
+			type?: 'number' | 'float' | 'int' | 'hex';
+			valid?: ((value: number) => boolean) | number[];
+			transform?: (value: number) => any;
+	  })
+	| (BaseConfigProps & {
+			default: boolean;
+			type?: 'boolean';
+			valid?: ((value: boolean) => boolean) | boolean[];
+			transform?: (value: boolean) => any;
+	  })
+	| (BaseConfigProps & {
+			default: string[];
+			type?: 'string[]' | 'array';
+			valid?: ((value: string[]) => boolean) | string[];
+			transform?: (value: string[]) => any;
+	  })
+	| (BaseConfigProps & {
+			default: number[];
+			type?: 'number[]' | 'float[]' | 'int[]' | 'hex[]';
+			valid?: ((value: number[]) => boolean) | number[];
+			transform?: (value: number[]) => any;
+	  })
+	| (BaseConfigProps & {
+			type?: Exclude<
+				string,
+				| 'boolean'
+				| 'string'
+				| 'array'
+				| 'number'
+				| 'float'
+				| 'int'
+				| 'hex'
+				| 'count'
+				| 'string[]'
+				| 'number[]'
+				| 'float[]'
+				| 'int[]'
+				| 'hex[]'
+			>;
+			default?: any;
+			valid?: ((value: any) => boolean) | any[];
+			transform?: (value: any) => any;
+	  });
+
 export interface ArgMateConfig {
-	[key: string]:
-		| {
-				type?:
-					| 'boolean'
-					| 'string'
-					| 'number'
-					| 'float'
-					| 'int'
-					| 'count'
-					| 'hex'
-					| 'array'
-					| 'string[]'
-					| 'number[]'
-					| 'float[]'
-					| 'int[]'
-					| 'hex[]';
-				default?: string | number | string[] | number[];
-				mandatory?: boolean;
-				alias?: string | string[];
-				conflict?: string | string[];
-				valid?: (value: any) => boolean | string[] | number[];
-				describe?: string;
-		  }
-		| null
-		| string[]
-		| number[]
-		| Exclude<any, object>;
+	[key: string]: TypedConfigOption | null | string | number | string[] | number[] | boolean;
 }
 
 type IntroOutroType = string | (string | [string, string])[];

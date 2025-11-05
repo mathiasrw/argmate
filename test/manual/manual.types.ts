@@ -7,7 +7,7 @@
  * You can also intentionally create type errors to verify the system catches them.
  */
 
-import argMate from '../src/argMate';
+import argMate from '../../src/argMate';
 
 // =============================================================================
 // Example 1: Shorthand syntax - {foo: 10} = {foo: {default: 10}}
