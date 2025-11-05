@@ -115,7 +115,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 			}
 		}
 
-		if (!LONG && 1 < KEY?.length) {
+		if (!LONG && 1 < [...KEY].length) {
 			const multi = KEY.split('').map(v => (NO ? '-no-' : '-') + v);
 			multi[multi.length - 1] += ASSIGN || '';
 			args = args.concat(multi.reverse());

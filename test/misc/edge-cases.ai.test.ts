@@ -327,7 +327,7 @@ function run(argMate, engineType = '') {
 				});
 			});
 		});
-		describe.todo('Sonnet 3.5' + engineType, () => {
+		describe('Sonnet 3.5' + engineType, () => {
 			// Empty input
 			test.skip('Empty input', () => {
 				expect(argMate([], {})).toEqual({_: []});
@@ -500,7 +500,7 @@ function run(argMate, engineType = '') {
 				});
 			});
 
-			test.skip('Conflicting flags with extremely long names', () => {
+			test.todo('Conflicting flags with extremely long names', () => {
 				const longFlag1 = 'a'.repeat(1000);
 				const longFlag2 = 'b'.repeat(1000);
 				expect(() =>
@@ -580,14 +580,6 @@ function run(argMate, engineType = '') {
 				});
 			});
 
-			test.skip('Extremely long argument with escaped characters', () => {
-				const longArg = 'a'.repeat(100000).replace(/a/g, '\\a');
-				expect(argMate(['--escaped', longArg], {escaped: ''})).toEqual({
-					_: [],
-					escaped: 'a'.repeat(100000),
-				});
-			});
-
 			test.skip('Mixing extremely long positional and named arguments', () => {
 				const longPositional = 'p'.repeat(1000000);
 				const longNamed = 'n'.repeat(1000000);
@@ -613,14 +605,7 @@ function run(argMate, engineType = '') {
 				});
 			});
 
-			test.skip('Extremely long environment variable reference', () => {
-				process.env.LONG_ENV_VAR = 'v'.repeat(1000000);
-				expect(argMate(['--env', '$LONG_ENV_VAR'], {env: '', expandEnvVars: true})).toEqual(
-					{_: [], env: 'v'.repeat(1000000)}
-				);
-			});
-
-			test.skip('Extremely long default help text', () => {
+			test('Extremely long default help text', () => {
 				const longHelp = 'h'.repeat(1000000);
 				expect(argMate(['--help'], {help: {description: longHelp}})).toEqual({
 					_: [],
@@ -628,12 +613,14 @@ function run(argMate, engineType = '') {
 				});
 			});
 
-			test.skip('Extremely long custom type name', () => {
+			test.skip('Extremely long unknown type name', () => {
 				const longTypeName = 't'.repeat(1000);
-				expect(argMate(['--custom', 'value'], {custom: {type: longTypeName}})).toEqual({
-					_: [],
-					custom: 'value',
-				});
+				expect(argMate(['--custom', 'value'], {custom: {type: longTypeName}}))
+					.toEqual({
+						_: [],
+						custom: 'value',
+					})
+					.toThrow();
 			});
 
 			test.skip('Extremely long regex pattern for validation', () => {

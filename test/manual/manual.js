@@ -4,8 +4,7 @@ import {compileConfig} from '../../src/compileConfig.js';
 let argv;
 debugger;
 
-argMate(['--fast', '-s'], {fast: 'boolean', safe: {alias: 's', conflict: 'fast'}});
-
+console.log(argMate(['--🍀🍀', '-🍀']));
 process.exit();
 
 console.log(argMate(['--no-moo']));

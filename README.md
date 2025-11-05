@@ -346,6 +346,7 @@ ArgMateLite is a stripped down version of argMate with only the essential aspect
 It also does not recognise slightly more escotic aspects of the tradition of CLI parameter formats:
 - No flag negation like the `--no-flag` syntax.
 - No ultra short assignments with notation like `-r255` as a shorthand for -r=255
+- No emojis and fancy unicode in parameter names
 
 Only numeric values are auto-converted, all other values remain strings:
 - No hex conversion of `0x...`, 
