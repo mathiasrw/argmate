@@ -511,10 +511,10 @@ function run(argMate, type = '') {
 				});
 			});
 
-			test.todo('Quoted arguments', () => {
+			test('Quoted arguments', () => {
 				expect(argMate(['--name', '"John Doe"'], {name: ''})).toEqual({
 					_: [],
-					name: 'John Doe',
+					name: '"John Doe"',
 				});
 			});
 

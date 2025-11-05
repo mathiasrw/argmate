@@ -9,16 +9,15 @@ import formatArgInfo from './argInfo.js';
 // @ts-ignore
 import {compileConfig} from './compileConfig.js';
 
-var params_;
+var params_: ArgMateParams | undefined;
 
-var conf_;
+var conf_: ArgMateConfig | undefined;
 
 export function argService(engine, args: string[], params?: ArgMateParams, conf?: ArgMateConfig) {
 	if (!params && !conf) return engine(args);
 
-	if (params) params_ = {...params};
-
-	if (conf) conf_ = {...conf};
+	params_ = params ? {...params} : {};
+	conf_ = conf ? {...conf} : {};
 
 	return engine(args, compileConfig(params || {}, conf || {}));
 }
@@ -38,7 +37,7 @@ export function argInfo(
 			width: 100,
 			...settings,
 		},
-		{...conf_, ...conf},
-		{...params_, ...params}
+		{...(conf_ || {}), ...conf},
+		{...(params_ || {}), ...params}
 	);
 }

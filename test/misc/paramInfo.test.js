@@ -3,8 +3,8 @@
 // @ts-ignore
 import {expect, test, describe} from 'bun:test';
 
-import argMate, {argInfo} from '../src/argMate.ts';
-import argMateLite, {argInfo as argInfoLite} from '../src/argMateLite.ts';
+import argMate, {argInfo} from '../../src/argMate';
+import argMateLite, {argInfo as argInfoLite} from '../../src/argMateLite';
 
 run(argMate, argInfo);
 run(argMateLite, argInfoLite, ' lite');
@@ -14,10 +14,13 @@ let help;
 function run(argMate, argInfo, type = '') {
 	describe('argInfo' + type, () => {
 		test('shows someting', () => {
-			argMate('--foo bar --foo2 bar2'.split(' '));
+			argMate('--foo bar --foo2 bar2'.split(' '), {
+				foo: {type: 'string'},
+				foo2: {type: 'string'},
+			});
 			let help = argInfo();
-
-			expect(help).toMatch(/params/);
+			console.log(help);
+			expect(help).toMatch(/foo2/);
 		});
 
 		test('Mention param info', () => {
