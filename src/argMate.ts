@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import {ArgMateConfig, ArgMateSettings} from './types.js';
+import {ArgMateConfig, ArgMateSettings, InferArgMateResult} from './types.js';
 
 export {compileConfig, precompileConfig} from './compileConfig.js';
 
@@ -12,10 +12,10 @@ import argEngine from './argEngine.js';
 
 export {argEngine};
 
-export default function argMate(
+export default function argMate<const Config extends ArgMateConfig | undefined = undefined>(
 	args: string[],
-	config?: ArgMateConfig,
+	config?: Config,
 	settings?: ArgMateSettings
-) {
-	return argService(argEngine, args, config, settings);
+): InferArgMateResult<Config> {
+	return argService(argEngine, args, config, settings) as InferArgMateResult<Config>;
 }

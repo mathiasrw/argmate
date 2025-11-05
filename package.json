@@ -38,10 +38,11 @@
 	"scripts": {
 		"prebuild": "rm -fr dist/",
 		"build": "bun build --target bun src/argMate.ts src/argMateLite.ts src/argEngine.ts src/argEngineLite.ts --outdir dist/ --minify ",
+		"lint": "tsc --noEmit && bun test/misc/types.ai.ts",
 		"test": "yarn test-only && yarn build && yarn test-bundle",
 		"test-only": "bun test --bail",
 		"test-bundle": "sh test/test.bundle.sh",
-		"test-ci": "yarn test-format && yarn test && yarn test-cov",
+		"test-ci": "yarn test-format && yarn lint && yarn test && yarn test-cov",
 		"test-cov": "bun test --coverage --bail",
 		"test-perf-cli": "yarn test && cd bench/ && sh test-cli.sh",
 		"test-perf-js": "yarn test && cd bench/ && sh test-js.sh",
