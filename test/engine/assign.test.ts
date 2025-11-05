@@ -43,27 +43,29 @@ function run(argMate, type = '') {
 			});
 		});
 
-		test.if(!type)('super short', () => {
-			let argv = argMate('-f123'.split(' '));
-			expect(argv).toEqual({
-				_: [],
-				f: 123,
+		if (!type)
+			test('super short', () => {
+				let argv = argMate('-f123'.split(' '));
+				expect(argv).toEqual({
+					_: [],
+					f: 123,
+				});
 			});
-		});
 
-		test.if(!type)('Multi not allowed', done => {
-			let argv = argMate(
-				'-foo123'.split(' '),
-				{},
-				{
-					error: msg => {
-						expect(msg).toContain('Unsupported format');
-						expect(msg).toContain('foo');
-						done();
-					},
-				}
-			);
-		});
+		if (!type)
+			test('Multi not allowed', done => {
+				let argv = argMate(
+					'-foo123'.split(' '),
+					{},
+					{
+						error: msg => {
+							expect(msg).toContain('Unsupported format');
+							expect(msg).toContain('foo');
+							done();
+						},
+					}
+				);
+			});
 
 		test('Missing assignment', done => {
 			let argv = argMate(

@@ -20,13 +20,14 @@ function run(argMate, type = '') {
 			});
 		});
 
-		test.if(!type)('Boolean negative', () => {
-			let argv = argMate('--no-foo bar --foo2 bar2'.split(' '));
-			expect(argv).toEqual({
-				_: ['bar', 'bar2'],
-				foo: false,
-				foo2: true,
+		if (!type)
+			test('Boolean negative', () => {
+				let argv = argMate('--no-foo bar --foo2 bar2'.split(' '));
+				expect(argv).toEqual({
+					_: ['bar', 'bar2'],
+					foo: false,
+					foo2: true,
+				});
 			});
-		});
 	});
 }

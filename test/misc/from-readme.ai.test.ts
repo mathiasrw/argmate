@@ -99,7 +99,7 @@ function run(argMate, type = '') {
 				});
 			});
 
-			test.skip('Variation: Empty string assignment', () => {
+			test.todo('Variation: Empty string assignment', () => {
 				// This test has issues with global configuration state
 				// The edge-cases.ai.test.ts has a working version of this test
 				const result = argMate(['--uniqueparam='], {});
@@ -185,7 +185,7 @@ function run(argMate, type = '') {
 				});
 			});
 
-			test.skip('Variation: Type mismatch should throw error', () => {
+			test.todo('Variation: Type mismatch should throw error', () => {
 				// Type validation errors are not supported in argMateLite
 				// This feature requires the full argMate version
 			});
@@ -470,7 +470,7 @@ function run(argMate, type = '') {
 				expect(() => argMate(['--mode', 'invalid'], config, settings)).toThrow();
 			});
 
-			test.skip('Variation: Transform function', () => {
+			test.todo('Variation: Transform function', () => {
 				// Transform functions seem to have issues in this test context
 				// Working examples exist in error-handling.ai.test.ts
 				const config = {
@@ -497,15 +497,16 @@ function run(argMate, type = '') {
 				});
 			});
 
-			test.if(!type)('Conflicting parameters', () => {
-				const config = {
-					verbose: {type: 'boolean', conflict: ['quiet']},
-					quiet: {type: 'boolean', conflict: ['verbose']},
-				};
-				const settings = {allowUnknown: false};
+			if (!type)
+				test('Conflicting parameters', () => {
+					const config = {
+						verbose: {type: 'boolean', conflict: ['quiet']},
+						quiet: {type: 'boolean', conflict: ['verbose']},
+					};
+					const settings = {allowUnknown: false};
 
-				expect(() => argMate(['--verbose', '--quiet'], config, settings)).toThrow();
-			});
+					expect(() => argMate(['--verbose', '--quiet'], config, settings)).toThrow();
+				});
 
 			test('Camel case with kebab case auto-alias', () => {
 				const config = {
@@ -519,25 +520,27 @@ function run(argMate, type = '') {
 				});
 			});
 
-			test.if(!type)('Negating boolean flags', () => {
-				const config = {debug: true, verbose: false};
-				const settings = {allowNegatingFlags: true};
+			if (!type)
+				test('Negating boolean flags', () => {
+					const config = {debug: true, verbose: false};
+					const settings = {allowNegatingFlags: true};
 
-				expect(argMate(['--no-debug', '--verbose'], config, settings)).toEqual({
-					_: [],
-					debug: false,
-					verbose: true,
+					expect(argMate(['--no-debug', '--verbose'], config, settings)).toEqual({
+						_: [],
+						debug: false,
+						verbose: true,
+					});
 				});
-			});
 
-			test.if(!type)('Ultra short notation with numbers', () => {
-				const settings = {allowKeyNumValues: true};
-				expect(argMate(['-p255', '-v80'], {}, settings)).toEqual({
-					_: [],
-					p: 255,
-					v: 80,
+			if (!type)
+				test('Ultra short notation with numbers', () => {
+					const settings = {allowKeyNumValues: true};
+					expect(argMate(['-p255', '-v80'], {}, settings)).toEqual({
+						_: [],
+						p: 255,
+						v: 80,
+					});
 				});
-			});
 		});
 	});
 }

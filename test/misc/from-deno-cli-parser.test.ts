@@ -109,39 +109,40 @@ function run(parseArgs, type = '') {
 			expect(typeof argv.b).toEqual('boolean');
 		});
 
-		test.if(!type)('parseArgs() handles boolean and alias with chainable api', () => {
-			expect(
-				argMate(
-					['-h', 'derp'],
-					{
-						herp: {type: 'boolean', alias: 'h'},
-					},
-					{
-						outputAlias: true,
-					}
-				)
-			).toEqual({
-				_: ['derp'],
-				herp: true,
-				h: true,
-			});
+		if (!type)
+			test('parseArgs() handles boolean and alias with chainable api', () => {
+				expect(
+					argMate(
+						['-h', 'derp'],
+						{
+							herp: {type: 'boolean', alias: 'h'},
+						},
+						{
+							outputAlias: true,
+						}
+					)
+				).toEqual({
+					_: ['derp'],
+					herp: true,
+					h: true,
+				});
 
-			expect(
-				argMate(
-					['--herp', 'derp'],
-					{
-						herp: {type: 'boolean', alias: 'h'},
-					},
-					{
-						outputAlias: true,
-					}
-				)
-			).toEqual({
-				_: ['derp'],
-				herp: true,
-				h: true,
+				expect(
+					argMate(
+						['--herp', 'derp'],
+						{
+							herp: {type: 'boolean', alias: 'h'},
+						},
+						{
+							outputAlias: true,
+						}
+					)
+				).toEqual({
+					_: ['derp'],
+					herp: true,
+					h: true,
+				});
 			});
-		});
 
 		test('parseArgs() handles boolean and alias with options hash', () => {
 			const opts = {

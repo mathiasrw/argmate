@@ -11,39 +11,42 @@ run(argMateLite, ' lite');
 
 function run(argMate, type = '') {
 	describe('AllowKeyNumValues' + type, () => {
-		test.if(!type)('Default', () => {
-			let argv = argMate('-s123'.split(' '));
-			expect(argv).toEqual({
-				_: [],
-				s: 123,
-			});
-		});
-
-		describe.if(!type)('Disallow', () => {
+		if (!type)
 			test('Default', () => {
-				let argv = argMate(
-					'-s123'.split(' '),
-					{},
-					{
-						allowKeyNumValues: false,
-					}
-				);
+				let argv = argMate('-s123'.split(' '));
 				expect(argv).toEqual({
 					_: [],
-					s: true,
-					'1': true,
-					'2': true,
-					'3': true,
+					s: 123,
 				});
 			});
-		});
 
-		test.if(!type)('No long params', () => {
-			let argv = argMate('--s123'.split(' '));
-			expect(argv).toEqual({
-				_: [],
-				s123: true,
+		if (!type)
+			describe('Disallow', () => {
+				test('Default', () => {
+					let argv = argMate(
+						'-s123'.split(' '),
+						{},
+						{
+							allowKeyNumValues: false,
+						}
+					);
+					expect(argv).toEqual({
+						_: [],
+						s: true,
+						'1': true,
+						'2': true,
+						'3': true,
+					});
+				});
 			});
-		});
+
+		if (!type)
+			test('No long params', () => {
+				let argv = argMate('--s123'.split(' '));
+				expect(argv).toEqual({
+					_: [],
+					s123: true,
+				});
+			});
 	});
 }
