@@ -55,59 +55,27 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 
 		if (!engineType)
-			test('Multi not allowed', done => {
-				let argv = argMate(
-					'-foo123'.split(' '),
-					{},
-					{
-						error: (msg: string) => {
-							expect(msg).toContain('Unsupported format');
-							expect(msg).toContain('foo');
-							done();
-						},
-					}
-				);
+			test('Multi not allowed', () => {
+				expect(() => {
+					argMate('-foo123'.split(' '), {}, {allowAssign: true});
+				}).toThrow(/Unsupported format.*foo/i);
 			});
 
-		test('Missing assignment', done => {
-			let argv = argMate(
-				'--foo='.split(' '),
-				{},
-				{
-					error: (msg: string) => {
-						expect(msg).toContain('No data provided for');
-						expect(msg).toContain('foo');
-						done();
-					},
-				}
-			);
+		test('Missing assignment', () => {
+			expect(() => {
+				argMate('--foo='.split(' '), {}, {allowAssign: true});
+			}).toThrow(/No data provided for.*foo/i);
 		});
 
-		test('Missing assignment long', done => {
-			let argv = argMate(
-				'--foo='.split(' '),
-				{},
-				{
-					error: (msg: string) => {
-						expect(msg).toContain('No data provided');
-						expect(msg).toContain('foo');
-						done();
-					},
-				}
-			);
+		test('Missing assignment long', () => {
+			expect(() => {
+				argMate('--foo='.split(' '), {}, {allowAssign: true});
+			}).toThrow(/No data provided.*foo/i);
 		});
-		test('Missing assignment short', done => {
-			let argv = argMate(
-				'-abc ee -f='.split(' '),
-				{},
-				{
-					error: (msg: string) => {
-						expect(msg).toContain('No data provided');
-						expect(msg).toContain('f');
-						done();
-					},
-				}
-			);
+		test('Missing assignment short', () => {
+			expect(() => {
+				argMate('-abc ee -f='.split(' '), {}, {allowAssign: true});
+			}).toThrow(/No data provided.*f/i);
 		});
 	});
 }

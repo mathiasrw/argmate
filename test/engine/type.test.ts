@@ -12,21 +12,12 @@ run(argMateLite, ' lite');
 
 function run(argMate: ArgMateEngine, caliber = '') {
 	describe('Provide value type' + caliber, () => {
-		test('Unsupported type', done => {
-			argMate(
-				'--bar'.split(' '),
-				{
+		test('Unsupported type', () => {
+			expect(() => {
+				argMate('--bar'.split(' '), {
 					foo: {type: 'xyz'},
-				},
-				{
-					panic: msg => {
-						expect(msg).toContain('foo');
-						expect(msg).toContain('Invalid type');
-						expect(msg).toContain('xyz');
-						done();
-					},
-				}
-			);
+				});
+			}).toThrow(/Invalid type.*xyz.*parameter.*foo/i);
 		});
 
 		test('Unexpected type will throw', () => {

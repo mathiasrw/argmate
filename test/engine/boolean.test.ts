@@ -41,38 +41,28 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 		});
 
-		test('Dont assign boolean', done => {
-			let argv = argMate(
-				'--foo= bar'.split(' '),
-				{
-					foo: {type: 'boolean'},
-				},
-				{
-					error: msg => {
-						expect(msg).toContain('foo');
-						expect(msg).toContain('boolean');
-						expect(msg).toContain('assign');
-						done();
+		test('Dont assign boolean', () => {
+			expect(() => {
+				argMate(
+					'--foo= bar'.split(' '),
+					{
+						foo: {type: 'boolean'},
 					},
-				}
-			);
+					{allowAssign: true}
+				);
+			}).toThrow(/foo.*boolean.*assign/i);
 		});
 
-		test('Dont short assign boolean', done => {
-			let argv = argMate(
-				'--foo=bar'.split(' '),
-				{
-					foo: {type: 'boolean'},
-				},
-				{
-					error: msg => {
-						expect(msg).toContain('foo');
-						expect(msg).toContain('boolean');
-						expect(msg).toContain('assign');
-						done();
+		test('Dont short assign boolean', () => {
+			expect(() => {
+				argMate(
+					'--foo=bar'.split(' '),
+					{
+						foo: {type: 'boolean'},
 					},
-				}
-			);
+					{allowAssign: true}
+				);
+			}).toThrow(/foo.*boolean.*assign/i);
 		});
 	});
 }

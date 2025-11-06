@@ -115,69 +115,33 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				).toThrow('conflict');
 			});
 
-			test('Invalid value type', done => {
-				argMate(
-					['--age=twenty'],
-					{age: {type: 'number'}},
-					{
-						error: msg => {
-							expect(msg).toContain('not a valid number');
-							done();
-						},
-					}
-				);
+			test('Invalid value type', () => {
+				expect(() => {
+					argMate(['--age=twenty'], {age: {type: 'number'}});
+				}).toThrow(/not a valid number/i);
 			});
-			test('Invalid value type2', done => {
-				argMate(
-					['--age=twenty'],
-					{age: {default: 7}},
-					{
-						error: msg => {
-							expect(msg).toContain('not a valid number');
-							done();
-						},
-					}
-				);
+			test('Invalid value type2', () => {
+				expect(() => {
+					argMate(['--age=twenty'], {age: {default: 7}});
+				}).toThrow(/not a valid number/i);
 			});
 
-			test('Missing required string', done => {
-				argMate(
-					['--username'],
-					{username: {type: 'string', mandatory: true}},
-					{
-						error: msg => {
-							expect(msg).toContain('No data provided');
-							done();
-						},
-					}
-				);
+			test('Missing required string', () => {
+				expect(() => {
+					argMate(['--username'], {username: {type: 'string', mandatory: true}});
+				}).toThrow(/No data provided/i);
 			});
 
-			test('Unknown flag with strict mode', done => {
-				argMate(
-					['--unknown'],
-					{},
-					{
-						allowUnknown: false,
-						error: msg => {
-							expect(msg).toContain('Unknown parameter');
-							done();
-						},
-					}
-				);
+			test('Unknown flag with strict mode', () => {
+				expect(() => {
+					argMate(['--unknown'], {}, {allowUnknown: false});
+				}).toThrow(/Unknown parameter/i);
 			});
 
-			test('Flag with no value assignment', done => {
-				argMate(
-					['--timeout='],
-					{timeout: 0},
-					{
-						error: msg => {
-							expect(msg).toContain('No data provided');
-							done();
-						},
-					}
-				);
+			test('Flag with no value assignment', () => {
+				expect(() => {
+					argMate(['--timeout='], {timeout: 0}, {allowAssign: true});
+				}).toThrow(/No data provided/i);
 			});
 
 			test('Flag with alias and value', () => {
@@ -350,17 +314,10 @@ function run(argMate: ArgMateEngine, engineType = '') {
 					).toEqual({cache: false, include: ['file1.js', 'file2.js'], _: []});
 				});
 
-			test('Invalid flag with no assignment', done => {
-				argMate(
-					['--foo='],
-					{foo: {type: 'string'}},
-					{
-						error: msg => {
-							expect(msg).toContain('No data provided');
-							done();
-						},
-					}
-				);
+			test('Invalid flag with no assignment', () => {
+				expect(() => {
+					argMate(['--foo='], {foo: {type: 'string'}}, {allowAssign: true});
+				}).toThrow(/No data provided/i);
 			});
 
 			test.todo('Negated flag with alias', () => {
@@ -622,7 +579,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			test('Custom validation', () => {
 				expect(
 					argMate(['--age', '25'], {
-						age: {type: 'int', valid: v => v >= 18 && v <= 99},
+						age: {type: 'int', valid: (v: number) => v >= 18 && v <= 99},
 					} as const)
 				).toEqual({
 					_: [],
@@ -633,7 +590,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			test('Invalid custom validation', () => {
 				expect(() =>
 					argMate(['--age', '15'], {
-						age: {type: 'int', valid: v => v >= 18 && v <= 99},
+						age: {type: 'int', valid: (v: number) => v >= 18 && v <= 99},
 					} as const)
 				).toThrow();
 			});
@@ -710,6 +667,18 @@ function run(argMate: ArgMateEngine, engineType = '') {
 					_: [],
 					long: longValue,
 				});
+			});
+
+			test.skip('Extremely long regex pattern for validation', () => {
+				const longRegex = '^a' + '?'.repeat(1000000) + '$';
+				expect(
+					argMate(['--pattern', 'a'], {
+						pattern: {
+							type: 'string',
+							valid: (v: string) => new RegExp(longRegex).test(v),
+						},
+					})
+				).toEqual({_: [], pattern: 'a'});
 			});
 		});
 	});

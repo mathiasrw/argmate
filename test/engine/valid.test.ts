@@ -12,20 +12,12 @@ run(argMateLite, ' lite');
 
 function run(argMate: ArgMateEngine, engineType = '') {
 	describe('Valid' + engineType, () => {
-		test('as function' + engineType, done => {
-			let argv = argMate(
-				'--foo 3'.split(' '),
-				{
+		test('as function' + engineType, () => {
+			expect(() => {
+				argMate('--foo 3'.split(' '), {
 					foo: {type: 'number', valid: v => v > 4},
-				},
-				{
-					error: msg => {
-						expect(msg).toContain('foo');
-						expect(msg).toContain('3');
-						done();
-					},
-				}
-			);
+				});
+			}).toThrow(/foo.*3/i);
 		});
 
 		test('as array', () => {

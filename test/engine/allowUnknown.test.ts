@@ -24,34 +24,16 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 		});
 
-		test('Disabled A', done => {
-			argMate(
-				'--foo bar'.split(' '),
-				{bar: 123},
-				{
-					allowUnknown: false,
-					error: (msg: string) => {
-						expect(msg).toContain('not allowed');
-						expect(msg).toContain('foo');
-						done();
-					},
-				}
-			);
+		test('Disabled A', () => {
+			expect(() => {
+				argMate('--foo bar'.split(' '), {bar: 123}, {allowUnknown: false});
+			}).toThrow(/Unknown parameter.*foo.*not allowed/i);
 		});
 
-		test('Disabled B', done => {
-			argMate(
-				'--foo a --bar 456'.split(' '),
-				{bar: 123},
-				{
-					allowUnknown: false,
-					error: (msg: string) => {
-						expect(msg).toContain('not allowed');
-						expect(msg).toContain('foo');
-						done();
-					},
-				}
-			);
+		test('Disabled B', () => {
+			expect(() => {
+				argMate('--foo a --bar 456'.split(' '), {bar: 123}, {allowUnknown: false});
+			}).toThrow(/Unknown parameter.*foo.*not allowed/i);
 		});
 
 		test('Disabled C', () => {

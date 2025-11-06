@@ -31,19 +31,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				foo: 'bar',
 			});
 		});
-		test('missing', (done: any) => {
-			let argv = argMate(
-				'--bar'.split(' '),
-				{
+		test('missing', () => {
+			expect(() => {
+				argMate('--bar'.split(' '), {
 					foo: {mandatory: true},
-				},
-				{
-					error: msg => {
-						expect(msg).toContain('mandatory');
-						done();
-					},
-				}
-			);
+				});
+			}).toThrow(/mandatory/i);
 		});
 	});
 }

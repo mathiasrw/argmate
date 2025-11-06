@@ -31,22 +31,13 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			).toThrow('Error was called');
 		});
 
-		test('Opposing pairs B', done => {
-			argMate(
-				'--foo --bar'.split(' '),
-				{
+		test('Opposing pairs B', () => {
+			expect(() => {
+				argMate('--foo --bar'.split(' '), {
 					foo: false,
 					bar: {conflict: 'foo'},
-				},
-				{
-					error: msg => {
-						expect(msg).toContain('conflict');
-						expect(msg).toContain('foo');
-						expect(msg).toContain('bar');
-						done();
-					},
-				}
-			);
+				});
+			}).toThrow(/parameter.*bar.*conflicts.*foo/i);
 		});
 
 		test('Comma notation', () => {
@@ -172,22 +163,13 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			).toThrow('Error was called');
 		});
 
-		test('Alias A1', done => {
-			argMate(
-				'--abc --foo'.split(' '),
-				{
+		test('Alias A1', () => {
+			expect(() => {
+				argMate('--abc --foo'.split(' '), {
 					foo: {conflict: 'bar'},
 					bar: {alias: 'abc'},
-				},
-				{
-					error: msg => {
-						expect(msg).toContain('conflict');
-						expect(msg).toContain('foo');
-						expect(msg).toContain('bar');
-						done();
-					},
-				}
-			);
+				});
+			}).toThrow(/parameter.*foo.*conflicts.*bar/i);
 		});
 		test.todo('Alias A2', done => {
 			argMate(

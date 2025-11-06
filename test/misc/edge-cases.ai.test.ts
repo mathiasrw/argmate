@@ -27,18 +27,10 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				expect(argMate([], {verbose: false})).toEqual({verbose: false, _: []});
 			});
 
-			test('Empty input with mandatory parameter', (done: (error?: Error) => void) => {
-				argMate(
-					[],
-					{verbose: {mandatory: true}},
-					{
-						error: (msg: string) => {
-							expect(msg).toContain('verbose');
-							expect(msg).toContain('is mandatory');
-							done();
-						},
-					}
-				);
+			test('Empty input with mandatory parameter', () => {
+				expect(() => {
+					argMate([], {verbose: {mandatory: true}});
+				}).toThrow(/verbose.*is mandatory/i);
 			});
 
 			///### **Extremely Long Arguments**
@@ -63,18 +55,11 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				expect(argMate([longArg])).toEqual({_: [longArg]});
 			});
 
-			test('Extremely long flag with number value', (done: (error?: Error) => void) => {
+			test('Extremely long flag with number value', () => {
 				const longNum = '9'.repeat(999) + 'x'; // Invalid number with non-numeric character
-				argMate(
-					['--timeout', longNum],
-					{timeout: 0},
-					{
-						error: (msg: string) => {
-							expect(msg).toContain('not a valid number');
-							done();
-						},
-					}
-				);
+				expect(() => {
+					argMate(['--timeout', longNum], {timeout: 0});
+				}).toThrow(/not a valid number/i);
 			});
 
 			/// ### **Repeated Arguments**
@@ -469,7 +454,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				});
 			});
 
-			test.skip('Mixture of valid and invalid enum values', () => {
+			test('Mixture of valid and invalid enum values', () => {
 				expect(() =>
 					argMate(['--color', 'red', '--color', 'green', '--color', 'invalid'], {
 						color: {type: 'string[]', valid: ['red', 'green', 'blue']},
@@ -485,7 +470,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				});
 			});
 
-			test.skip('Flag with extremely long alias', () => {
+			test('Flag with extremely long alias', () => {
 				const longAlias = 'a'.repeat(1000);
 				expect(argMate([`--${longAlias}`], {short: {alias: longAlias}})).toEqual({
 					_: [],
@@ -521,20 +506,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				});
 			});
 
-			test.skip('Many conflicts in config', () => {
+			test.todo('Many conflicts in config', () => {
 				const config = {};
 				for (let i = 0; i < 1000; i++) {
 					config[`flag${i}`] = {conflict: `flag${(i + 1) % 1000}`};
 				}
 				expect(() => argMate(['--flag0', '--flag1'], config)).toThrow();
-			});
-
-			test.skip('Extremely deeply nested config', () => {
-				let config: any = {a: {type: 'string'}};
-				for (let i = 0; i < 1000; i++) {
-					config = {nested: config};
-				}
-				expect(argMate(['--a', 'value'], config)).toEqual({_: [], a: 'value'});
 			});
 
 			test.skip('Mixing extremely long flags and short flags', () => {
@@ -563,8 +540,8 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				});
 			});
 
-			test.skip('Many repeated short flags', () => {
-				const args = '-a'.repeat(1000).split('');
+			test.todo('Many repeated short flags', () => {
+				const args = '-a '.repeat(1000).split(' ');
 				expect(argMate(args, {})).toEqual({_: [], a: true});
 			});
 
@@ -628,7 +605,10 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				const longRegex = '^a' + '?'.repeat(1000000) + '$';
 				expect(
 					argMate(['--pattern', 'a'], {
-						pattern: {type: 'string', valid: new RegExp(longRegex)},
+						pattern: {
+							type: 'string',
+							valid: (v: string) => new RegExp(longRegex).test(v),
+						},
 					})
 				).toEqual({_: [], pattern: 'a'});
 			});

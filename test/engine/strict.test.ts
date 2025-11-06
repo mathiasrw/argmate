@@ -19,19 +19,10 @@ function run(
 	type = ''
 ) {
 	describe('strictSettings' + type, () => {
-		test('Unknown parameter gives error', (done: () => void) => {
-			argMate(
-				'--bar value'.split(' '),
-				{foo: {type: 'string'}},
-				{
-					strict: true,
-					error: (msg: string) => {
-						expect(msg).toContain('Unknown parameter');
-						expect(msg).toContain('bar');
-						done();
-					},
-				}
-			);
+		test('Unknown parameter gives error', () => {
+			expect(() => {
+				argMate('--bar value'.split(' '), {foo: {type: 'string'}}, {strict: true});
+			}).toThrow(/Unknown parameter.+bar/i);
 		});
 
 		test('No auto aliass from kebab to camel case', () => {
@@ -92,19 +83,14 @@ function run(
 			});
 		});
 
-		test.todo('Error on multiple undefined parameters', (done: () => void) => {
-			argMate(
-				'--undefined1 value1 --undefined2 value2'.split(' '),
-				{definedParam: {type: 'string'}},
-				{
-					strict: true,
-					error: (msg: string) => {
-						expect(msg).toContain('Unknown parameter');
-						expect(msg).toContain('undefined1');
-						done();
-					},
-				}
-			);
+		test('Error on multiple undefined parameters', () => {
+			expect(() => {
+				argMate(
+					'--undefined1 value1 --undefined2 value2'.split(' '),
+					{definedParam: {type: 'string'}},
+					{strict: true}
+				);
+			}).toThrow(/Unknown parameter.+undefined1/i);
 		});
 
 		test('Correct handling of defined boolean flags', () => {
@@ -120,19 +106,14 @@ function run(
 			});
 		});
 
-		test.todo('Error on assigning value to boolean flag', (done: () => void) => {
-			argMate(
-				'--flag value'.split(' '),
-				{flag: {type: 'boolean'}},
-				{
-					strict: true,
-					error: (msg: string) => {
-						expect(msg).toContain('boolean');
-						expect(msg).toContain('flag');
-						done();
-					},
-				}
-			);
+		test('Error on assigning value to boolean flag', () => {
+			expect(() => {
+				argMate(
+					'--flag=value'.split(' '),
+					{flag: {type: 'boolean'}},
+					{strict: true, allowAssign: true}
+				);
+			}).toThrow(/boolean.*flag/i);
 		});
 	});
 }

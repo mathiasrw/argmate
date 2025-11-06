@@ -42,17 +42,10 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Invalid hex input B', done => {
-				argMate(
-					'--foo abx4'.split(' '),
-					{foo: {type: 'hex'}},
-					{
-						error: m => {
-							expect(m).toContain('not a valid hex');
-							done();
-						},
-					}
-				);
+			test('Invalid hex input B', () => {
+				expect(() => {
+					argMate('--foo abx4'.split(' '), {foo: {type: 'hex'}});
+				}).toThrow(/not a valid hex/i);
 			});
 		});
 

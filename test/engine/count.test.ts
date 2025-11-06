@@ -20,20 +20,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 		});
 
-		test('Default not allowed', done => {
-			let argv = argMate(
-				'--fox bar --foX bar2'.split(' '),
-				{
+		test('String not allowed', () => {
+			expect(() => {
+				argMate('--fox bar --foX bar2'.split(' '), {
 					foo: {type: 'count', default: 11},
-				},
-				{
-					panic: msg => {
-						expect(msg).toContain('11');
-						expect(msg).toContain('foo');
-						done();
-					},
-				}
-			);
+				});
+			}).toThrow(/11.*foo/i);
 		});
 	});
 }

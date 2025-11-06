@@ -25,34 +25,16 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 		});
 
-		test('Error on invalid autodetected type', done => {
-			argMate(
-				'--foo xyz --bar 222'.split(' '),
-				{foo: 4, foo2: {type: 'number'}},
-				{
-					error: msg => {
-						expect(msg).toContain('foo');
-						expect(msg).toContain('not a valid number');
-						expect(msg).toContain('xyz');
-						done();
-					},
-				}
-			);
+		test('Error on invalid autodetected type', () => {
+			expect(() => {
+				argMate('--foo xyz --bar 222'.split(' '), {foo: 4, foo2: {type: 'number'}});
+			}).toThrow(/foo.*not a valid number.*xyz/i);
 		});
 	});
 
-	test('Error on invalid explicit type', done => {
-		argMate(
-			'--foo 111 --foo2 xyz'.split(' '),
-			{foo: 4, foo2: {type: 'number'}},
-			{
-				error: msg => {
-					expect(msg).toContain('foo2');
-					expect(msg).toContain('not a valid number');
-					expect(msg).toContain('xyz');
-					done();
-				},
-			}
-		);
+	test('Error on invalid explicit type', () => {
+		expect(() => {
+			argMate('--foo 111 --foo2 xyz'.split(' '), {foo: 4, foo2: {type: 'number'}});
+		}).toThrow(/foo2.*not a valid number.*xyz/i);
 	});
 }
