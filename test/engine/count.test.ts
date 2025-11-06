@@ -1,5 +1,6 @@
 // https://bun.sh/docs/test/writing
 
+// @ts-ignore
 import {expect, test, describe} from 'bun:test';
 
 import type {ArgMateEngine} from '../../src/types.js';

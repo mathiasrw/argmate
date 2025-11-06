@@ -5,13 +5,14 @@ import {expect, test, describe} from 'bun:test';
 
 import argMate from '../../src/argMate';
 import argMateLite from '../../src/argMateLite';
+import type {ArgMateEngine} from '../../src/types.js';
 
 run(argMate);
 run(argMateLite, ' lite');
 
 let argv;
 
-function run(argMate, engineType = '') {
+function run(argMate: ArgMateEngine, engineType = '') {
 	describe('README Usage Examples' + engineType, () => {
 		describe('Basic boolean flags', () => {
 			test("Original example: argMate(['--foo', 'bar', '-i'])", () => {

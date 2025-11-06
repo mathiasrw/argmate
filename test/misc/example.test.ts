@@ -1,6 +1,6 @@
 // https://bun.sh/docs/test/writing
 
-// @ts-ignore - bun:test types not available during TypeScript compilation
+// @ts-ignore
 import {expect, test, describe} from 'bun:test';
 
 import argMate from '../../src/argMate';

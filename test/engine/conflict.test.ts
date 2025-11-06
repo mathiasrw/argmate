@@ -1,5 +1,6 @@
 // https://bun.sh/docs/test/writing
 
+// @ts-ignore
 import {expect, test, describe} from 'bun:test';
 
 import type {ArgMateEngine} from '../../src/types.js';
@@ -171,82 +172,75 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			).toThrow('Error was called');
 		});
 
-		/* // we can support alias conflicting later - removing support for now
-		test('Alias A', () => {
-			expect(() =>
-				argMate(
-					'--abc --foo'.split(' '),
-					{
-						foo: {conflict: 'bar'},
-						bar: {alias: 'abc'},
+		test('Alias A1', done => {
+			argMate(
+				'--abc --foo'.split(' '),
+				{
+					foo: {conflict: 'bar'},
+					bar: {alias: 'abc'},
+				},
+				{
+					error: msg => {
+						expect(msg).toContain('conflict');
+						expect(msg).toContain('foo');
+						expect(msg).toContain('bar');
+						done();
 					},
-					{
-						error: msg => {
-							expect(msg).toContain('conflict');
-							expect(msg).toContain('foo');
-							expect(msg).toContain('bar');
-							throw 'Error was called';
-						},
-					}
-				)
-			).toThrow('Error was called');
-
-			expect(() =>
-				argMate(
-					'--bar --foo'.split(' '),
-					{
-						foo: {conflict: 'bar'},
-						bar: {alias: 'abc'},
+				}
+			);
+		});
+		test.todo('Alias A2', done => {
+			argMate(
+				'--bar --foo'.split(' '),
+				{
+					foo: {conflict: 'bar'},
+					bar: {alias: 'abc'},
+				},
+				{
+					error: msg => {
+						expect(msg).toContain('conflict');
+						expect(msg).toContain('foo');
+						expect(msg).toContain('bar');
+						done();
 					},
-					{
-						error: msg => {
-							expect(msg).toContain('conflict');
-							expect(msg).toContain('foo');
-							expect(msg).toContain('bar');
-							throw 'Error was called';
-						},
-					}
-				)
-			).toThrow('Error was called');
+				}
+			);
 		});
 
-		test('Alias B', () => {
-			expect(() =>
-				argMate(
-					'--abc --foo'.split(' '),
-					{
-						foo: {conflict: 'abc'},
-						bar: {alias: 'abc'},
+		test.todo('Alias B1', done => {
+			argMate(
+				'--abc --foo'.split(' '),
+				{
+					foo: {conflict: 'abc'},
+					bar: {alias: 'abc'},
+				},
+				{
+					error: msg => {
+						expect(msg).toContain('conflict');
+						expect(msg).toContain('foo');
+						expect(msg).toContain('bar');
+						done();
 					},
-					{
-						error: msg => {
-							expect(msg).toContain('conflict');
-							expect(msg).toContain('foo');
-							expect(msg).toContain('bar');
-							throw 'Error was called';
-						},
-					}
-				)
-			).toThrow('Error was called');
-
-			expect(() =>
-				argMate(
-					'--bar --foo'.split(' '),
-					{
-						foo: {conflict: 'abc'},
-						bar: {alias: 'abc'},
-					},
-					{
-						error: msg => {
-							expect(msg).toContain('conflict');
-							expect(msg).toContain('foo');
-							expect(msg).toContain('bar');
-							throw 'Error was called';
-						},
-					}
-				)
-			).toThrow('Error was called');
+				}
+			);
 		});
-		*/
+
+		test.todo('Alias B2', done => {
+			argMate(
+				'--bar --foo'.split(' '),
+				{
+					foo: {conflict: 'abc'},
+					bar: {alias: 'abc'},
+				},
+				{
+					error: msg => {
+						expect(msg).toContain('conflict');
+						expect(msg).toContain('foo');
+						expect(msg).toContain('bar');
+						done();
+					},
+				}
+			);
+		});
 	});
 }

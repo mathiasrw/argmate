@@ -52,7 +52,7 @@ function run(
 			});
 		});
 
-		test('CamelCaseing with single char config ?', () => {
+		test('CamelCaseing with single char config', () => {
 			argv = argMate('-F -f -a=1 -A=2'.split(' '), {}, {autoCamelKebabCase: false});
 			expect(argv).toEqual({
 				_: [],
@@ -61,8 +61,10 @@ function run(
 				a: 1,
 				A: 2,
 			});
+		});
 
-			argv = argMate('-F -f -a=1 -A=2'.split(' '), {}, {autoCamelKebabCase: false});
+		test('Not CamelCaseing with single char config', () => {
+			argv = argMate('-F -f -a=1 -A=2'.split(' '), {}, {autoCamelKebabCase: true});
 			expect(argv).toEqual({
 				_: [],
 				F: true,

@@ -3,14 +3,15 @@
 		"target": "ES2021",
 		"lib": ["ES2021"],
 		"module": "ESNext",
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
 		"strict": true,
 		"esModuleInterop": true,
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
 		"declaration": true,
 		"outDir": "./dist",
-		"allowSyntheticDefaultImports": true
+		"allowSyntheticDefaultImports": true,
+		"types": ["bun-types"]
 	},
 	"include": ["src/**/*", "test/**/*"],
 	"exclude": ["node_modules", "dist", "bench"]

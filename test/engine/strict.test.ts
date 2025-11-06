@@ -47,7 +47,7 @@ function run(
 
 			expect(() => {
 				argMate('--fooBar value'.split(' '), {'foo-bar': {type: 'string'}}, {strict: true});
-			}).toThrow('Unknown parameter', 'not allowed');
+			}).toThrow(/Unknown parameter.+not allowed/i);
 		});
 
 		test('Ignore negating flags', () => {

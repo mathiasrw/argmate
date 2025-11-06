@@ -5,11 +5,12 @@ import {expect, test, describe} from 'bun:test';
 
 import argMate from '../../src/argMate';
 import argMateLite from '../../src/argMateLite';
+import type {ArgMateEngine} from '../../src/types.js';
 
 run(argMate);
 run(argMateLite, ' lite');
 
-function run(argMate, engineType = '') {
+function run(argMate: ArgMateEngine, engineType = '') {
 	describe('Hex' + engineType, () => {
 		describe('Real hex codes', () => {
 			test('Hex with no 0x prefix', () => {

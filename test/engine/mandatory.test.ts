@@ -5,11 +5,12 @@ import {expect, test, describe} from 'bun:test';
 
 import argMate from '../../src/argMate';
 import argMateLite from '../../src/argMateLite';
+import type {ArgMateEngine} from '../../src/types.js';
 
 run(argMate);
 run(argMateLite, ' lite');
 
-function run(argMate, engineType = '') {
+function run(argMate: ArgMateEngine, engineType = '') {
 	describe('Mandatory' + engineType, () => {
 		test('Default', () => {
 			let argv = argMate('--foo bar'.split(' '), {
@@ -30,7 +31,7 @@ function run(argMate, engineType = '') {
 				foo: 'bar',
 			});
 		});
-		test('missing', done => {
+		test('missing', (done: any) => {
 			let argv = argMate(
 				'--bar'.split(' '),
 				{
