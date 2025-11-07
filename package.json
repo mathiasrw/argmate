@@ -37,27 +37,30 @@
 	},
 	"scripts": {
 		"prebuild": "rm -fr dist/",
-		"build": "bun build --target bun src/argMate.ts src/argMateLite.ts src/argEngine.ts src/argEngineLite.ts --outdir dist/ --minify ",
-		"lint": "tsc --noEmit && bun test/misc/types.ai.ts",
+		"build": "bun build --target bun src/argMate.ts src/argMateMini.ts src/argEngine.ts src/argEngineMini.ts --outdir dist/ --minify ",
+		"lint": "biome check && tsc --noEmit && bun test/misc/types.ai.ts",
 		"test": "yarn test-only && yarn build && yarn test-bundle",
+		"tst": "CLAUDECODE=1 bun test --bail --timeout 500",
 		"test-only": "bun test --bail --timeout 500",
 		"test-bundle": "sh test/test.bundle.sh",
 		"test-ci": "yarn test-format && yarn lint && yarn test && yarn test-cov",
 		"test-cov": "bun test --coverage --bail --timeout 500",
 		"test-perf-cli": "yarn test && cd bench/ && sh test-cli.sh",
 		"test-perf-js": "yarn test && cd bench/ && sh test-js.sh",
-		"test-format": "prettier --list-different . || (echo 'Please correct file formatting using `yarn format` and try again.' && exit 1)",
-		"format": "prettier --write .",
+		"test-format": "biome format",
+		"format": "biome format --write",
 		"release": "yarn version",
 		"prerelease": "yarn && yarn format && yarn test",
 		"postrelease": "npm publish && git push && git push --tags && echo \"Successfully released version $npm_package_version\"",
 		"prepare": "husky"
 	},
+	"dependencies": {
+		"columnify": "^1.6.0"
+	},
 	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
 		"bun-types": "1.1.21",
-		"columnify": "^1.6.0",
 		"husky": "^9.1.4",
-		"prettier": "3.3.3",
 		"rexreplace": "^7.1.3",
 		"typescript": "^5.9.3"
 	}

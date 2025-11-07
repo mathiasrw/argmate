@@ -1,0 +1,31 @@
+{
+	"formatter": {
+		"indentStyle": "tab",
+		"lineWidth": 100,
+		"bracketSpacing": false
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "single",
+			"trailingCommas": "es5",
+			"arrowParentheses": "asNeeded"
+		}
+	},
+	"json": {
+		"formatter": { "indentStyle": "tab" }
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"correctness": {
+				"recommended": true
+			},
+			"suspicious": {
+				"recommended": true
+			}
+		}
+	},
+	"files": {
+		"include": ["{.,src,test,dist}/**/*.{ts,js,json}"]
+	}
+}

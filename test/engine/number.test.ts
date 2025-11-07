@@ -6,13 +6,13 @@ import {expect, test, describe} from 'bun:test';
 // also test float
 
 import argMate from '../../src/argMate';
-import argMateLite from '../../src/argMateLite';
+import argMateMini from '../../src/argMateMini';
 import type {ArgMateEngine} from '../../src/types.js';
 
 let argv;
 
 run(argMate);
-run(argMateLite, ' lite');
+run(argMateMini, ' Mini');
 
 function run(argMate: ArgMateEngine, engineType = '') {
 	describe('Number' + engineType, () => {

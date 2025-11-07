@@ -5,10 +5,10 @@ import {expect, test, describe} from 'bun:test';
 
 import argMate from '../../src/argMate';
 import {ArgMateConfig, ArgMateSettings} from '../../src/types';
-import argMateLite from '../../src/argMateLite';
+import argMateMini from '../../src/argMateMini';
 
 run(argMate);
-run(argMateLite, ' lite');
+run(argMateMini, ' Mini');
 let argv;
 
 function run(

@@ -5,7 +5,7 @@
 import {expect, test, describe} from 'bun:test';
 
 import argMate from '../../src/argMate';
-import argMateLite from '../../src/argMateLite';
+import argMateMini from '../../src/argMateMini';
 
 let argv;
 
@@ -22,7 +22,7 @@ const assertThrows = function (a, b, c) {
 };
 
 run(argMate);
-run(argMateLite, ' lite');
+run(argMateMini, ' Mini');
 
 function run(parseArgs, engineType = '') {
 	describe('Inspired by deno' + engineType, () => {

@@ -4,11 +4,11 @@
 import {expect, test, describe} from 'bun:test';
 
 import argMate from '../../src/argMate';
-import argMateLite from '../../src/argMateLite';
+import argMateMini from '../../src/argMateMini';
 import type {ArgMateEngine} from '../../src/types.js';
 
 run(argMate);
-run(argMateLite, ' lite');
+run(argMateMini, ' Mini');
 
 let argv;
 
@@ -669,7 +669,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				});
 			});
 
-			test.skip('Extremely long regex pattern for validation', () => {
+			test.todo('Extremely long regex pattern for validation', () => {
 				const longRegex = '^a' + '?'.repeat(1000000) + '$';
 				expect(
 					argMate(['--pattern', 'a'], {

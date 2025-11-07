@@ -6,10 +6,10 @@ import {expect, test, describe} from 'bun:test';
 import type {ArgMateEngine} from '../../src/types.js';
 import type {DoneCallback, ErrorCallback} from '../../src/test-types.js';
 import argMate from '../../src/argMate';
-import argMateLite from '../../src/argMateLite';
+import argMateMini from '../../src/argMateMini';
 
 run(argMate);
-run(argMateLite, ' lite');
+run(argMateMini, ' Mini');
 
 let argv;
 

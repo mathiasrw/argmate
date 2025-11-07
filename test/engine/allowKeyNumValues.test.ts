@@ -4,7 +4,7 @@
 import {expect, test, describe} from 'bun:test';
 
 import argMate from '../../src/argMate';
-import argMateLite from '../../src/argMateLite';
+import argMateMini from '../../src/argMateMini';
 import type {ArgMateEngine} from '../../src/types.js';
 
 function run(argMate: ArgMateEngine, engineType = '') {
@@ -50,4 +50,4 @@ function run(argMate: ArgMateEngine, engineType = '') {
 }
 
 run(argMate);
-run(argMateLite, ' lite');
+run(argMateMini, ' Mini');

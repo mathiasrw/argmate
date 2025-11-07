@@ -8,12 +8,12 @@ export {argInfo} from './argService.js';
 
 import {argService} from './argService.js';
 
-import argEngineLite from './argEngineLite.js';
+import argEngineMini from './argEngineMini.js';
 
 export default function argMate(
 	args: string[],
 	config?: ArgMateConfig,
 	settings?: ArgMateSettings
 ) {
-	return argService(argEngineLite, args, config, settings);
+	return argService(argEngineMini, args, config, settings);
 }

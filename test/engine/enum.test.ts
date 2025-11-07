@@ -4,11 +4,11 @@
 import {expect, test, describe} from 'bun:test';
 
 import argMate from '../../src/argMate';
-import argMateLite from '../../src/argMateLite';
+import argMateMini from '../../src/argMateMini';
 import type {ArgMateEngine} from '../../src/types.js';
 
 run(argMate);
-run(argMateLite, ' lite');
+run(argMateMini, ' Mini');
 
 function run(argMate: ArgMateEngine, engineType = '') {
 	// Enum is really a parameter where an array of values have been set as valid. Will default to first element if default is not provided.

@@ -5,10 +5,10 @@ import {expect, test, describe} from 'bun:test';
 
 import type {ArgMateEngine} from '../../src/types.js';
 import argMate from '../../src/argMate.js';
-import argMateLite from '../../src/argMateLite.js';
+import argMateMini from '../../src/argMateMini.js';
 
 run(argMate);
-run(argMateLite, ' lite');
+run(argMateMini, ' Mini');
 
 function run(argMate: ArgMateEngine, engineType = '') {
 	if (!engineType)

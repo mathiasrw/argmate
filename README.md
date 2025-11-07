@@ -307,18 +307,15 @@ console.log(
 
 
 
-### argMateLite
+## argMateMini
 
-
-## argMateLite
-
-Sometimes all you want is no fuss and a bit more speed. If you don't need magic like built-in validation and type conversion, then `argMateLite` is your best friend.
+Sometimes all you want is no fuss and a bit more speed. If you don't need magic like built-in validation and type conversion, then `argMateMini` is your best friend.
 
 ```javascript
-import argMate from 'argmate/lite';
+import argMate from 'argmate/mini';
 ```
 
-`argMateLite` is a stripped-down version of `argMate` with only the essential aspects for common use cases:
+`argMateMini` is a stripped-down version of `argMate` with only the essential aspects for common use cases:
 
 *   No parameter conflict detection
 *   No parameter value transformation
@@ -330,14 +327,14 @@ import argMate from 'argmate/lite';
 
 ---
 
-Sometimes all you want is speed and a minimal footprint. If you dont need too much magic and convinience like built in validation and type conversion, then argMateLite is your best friend. 
+Sometimes all you want is speed and a minimal footprint. If you dont need too much magic and convinience like built in validation and type conversion, then argMateMini is your best friend. 
 
 ```js
-import argMate from 'argmate/lite';
+import argMate from 'argmate/mini';
 ```
 
 
-ArgMateLite is a stripped down version of argMate with only the essential aspects to cover most common use cases:
+ArgMateMini is a stripped down version of argMate with only the essential aspects to cover most common use cases:
 - No parameter conflict detection
 - No Parameter value transformation
 - No Parameter value validation

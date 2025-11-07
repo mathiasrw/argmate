@@ -4,6 +4,11 @@ import {compileConfig} from '../../src/compileConfig.js';
 let argv;
 debugger;
 
+console.log('hi');
+
+console.log(argMate(['-123', '-', '4567'], {timeout: {alias: 't'}}));
+process.exit();
+
 console.log(argMate(['--🍀🍀', '-🍀']));
 process.exit();
 

@@ -6,11 +6,11 @@ import {expect, test, describe} from 'bun:test';
 // also include array as type
 
 import argMate from '../../src/argMate';
-import argMateLite from '../../src/argMateLite';
+import argMateMini from '../../src/argMateMini';
 import type {ArgMateEngine} from '../../src/types.js';
 
 run(argMate);
-run(argMateLite, ' lite');
+run(argMateMini, ' Mini');
 
 function run(argMate: ArgMateEngine, caliber = '') {
 	describe('string[]' + caliber, () => {

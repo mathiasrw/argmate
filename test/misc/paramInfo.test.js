@@ -3,11 +3,11 @@
 // @ts-ignore
 import {expect, test, describe} from 'bun:test';
 
-import argMate, {argInfo} from '../../src/argMate';
-import argMateLite, {argInfo as argInfoLite} from '../../src/argMateLite';
+import argMate, {argInfo} from '../../src/argMate.js';
+import argMateMini, {argInfo as argInfoMini} from '../../src/argMateMini.js';
 
 run(argMate, argInfo);
-run(argMateLite, argInfoLite, ' lite');
+run(argMateMini, argInfoMini, ' Mini');
 
 let help;
 
@@ -19,7 +19,7 @@ function run(argMate, argInfo, engineType = '') {
 				foo2: {type: 'string'},
 			});
 			let help = argInfo();
-			console.log(help);
+
 			expect(help).toMatch(/foo2/);
 		});
 

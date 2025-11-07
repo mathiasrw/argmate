@@ -5,12 +5,12 @@ import {expect, test, describe} from 'bun:test';
 
 import type {ArgMateEngine} from '../../src/types.js';
 import argMate from '../../src/argMate';
-import argMateLite from '../../src/argMateLite';
+import argMateMini from '../../src/argMateMini';
 
 let argv;
 
 run(argMate);
-run(argMateLite, ' lite');
+run(argMateMini, ' Mini');
 
 function run(argMate: ArgMateEngine, engineType = '') {
 	describe.if(!engineType)('Conflict' + engineType, () => {
