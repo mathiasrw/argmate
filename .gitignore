@@ -5,6 +5,6 @@ dist/
 *.file
 *.lock
 *.exe
-bench/p*.json
+bench/**/package*.json
 
 /tmp
