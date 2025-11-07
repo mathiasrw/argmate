@@ -1,12 +1,10 @@
 command -v hyperfine || brew install hyperfine
 command -v bun || (brew tap oven-sh/bun && brew install bun)
-command -v deno || brew install deno
 command -v node || brew install node
 
 [ ! -f "package.json" ] && cp _package.json package.json && npm install && npm upgrade
 
 bun build --compile argMate.mjs --outfile argMate.bun.exe 
-deno        compile argMate.mjs --output  argMate.deno.exe 
 
 run_hyperfine() {
 	local RUNTIME="$1"
@@ -14,7 +12,6 @@ run_hyperfine() {
 
 	local EXTRA_COMMANDS=""
 	[ -f "./argMate.bun.exe" ] && A+="./argMate.bun.exe $PARAMS "
-	[ -f "./argMate.deno.exe" ] && B+="./argMate.deno.exe $PARAMS "
 
 	hyperfine --warmup 5               	 	\
 		"$RUNTIME yargs.cjs $PARAMS"       	\
@@ -23,12 +20,12 @@ run_hyperfine() {
 		"$RUNTIME nopt.cjs $PARAMS"        	\
 		"$RUNTIME argMate.mjs $PARAMS"     	\
 		"$RUNTIME argMateEngine.mjs $PARAMS"     	\
-		"$RUNTIME argMatePlus.mjs $PARAMS"     	\
-		"$RUNTIME argMateEnginePlus.mjs $PARAMS"     	\
+		"$RUNTIME argMateMini.mjs $PARAMS"     	\
+		"$RUNTIME argMateEngineMini.mjs $PARAMS"     	\
 		"$RUNTIME argMate.cjs $PARAMS"     	\
 		"$RUNTIME argMateEngine.cjs $PARAMS"     	\
-		"$RUNTIME argMatePlus.cjs $PARAMS"     	\
-		"$RUNTIME argMateEnginePlus.cjs $PARAMS"     	\
+		"$RUNTIME argMateMini.cjs $PARAMS"     	\
+		"$RUNTIME argMateEngineMini.cjs $PARAMS"     	\
 		#"$A"								\
 		#"$B"									
 

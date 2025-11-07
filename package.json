@@ -29,7 +29,7 @@
 	],
 	"module": "dist/argMate.js",
 	"type": "module",
-	"types": "src/types.d.ts",
+	"types": "src/types.ts",
 	"main": "dist/argMate.js",
 	"exports": {
 		"import": "./dist/argMate.js",
@@ -40,7 +40,7 @@
 		"build": "bun build --target bun src/argMate.ts src/argMateMini.ts src/argEngine.ts src/argEngineMini.ts --outdir dist/ --minify ",
 		"lint": "biome check && tsc --noEmit && bun test/misc/types.ai.ts",
 		"test": "yarn test-only && yarn build && yarn test-bundle",
-		"tst": "CLAUDECODE=1 bun test --bail --timeout 500",
+		"tst": "biome format --write && CLAUDECODE=1 bun test --bail --timeout 500",
 		"test-only": "bun test --bail --timeout 500",
 		"test-bundle": "sh test/test.bundle.sh",
 		"test-ci": "yarn test-format && yarn lint && yarn test && yarn test-cov",

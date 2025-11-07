@@ -6,7 +6,7 @@ export const re = {
 	isArrayType: /(^array|\[\])$/,
 	validTypes: /^((array|count|json|split)|(boolean|string|number|float|int|hex)(\[\])?)$/,
 	paramTokens:
-		/^(?<STOP>--)$|^-(?<LONG>-+)?(?<NO>no-)?(?<KEY>[^=\s]+?)(?<KEYNUM>[\d]*)(?<ASSIGN>=(?<VAL>.*))?$/u,
+		/^(?<STOP>--)$|^-(?<LONG>-+)?(?<NO>no-)?(?<KEY>[^=\s]+?)(?<KEYNUM>[\d]*)(?<ASSIGN>=(?<VAL>.*))?$/us,
 	listDeviders: /[,\s]+-?-?|^--?/,
 	isHex: /^(0x)?[A-Fa-f0-9]+$/,
 	isHexPrefix: /^(0x)[A-Fa-f0-9]+$/,

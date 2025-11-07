@@ -19,20 +19,20 @@
 	console.timeEnd('mri');
 
 	console.time('argMate');
-	let argMate = (await import('../dist/argMate.mjs')).default;
+	let argMate = (await import('../dist/argMate.js')).default;
 	console.timeEnd('argMate');
 
-	console.time('argMatePlus');
-	let argMatePlus = (await import('../dist/argMatePlus.mjs')).default;
-	console.timeEnd('argMatePlus');
+	console.time('argMateMini');
+	let argMateMini = (await import('../dist/argMateMini.js')).default;
+	console.timeEnd('argMateMini');
 
 	console.time('argMateArgEngine');
-	let argMateArgEngine = (await import('../dist/argEngine.mjs')).default;
+	let argMateArgEngine = (await import('../dist/argEngine.js')).default;
 	console.timeEnd('argMateArgEngine');
 
-	console.time('argMateArgEnginePlus');
-	let argMateArgEnginePlus = (await import('../dist/argEnginePlus.mjs')).default;
-	console.timeEnd('argMateArgEnginePlus');
+	console.time('argMateArgEngineMini');
+	let argMateArgEngineMini = (await import('../dist/argEngineMini.js')).default;
+	console.timeEnd('argMateArgEngineMini');
 
 	console.log('\nBenchmark:');
 	const bench = new Suite();
@@ -84,15 +84,15 @@
 		.add('nopt                ', () => nopt(args))
 		.add('minimist            ', () => minimist(args))
 		.add('mri                 ', () => mri(args))
-		.add('argMatePlus         ', () => argMatePlus(args), {}, {})
-		.add('argMatePlus+Config  ', () => argMatePlus(args), {
+		.add('argMateMini         ', () => argMateMini(args), {}, {})
+		.add('argMateMini+Config  ', () => argMateMini(args), {
 			b: false,
 			bool: false,
 			'no-meep': false,
 			multi: '',
 		})
-		.add('argMateEngPlus+settings ', () => argMateArgEnginePlus(args, argmateGeneratedConfig))
-		.add('argMateEnginePlus   ', () => argMateArgEnginePlus(args))
+		.add('argMateEngMini+settings ', () => argMateArgEngineMini(args, argmateGeneratedConfig))
+		.add('argMateEngineMini   ', () => argMateArgEngineMini(args))
 		.add('argMate             ', () => argMate(args), {}, {})
 		.add('argMate+Config  ', () => argMate(args), {
 			b: false,

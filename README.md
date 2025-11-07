@@ -309,7 +309,7 @@ console.log(
 
 ## argMateMini
 
-Sometimes all you want is no fuss and a bit more speed. If you don't need magic like built-in validation and type conversion, then `argMateMini` is your best friend.
+Sometimes all you want is no fuss and a bit more speed. If you don't need magic and convinience, then `argMateMini` is your friend.
 
 ```javascript
 import argMate from 'argmate/mini';
@@ -327,29 +327,27 @@ import argMate from 'argmate/mini';
 
 ---
 
-Sometimes all you want is speed and a minimal footprint. If you dont need too much magic and convinience like built in validation and type conversion, then argMateMini is your best friend. 
+Sometimes all you want is simplicity, speed and a minimal footprint. If you dont need too much magic and convinience, then argMateMini is your friend. 
 
 ```js
 import argMate from 'argmate/mini';
 ```
 
-
-ArgMateMini is a stripped down version of argMate with only the essential aspects to cover most common use cases:
+ArgMateMini contains all the essense of CLI parsing and, to be frank, will be the best fit for most use cases. But compared to it's big brother _argMate_ it has:
 - No parameter conflict detection
-- No Parameter value transformation
-- No Parameter value validation
-- No Hex conversion from `0x` notation to integer
+- No arameter value transformation
+- No parameter value validation
+- No emojis and fancy unicode in parameter names
 
-It also does not recognise slightly more escotic aspects of the tradition of CLI parameter formats:
+It also does not recognise slightly more escotic aspects of the traditions in CLI parameter formats:
 - No flag negation like the `--no-flag` syntax.
 - No ultra short assignments with notation like `-r255` as a shorthand for -r=255
-- No emojis and fancy unicode in parameter names
 
 Only numeric values are auto-converted, all other values remain strings:
 - No hex conversion of `0x...`, 
 - No magic string conversion to boolean from true/false, yes/no, on/off
 
-
+Eveything else is exactly like argMate, just faster. 
 
 
 # Ideas

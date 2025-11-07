@@ -299,7 +299,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				});
 			});
 
-			test.todo('Newline character in flag value', () => {
+			test('Newline character in flag value', () => {
 				expect(argMate(['--message=Hello\nWorld'])).toEqual({
 					message: 'Hello\nWorld',
 					_: [],
