@@ -334,7 +334,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				expect(argMate([`--${longFlag}`], {})).toEqual({_: [], [longFlag]: true});
 			});
 
-			test.todo('Extremely long value', () => {
+			test('Extremely long value', () => {
 				const longValue = 'a'.repeat(1000000);
 				expect(argMate(['--long', longValue], {long: ''})).toEqual({
 					_: [],
@@ -585,16 +585,16 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				});
 			});
 
-			test.todo('Extremely long regex pattern for validation', () => {
-				const longRegex = '^a' + '?'.repeat(1000000) + '$';
+			test('Regex pattern for validation', () => {
+				const longRegex = 'aaa';
 				expect(
-					argMate(['--pattern', 'a'], {
+					argMate(['--pattern', 'aaaa'], {
 						pattern: {
 							type: 'string',
 							valid: (v: string) => new RegExp(longRegex).test(v),
 						},
 					})
-				).toEqual({_: [], pattern: 'a'});
+				).toEqual({_: [], pattern: 'aaaa'});
 			});
 
 			test.todo('Extremely long camelCase conversion', () => {

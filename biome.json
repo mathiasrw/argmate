@@ -22,8 +22,16 @@
 			},
 			"suspicious": {
 				"recommended": true
+			},
+			"style": {
+				"recommended": true
+			},
+			"complexity": {
+				"recommended": true
 			}
 		}
 	},
-	"files": {}
+	"files": {
+		"ignore": ["dist/", "bench/"]
+	}
 }

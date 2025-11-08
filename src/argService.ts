@@ -5,28 +5,32 @@ import type {
 	ArgMateEngineConfig,
 	ArgMateInfoConfig,
 	ArgMateSettings,
+	ArgMateResponse,
 } from './types.js';
 
 import argInfoFormat from './argInfo.js';
 
 import {configPreprocessing} from './compileConfig.js';
 
-var config_: ArgMateConfig | undefined;
+let config_: ArgMateConfig | undefined;
 
-var settings_: ArgMateSettings | undefined;
+let settings_: ArgMateSettings | undefined;
 
-export function argService(
-	engine: (args: string[], argProcessObj?: ArgMateEngineConfig) => {[key: string]: any} | void,
+export function argService<const Config extends ArgMateConfig>(
+	engine: (
+		args: string[],
+		argProcessObj?: ArgMateEngineConfig
+	) => ArgMateResponse<Config> | undefined,
 	args: string[],
-	config?: ArgMateConfig,
+	config?: Config,
 	settings?: ArgMateSettings
-): {[key: string]: any} {
-	if (!config && !settings) return engine(args) as {[key: string]: any};
+): ArgMateResponse<Config> {
+	if (!config && !settings) return engine(args) as ArgMateResponse<Config>;
 
 	config_ = config ? {...config} : {};
 	settings_ = settings ? {...settings} : {};
 
-	return engine(args, configPreprocessing(config || {}, settings || {})) as {[key: string]: any};
+	return engine(args, configPreprocessing(config || {}, settings || {})) as ArgMateResponse<Config>;
 }
 
 /** #__PURE__ */ export function argInfo(

@@ -1,4 +1,9 @@
-import {ArgMateConfig, type ArgMateEngineConfig, type ArgMateSettings} from './types.js';
+import {
+	ArgMateConfig,
+	type ArgMateEngineConfig,
+	type ArgMateSettings,
+	type ArgMateResponse,
+} from './types.js';
 
 //import use from './strip.macro.js' with { type: 'macro' };
 
@@ -31,7 +36,10 @@ import {re} from './common.js';
 array of value as default
 */
 
-export default function argEngine(args: string[], argProcessObj?: ArgMateEngineConfig) {
+export default function argEngine(
+	args: string[],
+	argProcessObj?: ArgMateEngineConfig
+): ArgMateResponse<ArgMateConfig> {
 	argProcessObj = argProcessObj || {
 		output: {
 			_: [],
@@ -71,7 +79,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgMateEngineC
 		allowKeyNumValues,
 		allowAssign,
 	} = settings;
-	const outputPush = output['_'].push.bind(output['_']);
+	const addArgument = output['_'].push.bind(output['_']);
 	const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 	// Reverse, pop, push, reverse 8.77 times faster than unshft, shift
@@ -81,7 +89,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgMateEngineC
 		const arg: string = '' + args.pop();
 
 		if (arg.charCodeAt(0) !== 45) {
-			outputPush(arg);
+			addArgument(arg);
 			continue;
 		}
 
@@ -121,7 +129,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgMateEngineC
 		}
 
 		if (!KEY) {
-			outputPush(arg);
+			addArgument(arg);
 			continue;
 		}
 
@@ -183,14 +191,10 @@ export default function argEngine(args: string[], argProcessObj?: ArgMateEngineC
 		}
 
 		if ('count' === theType) {
-			output[theKey]++;
+			(output[theKey] as number)++;
 			inputLog.push(theKey);
 			continue;
 		}
-
-		//if(config[KEY].split) {
-		//VAL = VAL.split(config[KEY].split).filter(Boolean);
-		//}
 
 		let data = 0;
 
@@ -201,7 +205,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgMateEngineC
 
 			case 'array':
 			case 'string[]':
-				output[theKey].push(VAL);
+				(output[theKey] as any[]).push(VAL);
 				continue;
 
 			case 'number':
@@ -255,7 +259,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgMateEngineC
 
 	for (const [key, value] of Object.entries(complexDefault)) {
 		if (!hasOwnProperty.call(config, key)) continue;
-		if (undefined === output[key] || !output[key].length) {
+		if (undefined === output[key] || !(output[key] as any[]).length) {
 			output[key] = value;
 		}
 	}
@@ -312,16 +316,20 @@ export default function argEngine(args: string[], argProcessObj?: ArgMateEngineC
 	}
 
 	if (settings.outputInflate) {
-		return inflate(output);
+		return inflate(output as ArgMateResponse<ArgMateConfig>);
 	}
 
-	return output;
+	return output as ArgMateResponse<ArgMateConfig>;
 }
 
-function inflate(flatObj: {[key: string]: any}) {
+function inflate(flatObj: ArgMateResponse<ArgMateConfig>): ArgMateResponse<ArgMateConfig> {
 	const result: {[key: string]: any} = {};
 
+	// Always preserve the _ property
+	result._ = flatObj._;
+
 	for (const key in flatObj) {
+		if (key === '_') continue; // Skip _ as it's already handled
 		const keys = key.split('.');
 		let currentLevel: {[key: string]: any} = result;
 
@@ -338,5 +346,5 @@ function inflate(flatObj: {[key: string]: any}) {
 		});
 	}
 
-	return result;
+	return result as ArgMateResponse<ArgMateConfig>;
 }

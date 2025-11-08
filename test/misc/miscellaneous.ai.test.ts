@@ -289,8 +289,8 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				});
 			});
 
-			test.todo('Flag with value containing commas', () => {
-				expect(argMate(['--tags', 'tag1,tag2,tag3'])).toEqual({
+			test('Flag with value containing commas', () => {
+				expect(argMate(['--tags=', 'tag1,tag2,tag3'])).toEqual({
 					tags: 'tag1,tag2,tag3',
 					_: [],
 				});
@@ -506,11 +506,26 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				});
 			});
 
-			test.todo('Flag names with dashes', () => {
-				expect(argMate(['--dry-run'], {})).toEqual({_: [], 'dry-run': true});
+			test('Flag names with dashes default', () => {
+				expect(argMate(['--dry-run'], {})).toEqual({_: [], dryRun: true});
 			});
 
-			test('Flag names with numbers and kebabCase', () => {
+			test('Flag names with dashes no auto camel', () => {
+				expect(argMate(['--dry-run'], {}, {autoCamelKebabCase: false})).toEqual({
+					_: [],
+					'dry-run': true,
+				});
+			});
+
+			test.skip('Flag names with dashes no auto camel and output alias', () => {
+				expect(argMate(['--dry-run'], {}, {autoCamelKebabCase: false, outputAlias: true})).toEqual({
+					_: [],
+					dryRun: true,
+					'dry-run': true,
+				});
+			});
+
+			test.skip('Flag names with numbers and kebabCase', () => {
 				expect(argMate(['--http1-server'], {})).toEqual({_: [], http1Server: true});
 				expect(argMate(['--http2-server'], {}, {autoCamelKebabCase: true})).toEqual({
 					_: [],

@@ -24,8 +24,8 @@ const strictSettings = {
 	const mandatory: string[] = [];
 	const validate: string[] = [];
 	const conflict: string[] = [];
-	const complexDefault: any = {};
-	const output: any = {
+	const complexDefault: {[key: string]: string[] | number[]} = {};
+	const output: {[key: string]: unknown} = {
 		_: [],
 	};
 
@@ -51,10 +51,10 @@ const strictSettings = {
 	};
 
 	const {panic} = finalSettings;
-	const hasOwnProperty = Object.prototype.hasOwnProperty;
+	const hasOwnPropertyFn = Object.prototype.hasOwnProperty;
 
 	for (const key in config) {
-		if (!hasOwnProperty.call(config, key)) continue;
+		if (!hasOwnPropertyFn.call(config, key)) continue;
 		let param = config[key];
 
 		// If only default value is provided, then transform to object with correct type
@@ -93,7 +93,7 @@ const strictSettings = {
 		if (undefined !== param.default) {
 			if (Array.isArray(param.default)) {
 				complexDefault[key] = param.default;
-			} else if ('count' == param.type) {
+			} else if ('count' === param.type) {
 				return panic(
 					`Default parameter '${param.default}' is not allowed for '${key}' because of its type '${param.type}'`
 				);
@@ -102,7 +102,7 @@ const strictSettings = {
 			}
 		}
 
-		if ('count' == param.type) {
+		if ('count' === param.type) {
 			output[key] = 0;
 		}
 

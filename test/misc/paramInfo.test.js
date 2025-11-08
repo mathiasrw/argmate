@@ -44,13 +44,5 @@ function run(argMate, argInfo, engineType = '') {
 			expect(help).toMatch(/first line/);
 			expect(help).toMatch(/thank you/);
 		});
-
-		test.todo('Config details', () => {
-			// Alias, type, mandatory, default, conflict,
-		});
-
-		test.todo('Settings details', () => {
-			//
-		});
 	});
 }

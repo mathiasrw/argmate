@@ -9,12 +9,11 @@ import type {ArgMateConfig, ArgMateInfoConfig, ArgMateSettings} from './types.js
 		showOutro: true,
 		postOutro: '',
 	},
+
 	settings: ArgMateSettings = {},
 	config: ArgMateConfig
 ) {
-	debugger;
-
-	const info: any = {};
+	const info: Record<string, unknown> = {};
 	if (infoConfig.showIntro && settings.intro) {
 		info.intro = settings.intro;
 	}

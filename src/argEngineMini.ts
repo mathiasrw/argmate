@@ -1,4 +1,9 @@
-import {ArgMateConfig, type ArgMateEngineConfig, type ArgMateSettings} from './types.js';
+import {
+	ArgMateConfig,
+	type ArgMateEngineConfig,
+	type ArgMateSettings,
+	type ArgMateResponse,
+} from './types.js';
 interface EngineSettings extends ArgMateSettings {
 	error: (msg: string) => never;
 	panic: (msg: string) => never;
@@ -29,7 +34,10 @@ array of value as default
 # conflicting values
 */
 
-export default function argEngineMini(args: string[], argProcessObj?: ArgMateEngineConfig) {
+export default function argEngineMini(
+	args: string[],
+	argProcessObj?: ArgMateEngineConfig
+): ArgMateResponse<ArgMateConfig> {
 	argProcessObj = argProcessObj || {
 		output: {
 			_: [],
@@ -56,13 +64,15 @@ export default function argEngineMini(args: string[], argProcessObj?: ArgMateEng
 
 	const {mandatory, validate, complexDefault, output, settings, config, conflict} = argProcessObj;
 
+	const addArgument = output['_'].push.bind(output['_']);
+
 	args.reverse(); // Reverse, pop, push, reverse 8.77 times faster than unshft, shift
 
 	while (args.length) {
 		const arg: string = '' + args.pop();
 
 		if (arg.charCodeAt(0) !== 45) {
-			output['_'].push(arg);
+			addArgument(arg);
 			continue;
 		}
 
@@ -132,7 +142,7 @@ export default function argEngineMini(args: string[], argProcessObj?: ArgMateEng
 
 		if ('count' === config[config[KEY].key].type) {
 			if (ASSIGN) return settings.error(`'${KEY}' counting, so can't assign: '${arg}'`);
-			output[KEY]++;
+			(output[KEY] as number)++;
 			continue;
 		}
 
@@ -150,7 +160,7 @@ export default function argEngineMini(args: string[], argProcessObj?: ArgMateEng
 
 			case 'array':
 			case 'string[]':
-				output[config[KEY].key].push(VAL);
+				(output[config[KEY].key] as any[]).push(VAL);
 				continue;
 
 			case 'number':
@@ -186,7 +196,7 @@ export default function argEngineMini(args: string[], argProcessObj?: ArgMateEng
 		}
 
 		if (Array.isArray(output[config[KEY].key])) {
-			output[config[KEY].key].push(num);
+			(output[config[KEY].key] as any[]).push(num);
 		} else {
 			output[config[KEY].key] = num;
 		}
@@ -227,12 +237,12 @@ export default function argEngineMini(args: string[], argProcessObj?: ArgMateEng
 	for (const key in complexDefault) {
 		if (!config.hasOwnProperty(key)) continue;
 
-		if (undefined === output[key] || !output[key].length) {
+		if (undefined === output[key] || !(output[key] as any[]).length) {
 			output[key] = complexDefault[key];
 		}
 	}
 
 	// todo: check for conflict ?
 
-	return output;
+	return output as ArgMateResponse<ArgMateConfig>;
 }

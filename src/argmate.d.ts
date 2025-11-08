@@ -19,7 +19,9 @@ export function configPreprocessing(
 	precompile: boolean
 ): ArgMateEngineConfig | string;
 
-export function argEngine(config: ArgMateEngineConfig): {[key: string]: any};
+export function argEngine<Config extends ArgMateConfig>(
+	config: ArgMateEngineConfig & {config: Config}
+): ArgMateResponse<Config>;
 
 export function argInfoFormat(
 	infoConfig: ArgMateInfoConfig,
