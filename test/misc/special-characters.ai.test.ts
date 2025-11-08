@@ -225,56 +225,56 @@ function run(argMate: ArgMateEngine, engineType = '') {
 					expect(argMate(['--مرحبا=', 'true'])).toEqual({مرحبا: 'true', _: []});
 				});
 
-				test.skip('Emoji in flag name', () => {
+				test('Emoji in flag name', () => {
 					expect(argMate(['--🚀=', 'launch'])).toEqual({'🚀': 'launch', _: []});
 				});
 			});
 
 			describe('Edge Cases Combining Multiple Features', () => {
-				test.skip('Unicode and special characters in value', () => {
+				test('Unicode and special characters in value', () => {
 					expect(argMate(['--input=', 'ファイル$123'])).toEqual({
 						input: 'ファイル$123',
 						_: [],
 					});
 				});
 
-				test.skip('Right-to-left text with special characters', () => {
+				test('Right-to-left text with special characters', () => {
 					expect(argMate(['--text=', 'مرحبا&سلام'])).toEqual({text: 'مرحبا&سلام', _: []});
 				});
 
-				test.skip('Emoji and spaces in value', () => {
+				test('Emoji and spaces in value', () => {
 					expect(argMate(['--mood=', 'Happy 😊 all day'])).toEqual({
 						mood: 'Happy 😊 all day',
 						_: [],
 					});
 				});
 
-				test.skip('Emoji and special characters in value', () => {
+				test('Emoji and special characters in value', () => {
 					expect(argMate(['--symbol=', '❤️&💡'])).toEqual({symbol: '❤️&💡', _: []});
 				});
 
-				test.skip('Unicode, Emoji, and special characters in positional argument', () => {
+				test('Unicode, Emoji, and special characters in positional argument', () => {
 					expect(argMate(['ファイル_🚀&.txt'])).toEqual({_: ['ファイル_🚀&.txt']});
 				});
 			});
 		});
 		describe('Sonnet 3.5' + engineType, () => {
 			// Spaces in values
-			test.skip('Value with spaces', () => {
+			test('Value with spaces', () => {
 				expect(argMate(['--name', 'John Doe'], {name: {type: 'string'}})).toEqual({
 					_: [],
 					name: 'John Doe',
 				});
 			});
 
-			test.skip('Value with multiple spaces', () => {
+			test('Value with multiple spaces', () => {
 				expect(argMate(['--address', '123   Main   St'], {address: {type: 'string'}})).toEqual({
 					_: [],
 					address: '123   Main   St',
 				});
 			});
 
-			test.skip('Value with leading and trailing spaces', () => {
+			test('Value with leading and trailing spaces', () => {
 				expect(argMate(['--title', '  The Book  '], {title: {type: 'string'}})).toEqual({
 					_: [],
 					title: '  The Book  ',
