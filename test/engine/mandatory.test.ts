@@ -1,7 +1,7 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
 import argMate from '../../src/argMate';
 import argMateMini from '../../src/argMateMini';
@@ -13,7 +13,7 @@ run(argMateMini, ' Mini');
 function run(argMate: ArgMateEngine, engineType = '') {
 	describe('Mandatory' + engineType, () => {
 		test('Default', () => {
-			let argv = argMate('--foo bar'.split(' '), {
+			const argv = argMate('--foo bar'.split(' '), {
 				foo: {mandatory: true},
 			});
 			expect(argv).toEqual({
@@ -23,7 +23,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 		});
 
 		test('with default', () => {
-			let argv = argMate('--foo bar'.split(' '), {
+			const argv = argMate('--foo bar'.split(' '), {
 				foo: {mandatory: true, default: 'abc'},
 			});
 			expect(argv).toEqual({

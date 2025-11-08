@@ -11,11 +11,11 @@ argMate('--foo bar --foo2 bar2'.split(' '));
 
 process.exit();
 
-let conf = precompileConfig(lotsofParamConfig());
+const conf = precompileConfig(lotsofParamConfig());
 console.log(conf);
 
 process.exit();
-let argv = argMate('-f123'.split(' '));
+const argv = argMate('-f123'.split(' '));
 
 console.log({argv});
 

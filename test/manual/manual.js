@@ -1,6 +1,6 @@
 // bun --inspect-brk test/manual.js      --no-foo bar --foo2 bar2
 import argMate, {argInfo} from '../../src/argMate.js';
-import {compileConfig} from '../../src/compileConfig.js';
+import {configPreprocessing} from '../../src/compileConfig.js';
 let argv;
 debugger;
 
@@ -19,7 +19,7 @@ console.log(argMate(['-123', '-', '4567'], {timeout: {alias: 't'}}));
 
 process.exit();
 
-console.log(compileConfig({timeout: {alias: 't'}}));
+console.log(configPreprocessing({timeout: {alias: 't'}}));
 
 process.exit();
 
@@ -37,7 +37,7 @@ argMate('--foo bar --foo2 bar2'.split(' '));
 
 process.exit();
 
-let conf = precompileConfig(lotsofParamConfig());
+const conf = precompileConfig(lotsofParamConfig());
 console.log(conf);
 
 process.exit();

@@ -1,11 +1,11 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
 import argMate from '../../src/argMate';
-import {ArgMateConfig, ArgMateSettings} from '../../src/types';
 import argMateMini from '../../src/argMateMini';
+import type {ArgMateConfig, ArgMateSettings} from '../../src/types';
 
 run(argMate);
 run(argMateMini, ' Mini');
@@ -26,7 +26,7 @@ function run(
 		});
 
 		test('No auto aliass from kebab to camel case', () => {
-			let argv = argMate(
+			const argv = argMate(
 				'--foo-bar value'.split(' '),
 				{'foo-bar': {type: 'string'}},
 				{strict: true}
@@ -42,7 +42,7 @@ function run(
 		});
 
 		test('Ignore negating flags', () => {
-			let argv = argMate(
+			const argv = argMate(
 				'--no-flag'.split(' '),
 				{flag: {type: 'boolean'}, 'no-flag': {type: 'boolean'}},
 				{strict: true}
@@ -54,7 +54,7 @@ function run(
 		});
 
 		test.todo('No keynum value assignments', () => {
-			let argv = argMate(
+			const argv = argMate(
 				'-p123'.split(' '),
 				{p: {type: 'boolean'}, p123: {type: 'boolean'}},
 				{strict: true}
@@ -66,7 +66,7 @@ function run(
 		});
 
 		test.todo('Combination of strict behaviors', () => {
-			let argv = argMate(
+			const argv = argMate(
 				'--defined-param value --foo-bar othervalue -p123'.split(' '),
 				{
 					'defined-param': {type: 'string'},
@@ -94,7 +94,7 @@ function run(
 		});
 
 		test('Correct handling of defined boolean flags', () => {
-			let argv = argMate(
+			const argv = argMate(
 				'--flag1 --flag2'.split(' '),
 				{flag1: true, flag2: false},
 				{strict: true}

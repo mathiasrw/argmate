@@ -15,15 +15,14 @@ echo "mri: v$(bun -p 'require("mri/package.json").version')"
 echo "nopt: v$(bun -p 'require("nopt/package.json").version')"
 echo "argmate: v$(bun -p 'require("../../package.json").version') - ($(git branch --show-current)  $(git rev-parse --short HEAD))"
 echo
-echo
 
 run() {
 	local PARAMS="$1"
-
-	echo "\n\n\n About to run Node with $PARAMS"
+	echo 
+	echo "About to run Node with $PARAMS"
 	node test-js.cjs -- $PARAMS
-
-	echo "\n\n\n About to run Bun with $PARAMS"
+	echo 
+	echo "About to run Bun with $PARAMS"
 	bun test-js.cjs -- $PARAMS
 }
 

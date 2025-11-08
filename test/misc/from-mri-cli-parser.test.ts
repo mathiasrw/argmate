@@ -1,7 +1,7 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
 import argMate from '../../src/argMate';
 import argMateMini from '../../src/argMateMini';
@@ -18,13 +18,13 @@ function run(argMate: ArgMateEngine, engineType = '') {
 
 		if (!engineType)
 			test('Parse args', () => {
-				let argv = argMate(['--no-moo']);
+				const argv = argMate(['--no-moo']);
 				expect(argv).toEqual({_: [], moo: false});
 			});
 
 		if (!engineType)
 			test('comprehensive', () => {
-				let argv = argMate([
+				const argv = argMate([
 					'--name=meowmers',
 					'bare',
 					'-cats',
@@ -64,7 +64,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 
 		test('comprehensive', () => {
-			let argv = argMate([
+			const argv = argMate([
 				'--name=meowmers',
 				'bare',
 				'-cats',
@@ -104,20 +104,8 @@ function run(argMate: ArgMateEngine, engineType = '') {
 		});
 
 		test('nums', () => {
-			let argv = argMate(
-				[
-					'-x',
-					'1234',
-					'-y',
-					'5.67',
-					'-z',
-					'1e7',
-					'-w',
-					'10f',
-					'--hex',
-					'0xdeadbeef',
-					'789',
-				],
+			const argv = argMate(
+				['-x', '1234', '-y', '5.67', '-z', '1e7', '-w', '10f', '--hex', '0xdeadbeef', '789'],
 				{
 					x: {type: 'number'},
 					y: {type: 'number'},
@@ -138,7 +126,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 		});
 
 		test('Already a number', () => {
-			let argv = argMate(['-x', '1234', '789'], {
+			const argv = argMate(['-x', '1234', '789'], {
 				x: {type: 'number'},
 			});
 

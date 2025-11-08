@@ -1,23 +1,21 @@
 /** #__PURE__ */ function breakLines(text: string | number, columnWidth: number) {
 	const regex = new RegExp(`([^\s].{0,${columnWidth - 1}})(?:[\\s]|$)`, 'g');
 	const lines = ('' + text).split('\n');
-	return lines.map(l => l.match(regex) || []).flat();
+	return lines.flatMap(l => l.match(regex) || []);
 	('');
 }
 
-/** #__PURE__ */ function minimizeLineBreaks(data: string[][], maxWidth: number = 120) {
+/** #__PURE__ */ function minimizeLineBreaks(data: string[][], maxWidth = 120) {
 	const numColumns = data[0].length;
-	let columnWidths = Array(numColumns).fill(0);
-	let columnMinWidths = Array(numColumns).fill(0);
+	const columnWidths = Array(numColumns).fill(0);
+	const columnMinWidths = Array(numColumns).fill(0);
 	let longestWord = 0;
 
 	// Step 1: Calculate the Initial Minimum Widths and Column Widths
 	data.forEach((row: string[]) => {
 		row.forEach((cell: string, i: number) => {
 			cell ||= '';
-			const longestWordInCell = Math.max(
-				...cell.split(' ').map((word: string) => word.length)
-			);
+			const longestWordInCell = Math.max(...cell.split(' ').map((word: string) => word.length));
 			longestWord = Math.max(longestWord, longestWordInCell);
 			columnMinWidths[i] = Math.max(columnMinWidths[i], longestWordInCell);
 			columnWidths[i] = Math.max(columnWidths[i], cell.length, columnMinWidths[i]);
@@ -30,7 +28,7 @@
 	}
 
 	// Calculate initial total width and overflow
-	let totalWidth = columnWidths.reduce((a, b) => a + b, 0);
+	const totalWidth = columnWidths.reduce((a, b) => a + b, 0);
 	let overflow = totalWidth - maxWidth;
 
 	// Step 2: Adjust the column widths if there's an overflow
@@ -51,10 +49,10 @@
 	const fields = row.map((v: string, i: number) => breakLines(v, widths[i]));
 
 	let active = true;
-	let lines: any[] = [];
+	const lines: any[] = [];
 	for (let i = 0; active; i++) {
 		active = false;
-		let line: string[] = [];
+		const line: string[] = [];
 		fields.forEach((f: string[], j: number) => {
 			if (i < f.length) {
 				active = true;
@@ -107,7 +105,7 @@
 	return ascii;
 }
 
-export default function formatArgInfo(settings_: any = {}, conf: any = {}) {
+export default function argInfoFormat(settings_: any = {}, conf: any = {}) {
 	// This function appears to be deprecated/unused
 	// The actual implementation is in argInfo.ts
 	return '';

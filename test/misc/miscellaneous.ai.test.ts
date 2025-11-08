@@ -1,7 +1,7 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
 import argMate from '../../src/argMate';
 import argMateMini from '../../src/argMateMini';
@@ -110,9 +110,9 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 
 			test.todo('Conflicting flags', () => {
-				expect(() =>
-					argMate(['--foo', '--bar'], {foo: false, bar: {conflict: 'foo'}})
-				).toThrow('conflict');
+				expect(() => argMate(['--foo', '--bar'], {foo: false, bar: {conflict: 'foo'}})).toThrow(
+					'conflict'
+				);
 			});
 
 			test('Invalid value type', () => {
@@ -205,13 +205,11 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 
 			test('Flag with multiple value types', () => {
-				expect(argMate(['--size', 'large', '--port', '8080'], {size: '', port: 0})).toEqual(
-					{
-						size: 'large',
-						port: 8080,
-						_: [],
-					}
-				);
+				expect(argMate(['--size', 'large', '--port', '8080'], {size: '', port: 0})).toEqual({
+					size: 'large',
+					port: 8080,
+					_: [],
+				});
 			});
 
 			test('Flag with value containing spaces', () => {
@@ -413,9 +411,11 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 
 			test('Negative numbers as values', () => {
-				expect(
-					argMate(['--temp', '-5', '--pressure', '-10.5'], {temp: 0, pressure: 0})
-				).toEqual({_: [], temp: -5, pressure: -10.5});
+				expect(argMate(['--temp', '-5', '--pressure', '-10.5'], {temp: 0, pressure: 0})).toEqual({
+					_: [],
+					temp: -5,
+					pressure: -10.5,
+				});
 			});
 
 			test('Flags with default values', () => {
@@ -565,9 +565,10 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 
 			test('Enum values', () => {
-				expect(
-					argMate(['--color', 'red'], {color: {valid: ['red', 'green', 'blue']}})
-				).toEqual({_: [], color: 'red'});
+				expect(argMate(['--color', 'red'], {color: {valid: ['red', 'green', 'blue']}})).toEqual({
+					_: [],
+					color: 'red',
+				});
 			});
 
 			test('Invalid enum value', () => {

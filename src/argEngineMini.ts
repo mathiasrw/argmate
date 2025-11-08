@@ -1,7 +1,7 @@
-import {ArgMateConfig, ArgMateSettings, ArgProcessObj} from './types.js';
-interface ArgMateSettingsMandatory extends ArgMateSettings {
-	error: (msg: string) => void;
-	panic: (msg: string) => void;
+import {ArgMateConfig, type ArgMateEngineConfig, type ArgMateSettings} from './types.js';
+interface EngineSettings extends ArgMateSettings {
+	error: (msg: string) => never;
+	panic: (msg: string) => never;
 }
 
 import {re} from './common.js';
@@ -29,7 +29,7 @@ array of value as default
 # conflicting values
 */
 
-export default function argEngineMini(args: string[], argProcessObj?: ArgProcessObj) {
+export default function argEngineMini(args: string[], argProcessObj?: ArgMateEngineConfig) {
 	argProcessObj = argProcessObj || {
 		output: {
 			_: [],
@@ -39,10 +39,10 @@ export default function argEngineMini(args: string[], argProcessObj?: ArgProcess
 		conflict: [],
 		complexDefault: {},
 		settings: {
-			error: msg => {
+			error: (msg: string) => {
 				throw msg;
 			},
-			panic: msg => {
+			panic: (msg: string) => {
 				throw msg;
 			},
 			allowUnknown: true,
@@ -59,7 +59,7 @@ export default function argEngineMini(args: string[], argProcessObj?: ArgProcess
 	args.reverse(); // Reverse, pop, push, reverse 8.77 times faster than unshft, shift
 
 	while (args.length) {
-		let arg: string = '' + args.pop();
+		const arg: string = '' + args.pop();
 
 		if (arg.charCodeAt(0) !== 45) {
 			output['_'].push(arg);
@@ -105,13 +105,10 @@ export default function argEngineMini(args: string[], argProcessObj?: ArgProcess
 		}
 
 		if (!config[KEY]) {
-			if (!settings.allowUnknown)
-				return settings.error(`Unknown parameter '${KEY}' not allowed`);
+			if (!settings.allowUnknown) return settings.error(`Unknown parameter '${KEY}' not allowed`);
 
 			if (settings.autoCamelKebabCase) {
-				KEY = KEY.replace(re.kebab2camel, function (match, letter) {
-					return letter.toUpperCase();
-				});
+				KEY = KEY.replace(re.kebab2camel, (match, letter) => letter.toUpperCase());
 			}
 
 			if (ASSIGN) {
@@ -166,22 +163,20 @@ export default function argEngineMini(args: string[], argProcessObj?: ArgProcess
 			case 'int':
 			case 'int[]':
 				num = +VAL | 0;
-				if (num + '' !== VAL) num = NaN;
+				if (num + '' !== VAL) num = Number.NaN;
 				break;
 
 			case 'hex':
 			case 'hex[]':
 				if (re.isHex.test(VAL)) {
-					num = parseInt(VAL, 16);
+					num = Number.parseInt(VAL, 16);
 				} else {
-					num = NaN;
+					num = Number.NaN;
 				}
 				break;
 
 			default:
-				return settings.panic(
-					`'${KEY}' got invalid type: '${config[config[KEY].key].type}'`
-				);
+				return settings.panic(`'${KEY}' got invalid type: '${config[config[KEY].key].type}'`);
 		}
 
 		if (isNaN(num) || !isFinite(num)) {
@@ -197,7 +192,7 @@ export default function argEngineMini(args: string[], argProcessObj?: ArgProcess
 		}
 	}
 
-	for (let key of validate) {
+	for (const key of validate) {
 		let help = '';
 		if ('function' === typeof config[key].valid) {
 			if (config[key].valid(output[key])) continue;
@@ -216,7 +211,7 @@ export default function argEngineMini(args: string[], argProcessObj?: ArgProcess
 		return settings.error(`Invalid value for '${key}': '${output[key]}'` + help);
 	}
 
-	for (let key of mandatory) {
+	for (const key of mandatory) {
 		if (undefined === output[key]) {
 			return settings.error(
 				`'${key.length > 1 ? '--' : '-'}${key}' is mandatory` +
@@ -229,7 +224,7 @@ export default function argEngineMini(args: string[], argProcessObj?: ArgProcess
 		}
 	}
 
-	for (let key in complexDefault) {
+	for (const key in complexDefault) {
 		if (!config.hasOwnProperty(key)) continue;
 
 		if (undefined === output[key] || !output[key].length) {

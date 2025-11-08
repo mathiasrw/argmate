@@ -1,7 +1,7 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
 import argMate from '../../src/argMate';
 import argMateMini from '../../src/argMateMini';
@@ -161,9 +161,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 
 			test('Variation: Override all defaults', () => {
-				expect(
-					argMate(['--foo=custom', '--count=99'], {foo: 'default', count: 10})
-				).toEqual({
+				expect(argMate(['--foo=custom', '--count=99'], {foo: 'default', count: 10})).toEqual({
 					_: [],
 					foo: 'custom',
 					count: 99,
@@ -261,9 +259,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				const config = {host: 'localhost', port: 3000};
 				const settings = {allowUnknown: false};
 
-				expect(
-					argMate(['--host', '127.0.0.1', '--port', '8080'], config, settings)
-				).toEqual({
+				expect(argMate(['--host', '127.0.0.1', '--port', '8080'], config, settings)).toEqual({
 					_: [],
 					host: '127.0.0.1',
 					port: 8080,
@@ -274,9 +270,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				const config = {foo: 'bar'};
 				const settings = {allowUnknown: false};
 
-				expect(() =>
-					argMate(['--foo', 'ok', '--unknown', 'bad'], config, settings)
-				).toThrow();
+				expect(() => argMate(['--foo', 'ok', '--unknown', 'bad'], config, settings)).toThrow();
 			});
 
 			test('Variation: Empty config with allowUnknown false', () => {

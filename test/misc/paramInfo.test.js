@@ -1,7 +1,7 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
 import argMate, {argInfo} from '../../src/argMate.js';
 import argMateMini, {argInfo as argInfoMini} from '../../src/argMateMini.js';
@@ -18,14 +18,14 @@ function run(argMate, argInfo, engineType = '') {
 				foo: {type: 'string'},
 				foo2: {type: 'string'},
 			});
-			let help = argInfo();
+			const help = argInfo();
 
 			expect(help).toMatch(/foo2/);
 		});
 
 		test('Mention param info', () => {
 			argMate('--foo'.split(' '), {bar: 42});
-			let help = argInfo();
+			const help = argInfo();
 
 			expect(help).toMatch(/bar/);
 			expect(help).toMatch(/42/);

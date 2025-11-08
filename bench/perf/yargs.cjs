@@ -1,7 +1,7 @@
 const yargs = require('yargs-parser');
 const asTable = require('as-table');
 
-let x = yargs(process.argv.slice(2));
+const x = yargs(process.argv.slice(2));
 console.log(
 	asTable(
 		Object.entries(x).map(([key, value]) => {

@@ -1,12 +1,12 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
-import type {ArgMateEngine} from '../../src/types.js';
-import type {DoneCallback, ErrorCallback} from '../../src/test-types.js';
 import argMate from '../../src/argMate';
 import argMateMini from '../../src/argMateMini';
+import type {DoneCallback, ErrorCallback} from '../../src/test-types.js';
+import type {ArgMateEngine} from '../../src/types.js';
 
 run(argMate);
 run(argMateMini, ' Mini');
@@ -14,7 +14,7 @@ run(argMateMini, ' Mini');
 function run(argMate: ArgMateEngine, engineType = '') {
 	describe('Assign' + engineType, () => {
 		test('Plain', () => {
-			let argv = argMate('--foo= bar'.split(' '));
+			const argv = argMate('--foo= bar'.split(' '));
 			expect(argv).toEqual({
 				_: [],
 				foo: 'bar',
@@ -22,7 +22,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 		});
 
 		test('joint', () => {
-			let argv = argMate('--foo=bar'.split(' '));
+			const argv = argMate('--foo=bar'.split(' '));
 			expect(argv).toEqual({
 				_: [],
 				foo: 'bar',
@@ -30,7 +30,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 		});
 
 		test('short', () => {
-			let argv = argMate('-f= bar'.split(' '));
+			const argv = argMate('-f= bar'.split(' '));
 			expect(argv).toEqual({
 				_: [],
 				f: 'bar',
@@ -38,7 +38,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 		});
 
 		test('short joint', () => {
-			let argv = argMate('-f=bar'.split(' '));
+			const argv = argMate('-f=bar'.split(' '));
 			expect(argv).toEqual({
 				_: [],
 				f: 'bar',
@@ -47,7 +47,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 
 		if (!engineType)
 			test('super short', () => {
-				let argv = argMate('-f123'.split(' '));
+				const argv = argMate('-f123'.split(' '));
 				expect(argv).toEqual({
 					_: [],
 					f: 123,

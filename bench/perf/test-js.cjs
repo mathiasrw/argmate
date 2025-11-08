@@ -18,21 +18,21 @@
 	const mri = require('mri');
 	console.timeEnd('mri');
 
-	console.time('argMate');
-	let argMate = (await import('../../dist/argMate.js')).default;
-	console.timeEnd('argMate');
+	console.time('argmate');
+	const argmate = (await import('../../dist/argmate.js')).default;
+	console.timeEnd('argmate');
 
-	console.time('argMateMini');
-	let argMateMini = (await import('../../dist/argMateMini.js')).default;
-	console.timeEnd('argMateMini');
+	console.time('argmateMini');
+	const argmateMini = (await import('../../dist/argmateMini.js')).default;
+	console.timeEnd('argmateMini');
 
-	console.time('argMateArgEngine');
-	let argMateArgEngine = (await import('../../dist/argEngine.js')).default;
-	console.timeEnd('argMateArgEngine');
+	console.time('argmateEngine');
+	const argmateEngine = (await import('../../dist/argEngine.js')).default;
+	console.timeEnd('argmateEngine');
 
-	console.time('argMateArgEngineMini');
-	let argMateArgEngineMini = (await import('../../dist/argEngineMini.js')).default;
-	console.timeEnd('argMateArgEngineMini');
+	console.time('argmateEngineMini');
+	const argmateEngineMini = (await import('../../dist/argEngineMini.js')).default;
+	console.timeEnd('argmateEngineMini');
 
 	console.log('\nBenchmark:');
 	const bench = new Suite();
@@ -40,7 +40,14 @@
 		? process.argv.slice(2)
 		: ['-b', '--bool', '--no-meep', '--multi=baz'];
 
-	argmateGeneratedConfig = {
+	const argmateConfig = {
+		b: false,
+		bool: false,
+		'no-meep': false,
+		multi: '',
+	};
+
+	const argmateEngineConfig = {
 		output: {
 			_: [],
 			b: false,
@@ -51,18 +58,6 @@
 		validate: [],
 		mandatory: [],
 		complexDefault: {},
-		settings: {
-			error: msg => {
-				throw msg;
-			},
-			panic: msg => {
-				throw msg;
-			},
-			allowUnknown: true,
-			autoCamelKebabCase: true,
-			allowNegatingFlags: true,
-			allowKeyNumValues: true,
-		},
 		config: {
 			b: {
 				type: 'boolean',
@@ -77,31 +72,38 @@
 				type: 'string',
 			},
 		},
+		settings: {
+			error: msg => {
+				throw msg;
+			},
+			panic: msg => {
+				throw msg;
+			},
+			allowUnknown: true,
+			autoCamelKebabCase: true,
+			allowNegatingFlags: true,
+			allowKeyNumValues: true,
+		},
 	};
 
 	bench
-		.add('yargs-parser        ', () => yargs(args))
-		.add('nopt                ', () => nopt(args))
-		.add('minimist            ', () => minimist(args))
-		.add('mri                 ', () => mri(args))
-		.add('argMateMini         ', () => argMateMini(args), {}, {})
-		.add('argMateMini+Config  ', () => argMateMini(args), {
-			b: false,
-			bool: false,
-			'no-meep': false,
-			multi: '',
-		})
-		.add('argMateEngMini+settings ', () => argMateArgEngineMini(args, argmateGeneratedConfig))
-		.add('argMateEngineMini   ', () => argMateArgEngineMini(args))
-		.add('argMate             ', () => argMate(args), {}, {})
-		.add('argMate+Config  ', () => argMate(args), {
-			b: false,
-			bool: false,
-			'no-meep': false,
-			multi: '',
-		})
-		.add('argMateEng+settings ', () => argMateArgEngine(args, argmateGeneratedConfig))
-		.add('argMateEngine       ', () => argMateArgEngine(args))
+		.add('yargs-parser                   ', () => yargs(args))
+		.add('nopt                           ', () => nopt(args))
+		.add('minimist                       ', () => minimist(args))
+		.add('mri                            ', () => mri(args))
+
+		.add('argmate mini                   ', () => argmateMini(args))
+		.add('argmate mini + config          ', () => argmateMini(args), argmateConfig)
+
+		.add('argmate engine mini            ', () => argmateEngineMini(args))
+		.add('argmate engine mini + config   ', () => argmateEngineMini(args, argmateEngineConfig))
+
+		.add('argmate                        ', () => argmate(args))
+		.add('argmate + config               ', () => argmate(args), argmateConfig)
+
+		.add('argmate engine                 ', () => argmateEngine(args))
+		.add('argmate engine + config        ', () => argmateEngine(args, argmateEngineConfig))
+
 		.on('cycle', e => console.log(String(e.target)))
 		.run({
 			cycles: 1000,

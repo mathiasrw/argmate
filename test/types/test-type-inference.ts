@@ -30,5 +30,3 @@ console.log('Result:', result);
 if (result.age === 50) {
 	console.log('✅ Transform worked correctly: 25 * 2 = 50');
 }
-
-export {};

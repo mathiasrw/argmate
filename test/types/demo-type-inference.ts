@@ -62,5 +62,3 @@ console.log('result2:', result2);
 console.log('result3:', result3);
 console.log('result4:', result4);
 console.log('result5:', result5);
-
-export {};

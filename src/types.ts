@@ -1,79 +1,91 @@
 /**
- * Base config properties shared by all option types
+ * Base config properties shared by all option types (before processing)
  */
-type BaseConfigProps = {
+type ParameterProperties = {
 	mandatory?: boolean;
 	alias?: string | string[];
 	conflict?: string | string[];
 	describe?: string;
-	key?: string; // Added dynamically by compileConfig
+	key?: string; // Added dynamically by configPreprocessing
+};
+
+/**
+ * Base config properties after processing by configPreprocessing
+ * After processing, key is always present and alias/conflict are normalized to arrays
+ */
+type ParameterFinalProperties = {
+	mandatory?: boolean;
+	alias?: string[];
+	conflict?: string[];
+	describe?: string;
+	key: string; // Required after processing
 };
 
 /**
  * Typed config options with proper type inference for valid and transform functions
  */
-type TypedConfigOption =
-	| (BaseConfigProps & {
+type ParameterConfig =
+	| (ParameterProperties & {
 			type: 'boolean';
 			default?: boolean;
 			valid?: ((value: boolean) => boolean) | boolean[];
 			transform?: (value: boolean) => any;
 	  })
-	| (BaseConfigProps & {
+	| (ParameterProperties & {
 			type: 'string' | 'array';
 			default?: string | string[];
 			valid?: ((value: string | string[]) => boolean) | string[];
 			transform?: (value: string | string[]) => any;
 	  })
-	| (BaseConfigProps & {
+	| (ParameterProperties & {
 			type: 'number' | 'float' | 'int' | 'hex' | 'count';
 			default?: number;
 			valid?: ((value: number) => boolean) | number[];
 			transform?: (value: number) => any;
 	  })
-	| (BaseConfigProps & {
+	| (ParameterProperties & {
 			type: 'string[]';
 			default?: string[];
 			valid?: ((value: string[]) => boolean) | string[];
 			transform?: (value: string[]) => any;
 	  })
-	| (BaseConfigProps & {
+	| (ParameterProperties & {
 			type: 'number[]' | 'float[]' | 'int[]' | 'hex[]';
 			default?: number[];
 			valid?: ((value: number[]) => boolean) | number[];
 			transform?: (value: number[]) => any;
 	  })
-	| (BaseConfigProps & {
+	| (ParameterProperties & {
 			default: string;
 			type?: 'string' | 'array';
 			valid?: ((value: string) => boolean) | string[];
 			transform?: (value: string) => any;
 	  })
-	| (BaseConfigProps & {
+	| (ParameterProperties & {
 			default: number;
 			type?: 'number' | 'float' | 'int' | 'hex';
 			valid?: ((value: number) => boolean) | number[];
 			transform?: (value: number) => any;
 	  })
-	| (BaseConfigProps & {
+	| (ParameterProperties & {
 			default: boolean;
 			type?: 'boolean';
 			valid?: ((value: boolean) => boolean) | boolean[];
 			transform?: (value: boolean) => any;
 	  })
-	| (BaseConfigProps & {
+	| (ParameterProperties & {
 			default: string[];
 			type?: 'string[]' | 'array';
 			valid?: ((value: string[]) => boolean) | string[];
 			transform?: (value: string[]) => any;
 	  })
-	| (BaseConfigProps & {
+	| (ParameterProperties & {
 			default: number[];
 			type?: 'number[]' | 'float[]' | 'int[]' | 'hex[]';
 			valid?: ((value: number[]) => boolean) | number[];
 			transform?: (value: number[]) => any;
 	  })
-	| (BaseConfigProps & {
+	| (ParameterProperties & {
 			type?: Exclude<
 				string,
 				| 'boolean'
@@ -95,15 +107,69 @@ type TypedConfigOption =
 			transform?: (value: any) => any;
 	  });
 
+/**
+ * Processed config options after configPreprocessing has normalized them
+ * Key is required and alias/conflict are arrays
+ * Note: valid function accepts any to avoid union narrowing issues
+ */
+type ParameterFinalConfig =
+	| (ParameterFinalProperties & {
+			type: 'boolean';
+			default?: boolean;
+			valid?: ((value: any) => boolean) | boolean[];
+			transform?: (value: boolean) => any;
+	  })
+	| (ParameterFinalProperties & {
+			type: 'string' | 'array';
+			default?: string | string[];
+			valid?: ((value: any) => boolean) | string[];
+			transform?: (value: string | string[]) => any;
+	  })
+	| (ParameterFinalProperties & {
+			type: 'number' | 'float' | 'int' | 'hex' | 'count';
+			default?: number;
+			valid?: ((value: any) => boolean) | number[];
+			transform?: (value: number) => any;
+	  })
+	| (ParameterFinalProperties & {
+			type: 'string[]';
+			default?: string[];
+			valid?: ((value: any) => boolean) | string[];
+			transform?: (value: string[]) => any;
+	  })
+	| (ParameterFinalProperties & {
+			type: 'number[]' | 'float[]' | 'int[]' | 'hex[]';
+			default?: number[];
+			valid?: ((value: any) => boolean) | number[];
+			transform?: (value: number[]) => any;
+	  })
+	| (ParameterFinalProperties & {
+			type: string;
+			default?: any;
+			valid?: ((value: any) => boolean) | any[];
+			transform?: (value: any) => any;
+	  });
+
+/**
+ * User-facing config passed to argMate/configPreprocessing
+ */
 export interface ArgMateConfig {
-	[key: string]: TypedConfigOption | null | string | number | string[] | number[] | boolean;
+	[key: string]: ParameterConfig | null | string | number | string[] | number[] | boolean;
 }
 
-type IntroOutroType = string | (string | [string, string])[];
+/**
+ * Internal config structure after configPreprocessing normalizes it
+ * Each entry has a required 'key' property and normalized arrays
+ */
+interface EngineFinalConfig {
+	[key: string]: ParameterFinalConfig;
+}
+
+type TextBlock = string | (string | [string, string])[];
 
 export interface ArgMateSettings {
-	panic?: (msg: string) => void;
-	error?: (msg: string) => void;
+	panic?: (msg: string) => never;
+	error?: (msg: string) => never;
 	strict?: boolean;
 	allowUnknown?: boolean;
 	autoCamelKebabCase?: boolean;
@@ -113,25 +179,25 @@ export interface ArgMateSettings {
 	allowBoolString?: boolean;
 	outputAlias?: boolean;
 	outputInflate?: boolean;
-	intro?: IntroOutroType;
-	outro?: IntroOutroType;
+	intro?: TextBlock;
+	outro?: TextBlock;
 
 	//	'dot-notation': false,
 	//  'boolean-negation': false
 }
 
-export interface ArgMateSettingsMandatory extends ArgMateSettings {
-	error: (msg: string) => void;
-	panic: (msg: string) => void;
+export interface EngineSettings extends ArgMateSettings {
+	error: (msg: string) => never;
+	panic: (msg: string) => never;
 }
 
-export interface ArgMateArgInfoConfig {
+export interface ArgMateInfoConfig {
 	width?: number;
 	format?: 'cli' | 'markdown' | 'json';
-	preIntro?: IntroOutroType;
+	preIntro?: TextBlock;
 	showIntro?: boolean;
 	showOutro?: boolean;
-	postOutro?: IntroOutroType;
+	postOutro?: TextBlock;
 }
 
 export type ArgMateEngine = (
@@ -140,41 +206,25 @@ export type ArgMateEngine = (
 	settings?: ArgMateSettings
 ) => {[key: string]: any};
 
-export default function argMate<const Config extends ArgMateConfig | undefined = undefined>(
+export declare function argMate<const Config extends ArgMateConfig | undefined = undefined>(
 	args: string[],
 	config?: Config,
 	settings?: ArgMateSettings
-): InferArgMateResult<Config>;
+): ArgMateResponse<Config>;
 
-type ArgProcessObj = void | {
+/**
+ * The compiled configuration object returned by configPreprocessing()
+ * This is what gets passed to the argEngine functions
+ */
+export type ArgMateEngineConfig = {
 	output: {[key: string]: any};
 	mandatory: string[];
 	validate: string[];
 	conflict: string[];
 	complexDefault: {[key: string]: string[] | number[]};
-	settings: ArgMateSettingsMandatory;
-	config: ArgMateConfig;
+	settings: EngineSettings;
+	config: EngineFinalConfig;
 };
-
-export function compileConfig(
-	config: ArgMateConfig,
-	settings: ArgMateSettingsMandatory,
-	precompile: boolean
-): ArgProcessObj | string;
-
-export function argEngine(config: ArgProcessObj): {[key: string]: any};
-
-export function formatArgInfo(
-	infoConfig: ArgMateArgInfoConfig,
-	settings: ArgMateSettings,
-	config: ArgMateConfig
-): string;
-
-export function argInfo(
-	infoConfig: ArgMateArgInfoConfig,
-	settings?: ArgMateSettings,
-	config?: ArgMateConfig
-): string;
 
 // ============================================================================
 // Type Inference System
@@ -292,21 +342,13 @@ type InferConfigType<Config> = Config extends {readonly default: infer D} | {def
 												| {readonly type: 'array' | 'string[]'}
 												| {type: 'array' | 'string[]'}
 										? string[]
-										: Config extends
-													| {readonly type: 'number[]'}
-													| {type: 'number[]'}
+										: Config extends {readonly type: 'number[]'} | {type: 'number[]'}
 											? number[]
-											: Config extends
-														| {readonly type: 'int[]'}
-														| {type: 'int[]'}
+											: Config extends {readonly type: 'int[]'} | {type: 'int[]'}
 												? number[]
-												: Config extends
-															| {readonly type: 'float[]'}
-															| {type: 'float[]'}
+												: Config extends {readonly type: 'float[]'} | {type: 'float[]'}
 													? number[]
-													: Config extends
-																| {readonly type: 'hex[]'}
-																| {type: 'hex[]'}
+													: Config extends {readonly type: 'hex[]'} | {type: 'hex[]'}
 														? number[]
 														: boolean; // default to boolean if no type or default specified
 
@@ -326,8 +368,11 @@ type IsMandatory<Config> = Config extends {readonly mandatory: true} | {mandator
  * Check if a config field is required (always present in result)
  * A field is required if it has mandatory: true OR has a default value
  */
-type IsRequired<Config> =
-	HasDefault<Config> extends true ? true : IsMandatory<Config> extends true ? true : false;
+type IsRequired<Config> = HasDefault<Config> extends true
+	? true
+	: IsMandatory<Config> extends true
+		? true
+		: false;
 
 /**
  * Check if a config field is optional (may be undefined in result)
@@ -382,7 +427,6 @@ type CLIParameters<Config extends ArgMateConfig> = {
  * Main type inference - converts config to result type
  * DeepMutable ensures the entire result is fully mutable
  */
-export type InferArgMateResult<Config extends ArgMateConfig | undefined> =
-	Config extends ArgMateConfig
-		? DeepMutable<CLIParameters<Config>>
-		: {[key: string]: any; _: string[]};
+export type ArgMateResponse<Config extends ArgMateConfig | undefined> = Config extends ArgMateConfig
+	? DeepMutable<CLIParameters<Config>>
+	: {[key: string]: any; _: string[]};

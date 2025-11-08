@@ -1,7 +1,7 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
 import argMate from '../../src/argMate';
 import argMateMini from '../../src/argMateMini';
@@ -114,9 +114,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 
 			test('Conflicting flags with values', () => {
-				expect(() =>
-					argMate(['--mode=fast', '--mode=safe'], {mode: {conflict: 'safe'}})
-				).toThrow();
+				expect(() => argMate(['--mode=fast', '--mode=safe'], {mode: {conflict: 'safe'}})).toThrow();
 			});
 
 			test.todo('Conflicting flags with alias and separate assignment', () => {
@@ -129,9 +127,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 
 			test.todo('Conflicting flags with negated option', () => {
-				expect(() =>
-					argMate(['--no-cache', '--cache'], {cache: {type: 'boolean'}})
-				).toThrow();
+				expect(() => argMate(['--no-cache', '--cache'], {cache: {type: 'boolean'}})).toThrow();
 			});
 
 			/// ### **More Edge Cases**
@@ -227,9 +223,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 
 			test.todo('Multiple conflicting flags with separator', () => {
-				expect(() =>
-					argMate(['--on', '--off'], {on: {conflict: 'off'}, off: {}})
-				).toThrow();
+				expect(() => argMate(['--on', '--off'], {on: {conflict: 'off'}, off: {}})).toThrow();
 			});
 
 			test('Conflicting boolean flags with separated assignment', () => {

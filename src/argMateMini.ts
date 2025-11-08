@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-import {ArgMateConfig, ArgMateSettings} from './types.js';
+import type {ArgMateConfig, ArgMateSettings} from './types.js';
 
-export {compileConfig, precompileConfig} from './compileConfig.js';
+export {configPreprocessing, precompileConfig} from './compileConfig.js';
 
 export {argInfo} from './argService.js';
 

@@ -1,7 +1,7 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
 import argMate from '../../src/argMate';
 import argMateMini from '../../src/argMateMini';
@@ -13,7 +13,7 @@ run(argMateMini, ' Mini');
 function run(argMate: ArgMateEngine, engineType = '') {
 	describe('int' + engineType, () => {
 		test('Default', () => {
-			let argv = argMate('--foo 9'.split(' '), {foo: {type: 'int'}});
+			const argv = argMate('--foo 9'.split(' '), {foo: {type: 'int'}});
 			expect(argv).toEqual({
 				_: [],
 				foo: 9,
@@ -21,7 +21,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 		});
 
 		test('Multiple', () => {
-			let argv = argMate('--foo 9 --foo 2'.split(' '), {foo: {type: 'int'}});
+			const argv = argMate('--foo 9 --foo 2'.split(' '), {foo: {type: 'int'}});
 			expect(argv).toEqual({
 				_: [],
 				foo: 2,
@@ -29,7 +29,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 		});
 
 		test('None', () => {
-			let argv = argMate('--bar 9'.split(' '), {foo: {type: 'int'}});
+			const argv = argMate('--bar 9'.split(' '), {foo: {type: 'int'}});
 			expect(argv).toEqual({
 				_: ['9'],
 				bar: true,

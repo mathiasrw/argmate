@@ -1,7 +1,7 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
 import argMate from '../../src/argMate';
 import argMateMini from '../../src/argMateMini';
@@ -15,7 +15,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 
 	describe('Enum' + engineType, () => {
 		test('Set differently', () => {
-			let argv = argMate('--engine V8'.trim().split(/\s+/), {
+			const argv = argMate('--engine V8'.trim().split(/\s+/), {
 				engine: {default: 'V4', valid: ['V4', 'V8', 'V12']},
 				foo2: {type: 'string'},
 			});
@@ -27,7 +27,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 		});
 
 		test('Set to default', () => {
-			let argv = argMate('--engine V8'.trim().split(/\s+/), {
+			const argv = argMate('--engine V8'.trim().split(/\s+/), {
 				engine: {default: 'V8', valid: ['V8']},
 			});
 
@@ -38,7 +38,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 		});
 
 		test('Not set', () => {
-			let argv = argMate('--foobar 123'.trim().split(/\s+/), {
+			const argv = argMate('--foobar 123'.trim().split(/\s+/), {
 				engine: {default: 'V8', valid: ['V8']},
 			});
 

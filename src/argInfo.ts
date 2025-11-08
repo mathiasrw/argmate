@@ -1,7 +1,7 @@
-import {ArgMateConfig, ArgMateSettings, ArgMateArgInfoConfig} from './types.js';
+import type {ArgMateConfig, ArgMateInfoConfig, ArgMateSettings} from './types.js';
 
-/** #__PURE__ */ export default function formatArgInfo(
-	infoConfig: ArgMateArgInfoConfig = {
+/** #__PURE__ */ export default function argInfoFormat(
+	infoConfig: ArgMateInfoConfig = {
 		width: 100,
 		format: 'cli',
 		preIntro: '',
@@ -14,7 +14,7 @@ import {ArgMateConfig, ArgMateSettings, ArgMateArgInfoConfig} from './types.js';
 ) {
 	debugger;
 
-	let info: any = {};
+	const info: any = {};
 	if (infoConfig.showIntro && settings.intro) {
 		info.intro = settings.intro;
 	}

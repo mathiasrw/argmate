@@ -1,11 +1,11 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
-import type {ArgMateEngine} from '../../src/types.js';
 import argMate from '../../src/argMate';
 import argMateMini from '../../src/argMateMini';
+import type {ArgMateEngine} from '../../src/types.js';
 
 run(argMate);
 run(argMateMini, ' Mini');
@@ -13,7 +13,7 @@ run(argMateMini, ' Mini');
 function run(argMate: ArgMateEngine, engineType = '') {
 	describe('Count' + engineType, () => {
 		test('Plain', () => {
-			let argv = argMate('--foo bar --foo bar2'.split(' '), {foo: {type: 'count'}});
+			const argv = argMate('--foo bar --foo bar2'.split(' '), {foo: {type: 'count'}});
 			expect(argv).toEqual({
 				_: ['bar', 'bar2'],
 				foo: 2,

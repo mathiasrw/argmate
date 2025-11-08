@@ -27,25 +27,47 @@
 		"yargs",
 		"meow"
 	],
-	"module": "dist/argMate.js",
 	"type": "module",
-	"types": "src/types.ts",
-	"main": "dist/argMate.js",
+	"types": "./dist/types.d.ts",
+	"main": "./dist/cjs/argMate.cjs",
+	"module": "./dist/argMate.js",
 	"exports": {
-		"import": "./dist/argMate.js",
-		"macro": "./dist/argMate.macro.js"
+		".": {
+			"import": "./dist/argMate.js",
+			"require": "./dist/cjs/argMate.cjs",
+			"types": "./dist/types.d.ts"
+		},
+		"./mini": {
+			"import": "./dist/argMateMini.js",
+			"require": "./dist/cjs/argMateMini.cjs",
+			"types": "./dist/types.d.ts"
+		},
+		"./engine": {
+			"import": "./dist/argEngine.js",
+			"require": "./dist/cjs/argEngine.cjs",
+			"types": "./dist/types.d.ts"
+		},
+		"./mini/engine": {
+			"import": "./dist/argEngineMini.js",
+			"require": "./dist/cjs/argEngineMini.cjs",
+			"types": "./dist/types.d.ts"
+		}
 	},
+	"bun-macro": "./dist/argMate.macro.js",
 	"scripts": {
 		"prebuild": "rm -fr dist/",
-		"build": "bun build --target bun src/argMate.ts src/argMateMini.ts src/argEngine.ts src/argEngineMini.ts --outdir dist/ --minify ",
+		"build": "bun run build-esm && bun run build-cjs && bun run build-types",
+		"build-esm": "bun build --target node --format esm src/argMate.ts src/argMateMini.ts src/argEngine.ts src/argEngineMini.ts --outdir dist/ --minify --sourcemap=none",
+		"build-cjs": "bun build --target node --format cjs src/argMate.ts src/argMateMini.ts src/argEngine.ts src/argEngineMini.ts --outdir dist/cjs/ --minify",
+		"build-types": "bunx tsc -p tsconfig.json --emitDeclarationOnly --declaration --outDir dist/types && find dist/types -name '*.d.ts.map' -delete && (echo 'const fs = require(\"fs\"); const path = require(\"path\"); const typesDir = \"./dist/types\"; const files = fs.readdirSync(typesDir).filter(f => f.endsWith(\".d.ts\")); let content = \"\"; for (const file of files.sort()) { const filePath = path.join(typesDir, file); let fileContent = fs.readFileSync(filePath, \"utf8\"); fileContent = fileContent.replace(/^#!.*\\n/gm, \"\"); content += fileContent + \"\\n\\n\"; } fs.writeFileSync(\"./dist/types.d.ts\", content);' | node) && rm -rf dist/types",
 		"lint": "biome check && tsc --noEmit && bun test/misc/types.ai.ts",
-		"test": "bun tst && bun run build && bun test-bundle",
+		"test": "bun tst && bun run build && bun run test-bundle",
 		"tst": "biome format --write && CLAUDECODE=1 bun test --bail --timeout 500",
 		"test-only": "bun test --bail --timeout 500",
 		"test-bundle": "sh test/test.bundle.sh",
-		"test-ci": "bun test-format && bun lint && bun run test && bun test-cov",
+		"test-ci": "bun run test-format && bun lint && bun run test && bun run test-cov",
 		"test-cov": "bun test --coverage --bail --timeout 500",
-		"test-perf": "bun test-perf-cli && bun test-perf-js",
+		"test-perf": "bun run test-perf-cli && bun run test-perf-js",
 		"test-perf-cli": "bun run test && cd bench/perf && sh test-cli.sh",
 		"test-perf-js": "bun run test && cd bench/perf && sh test-js.sh ",
 		"test-format": "biome format",
@@ -61,6 +83,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
 		"bun-types": "1.1.21",
+		"dts-bundle-generator": "^9.5.1",
 		"husky": "^9.1.4",
 		"rexreplace": "^7.1.13",
 		"typescript": "^5.9.3"

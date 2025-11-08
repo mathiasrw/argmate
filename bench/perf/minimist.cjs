@@ -2,7 +2,7 @@ const minimist = require('minimist');
 
 const asTable = require('as-table');
 
-let x = minimist(process.argv.slice(2));
+const x = minimist(process.argv.slice(2));
 console.log(
 	asTable(
 		Object.entries(x).map(([key, value]) => {

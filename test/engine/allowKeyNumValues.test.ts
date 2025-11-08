@@ -1,7 +1,7 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
 import argMate from '../../src/argMate';
 import argMateMini from '../../src/argMateMini';
@@ -11,7 +11,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 	describe('AllowKeyNumValues' + engineType, () => {
 		if (!engineType)
 			test('Default', () => {
-				let argv = argMate('-s123'.split(' '));
+				const argv = argMate('-s123'.split(' '));
 				expect(argv).toEqual({
 					_: [],
 					s: 123,
@@ -21,7 +21,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 		if (!engineType)
 			describe('Disallow', () => {
 				test('Default', () => {
-					let argv = argMate(
+					const argv = argMate(
 						'-s123'.split(' '),
 						{},
 						{
@@ -40,7 +40,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 
 		if (!engineType)
 			test('No long config', () => {
-				let argv = argMate('--s123'.split(' '));
+				const argv = argMate('--s123'.split(' '));
 				expect(argv).toEqual({
 					_: [],
 					s123: true,

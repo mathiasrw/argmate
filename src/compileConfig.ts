@@ -1,4 +1,4 @@
-import {ArgMateConfig, ArgMateSettings, ArgMateSettingsMandatory, ArgProcessObj} from './types.js';
+import type {ArgMateConfig, ArgMateEngineConfig, ArgMateSettings, EngineSettings} from './types.js';
 
 import {re} from './common.js';
 
@@ -14,13 +14,13 @@ const strictSettings = {
 	config: ArgMateConfig,
 	settings?: ArgMateSettings
 ) {
-	return objectToCode(compileConfig(config, settings));
+	return objectToCode(configPreprocessing(config, settings));
 }
 
-/** #__PURE__ */ export function compileConfig(
+/** #__PURE__ */ export function configPreprocessing(
 	config: ArgMateConfig,
 	settings: ArgMateSettings = {}
-): ArgProcessObj {
+): ArgMateEngineConfig {
 	const mandatory: string[] = [];
 	const validate: string[] = [];
 	const conflict: string[] = [];
@@ -29,7 +29,7 @@ const strictSettings = {
 		_: [],
 	};
 
-	const finalSettings: ArgMateSettingsMandatory = {
+	const finalSettings: EngineSettings = {
 		error: msg => {
 			throw msg;
 		},
@@ -79,8 +79,7 @@ const strictSettings = {
 		if (undefined !== param.valid) {
 			validate.push(key);
 			if (undefined === param.default && Array.isArray(param.valid)) {
-				if (!param.valid.length)
-					return panic(`Empty array found for valid values of '${key}'`);
+				if (!param.valid.length) return panic(`Empty array found for valid values of '${key}'`);
 
 				if (undefined === param.type) {
 					param.type = findType(param.valid[0]);
@@ -144,7 +143,7 @@ const strictSettings = {
 	}
 
 	return {
-		config: config,
+		config: config as any, // Config has been mutated in place to match EngineFinalConfig structure
 		settings: finalSettings,
 		output,
 		validate,

@@ -1,17 +1,22 @@
 #!/usr/bin/env node
 
-import {ArgMateConfig, ArgMateSettings, ArgMateArgInfoConfig, ArgProcessObj} from './types.js';
+import type {
+	ArgMateConfig,
+	ArgMateEngineConfig,
+	ArgMateInfoConfig,
+	ArgMateSettings,
+} from './types.js';
 
-import formatArgInfo from './argInfo.js';
+import argInfoFormat from './argInfo.js';
 
-import {compileConfig} from './compileConfig.js';
+import {configPreprocessing} from './compileConfig.js';
 
 var config_: ArgMateConfig | undefined;
 
 var settings_: ArgMateSettings | undefined;
 
 export function argService(
-	engine: (args: string[], argProcessObj?: ArgProcessObj) => {[key: string]: any} | void,
+	engine: (args: string[], argProcessObj?: ArgMateEngineConfig) => {[key: string]: any} | void,
 	args: string[],
 	config?: ArgMateConfig,
 	settings?: ArgMateSettings
@@ -21,15 +26,15 @@ export function argService(
 	config_ = config ? {...config} : {};
 	settings_ = settings ? {...settings} : {};
 
-	return engine(args, compileConfig(config || {}, settings || {})) as {[key: string]: any};
+	return engine(args, configPreprocessing(config || {}, settings || {})) as {[key: string]: any};
 }
 
 /** #__PURE__ */ export function argInfo(
-	infoConfig: ArgMateArgInfoConfig = {},
+	infoConfig: ArgMateInfoConfig = {},
 	settings?: ArgMateSettings,
 	config?: ArgMateConfig
 ) {
-	return formatArgInfo(
+	return argInfoFormat(
 		{
 			preIntro: '',
 			showIntro: true,

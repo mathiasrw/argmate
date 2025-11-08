@@ -1,7 +1,7 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
 import argMate from '../../src/argMate';
 import argMateMini from '../../src/argMateMini';
@@ -719,9 +719,10 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 
 			test('Array type', () => {
-				expect(argMate(['--fruits', 'apple', 'banana'], {fruits: {type: 'array'}})).toEqual(
-					{_: [], fruits: ['apple', 'banana']}
-				);
+				expect(argMate(['--fruits', 'apple', 'banana'], {fruits: {type: 'array'}})).toEqual({
+					_: [],
+					fruits: ['apple', 'banana'],
+				});
 			});
 
 			test('String array type', () => {
@@ -732,27 +733,31 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 
 			test('Number array type', () => {
-				expect(
-					argMate(['--scores', '75', '82', '91'], {scores: {type: 'number[]'}})
-				).toEqual({_: [], scores: [75, 82, 91]});
+				expect(argMate(['--scores', '75', '82', '91'], {scores: {type: 'number[]'}})).toEqual({
+					_: [],
+					scores: [75, 82, 91],
+				});
 			});
 
 			test('Float array type', () => {
-				expect(argMate(['--prices', '9.99', '15.50'], {prices: {type: 'float[]'}})).toEqual(
-					{_: [], prices: [9.99, 15.5]}
-				);
+				expect(argMate(['--prices', '9.99', '15.50'], {prices: {type: 'float[]'}})).toEqual({
+					_: [],
+					prices: [9.99, 15.5],
+				});
 			});
 
 			test('Integer array type', () => {
-				expect(
-					argMate(['--years', '2020', '2021', '2022'], {years: {type: 'int[]'}})
-				).toEqual({_: [], years: [2020, 2021, 2022]});
+				expect(argMate(['--years', '2020', '2021', '2022'], {years: {type: 'int[]'}})).toEqual({
+					_: [],
+					years: [2020, 2021, 2022],
+				});
 			});
 
 			test('Hex array type', () => {
-				expect(
-					argMate(['--colors', 'FF0000', '00FF00'], {colors: {type: 'hex[]'}})
-				).toEqual({_: [], colors: ['FF0000', '00FF00']});
+				expect(argMate(['--colors', 'FF0000', '00FF00'], {colors: {type: 'hex[]'}})).toEqual({
+					_: [],
+					colors: ['FF0000', '00FF00'],
+				});
 			});
 
 			test('Default value', () => {
@@ -786,15 +791,11 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 
 			test('Conflicting parameters (array)', () => {
-				expect(() =>
-					argMate(['--min', '--max'], {min: {conflict: ['max']}, max: {}})
-				).toThrow();
+				expect(() => argMate(['--min', '--max'], {min: {conflict: ['max']}, max: {}})).toThrow();
 			});
 
 			test('Conflicting parameters (string)', () => {
-				expect(() =>
-					argMate(['--on', '--off'], {on: {conflict: 'off'}, off: {}})
-				).toThrow();
+				expect(() => argMate(['--on', '--off'], {on: {conflict: 'off'}, off: {}})).toThrow();
 			});
 
 			test('Conflicting parameters (comma-separated string)', () => {
@@ -811,9 +812,10 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 
 			test('Valid values (array)', () => {
-				expect(
-					argMate(['--color', 'red'], {color: {valid: ['red', 'green', 'blue']}})
-				).toEqual({_: [], color: 'red'});
+				expect(argMate(['--color', 'red'], {color: {valid: ['red', 'green', 'blue']}})).toEqual({
+					_: [],
+					color: 'red',
+				});
 			});
 
 			test('Invalid value', () => {
@@ -944,15 +946,17 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 
 			test('Negated boolean flag', () => {
-				expect(
-					argMate(['--no-verbose'], {verbose: {type: 'boolean', default: true}})
-				).toEqual({_: [], verbose: false});
+				expect(argMate(['--no-verbose'], {verbose: {type: 'boolean', default: true}})).toEqual({
+					_: [],
+					verbose: false,
+				});
 			});
 
 			test('Stop parsing at --', () => {
-				expect(
-					argMate(['--port', '8080', '--', '--verbose'], {port: {type: 'number'}})
-				).toEqual({_: ['--verbose'], port: 8080});
+				expect(argMate(['--port', '8080', '--', '--verbose'], {port: {type: 'number'}})).toEqual({
+					_: ['--verbose'],
+					port: 8080,
+				});
 			});
 
 			test('Value with spaces', () => {

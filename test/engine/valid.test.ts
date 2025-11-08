@@ -1,7 +1,7 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
 import argMate from '../../src/argMate';
 import argMateMini from '../../src/argMateMini';
@@ -21,7 +21,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 		});
 
 		test('as array', () => {
-			let argv = argMate('--foo b'.split(' '), {
+			const argv = argMate('--foo b'.split(' '), {
 				foo: {valid: ['a', 'b', 'c']},
 			});
 

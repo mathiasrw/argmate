@@ -25,7 +25,5 @@
 			}
 		}
 	},
-	"files": {
-		"include": ["{.,src,test,dist}/**/*.{ts,js,json}"]
-	}
+	"files": {}
 }

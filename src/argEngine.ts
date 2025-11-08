@@ -1,10 +1,10 @@
-import {ArgMateConfig, ArgMateSettings, ArgProcessObj} from './types.js';
+import {ArgMateConfig, type ArgMateEngineConfig, type ArgMateSettings} from './types.js';
 
 //import use from './strip.macro.js' with { type: 'macro' };
 
-interface ArgMateSettingsMandatory extends ArgMateSettings {
-	error: (msg: string) => void;
-	panic: (msg: string) => void;
+interface EngineSettings extends ArgMateSettings {
+	error: (msg: string) => never;
+	panic: (msg: string) => never;
 }
 
 import {re} from './common.js';
@@ -31,7 +31,7 @@ import {re} from './common.js';
 array of value as default
 */
 
-export default function argEngine(args: string[], argProcessObj?: ArgProcessObj) {
+export default function argEngine(args: string[], argProcessObj?: ArgMateEngineConfig) {
 	argProcessObj = argProcessObj || {
 		output: {
 			_: [],
@@ -42,10 +42,10 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 		complexDefault: {},
 		config: {},
 		settings: {
-			error: msg => {
+			error: (msg: string) => {
 				throw msg;
 			},
-			panic: msg => {
+			panic: (msg: string) => {
 				throw msg;
 			},
 			allowUnknown: true,
@@ -78,7 +78,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 	args.reverse();
 
 	while (args.length) {
-		let arg: string = '' + args.pop();
+		const arg: string = '' + args.pop();
 
 		if (arg.charCodeAt(0) !== 45) {
 			outputPush(arg);
@@ -107,9 +107,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 				KEYNUM = '';
 			} else {
 				if (!LONG && 1 < KEY.length) {
-					return error(
-						`Unsupported format: '${arg}'. Did you miss a dash at the beginning?`
-					);
+					return error(`Unsupported format: '${arg}'. Did you miss a dash at the beginning?`);
 				}
 				VAL = ASSIGN = KEYNUM;
 			}
@@ -164,9 +162,7 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 			let result = !NO;
 			if (ASSIGN) {
 				if (NO) {
-					return error(
-						`The parameter '${KEY}' can't be negated AND assigned at the same time`
-					);
+					return error(`The parameter '${KEY}' can't be negated AND assigned at the same time`);
 				} else if (settings.allowBoolString && re.boolStringTrue.test(VAL)) {
 					result = true;
 				} else if (settings.allowBoolString && re.boolstringfalse.test(VAL)) {
@@ -218,15 +214,15 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 			case 'int':
 			case 'int[]':
 				data = +VAL | 0;
-				if (data + '' !== VAL && !re.isHexPrefix.test(VAL)) data = NaN;
+				if (data + '' !== VAL && !re.isHexPrefix.test(VAL)) data = Number.NaN;
 				break;
 
 			case 'hex':
 			case 'hex[]':
 				if (re.isHex.test(VAL)) {
-					data = parseInt(VAL, 16);
+					data = Number.parseInt(VAL, 16);
 				} else {
-					data = NaN;
+					data = Number.NaN;
 				}
 
 				break;
@@ -288,7 +284,6 @@ export default function argEngine(args: string[], argProcessObj?: ArgProcessObj)
 				`The parameter '${key}' is mandatory.${config[key]?.alias?.length ? ` You can also use an alias: ${config[key].alias.join(', ')}` : ''}`
 			);
 	}
-	debugger;
 	for (const conflictingKey of conflict) {
 		if (!inputLog.includes(conflictingKey)) continue;
 		const conflicting = config[conflictingKey]?.conflict?.find((value: string) =>
