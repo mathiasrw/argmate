@@ -1,0 +1,102 @@
+
+
+yargs-parser: v20.2.9
+minimist: v1.2.5
+mri: v1.1.1
+nopt: v5.0.0
+argmate: v0.8.3 - (v083  d03d8de)
+
+
+
+
+
+ About to run Node with -b --bool --no-meep --multi=baz
+Load Times:
+nopt: 1.041ms
+yargs-parser: 2.541ms
+minimist: 0.483ms
+mri: 0.471ms
+argMate: 3.829ms
+argMateMini: 0.427ms
+argMateArgEngine: 0.397ms
+argMateArgEngineMini: 0.276ms
+
+Benchmark:
+yargs-parser         x 436,453 ops/sec ±1.84% (93 runs sampled)
+nopt                 x 1,274,688 ops/sec ±0.26% (99 runs sampled)
+minimist             x 2,329,936 ops/sec ±0.13% (99 runs sampled)
+mri                  x 15,469,087 ops/sec ±0.20% (100 runs sampled)
+argMateMini          x 22,547,081 ops/sec ±0.18% (96 runs sampled)
+argMateMini+Config   x 22,692,586 ops/sec ±0.31% (95 runs sampled)
+argMateEngMini+settings  x 57,569,725 ops/sec ±0.20% (95 runs sampled)
+argMateEngineMini    x 22,431,601 ops/sec ±0.20% (101 runs sampled)
+argMate              x 12,160,459 ops/sec ±0.14% (101 runs sampled)
+argMate+Config   x 12,158,276 ops/sec ±0.22% (97 runs sampled)
+argMateEng+settings : 
+argMateEngine        x 12,204,467 ops/sec ±0.21% (100 runs sampled)
+
+
+
+ About to run Bun with -b --bool --no-meep --multi=baz
+Load Times:
+
+Benchmark:
+yargs-parser         x 105,288 ops/sec ±1.67% (90 runs sampled)
+nopt                 x 269,009 ops/sec ±2.41% (88 runs sampled)
+minimist             x 1,019,301 ops/sec ±0.26% (96 runs sampled)
+mri                  x 897,668 ops/sec ±3.99% (82 runs sampled)
+argMateMini          x 12,154,623 ops/sec ±1.70% (86 runs sampled)
+argMateMini+Config   x 11,942,193 ops/sec ±1.72% (88 runs sampled)
+argMateEngMini+settings  x 57,926,938 ops/sec ±6.14% (65 runs sampled)
+argMateEngineMini    x 12,409,435 ops/sec ±1.87% (85 runs sampled)
+argMate              x 4,445,006 ops/sec ±0.57% (94 runs sampled)
+argMate+Config   x 4,389,194 ops/sec ±0.55% (93 runs sampled)
+argMateEng+settings : 
+argMateEngine        x 4,391,787 ops/sec ±0.58% (94 runs sampled)
+
+
+
+ About to run Node with --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+Load Times:
+nopt: 0.989ms
+yargs-parser: 2.484ms
+minimist: 0.453ms
+mri: 0.533ms
+argMate: 3.877ms
+argMateMini: 0.393ms
+argMateArgEngine: 0.414ms
+argMateArgEngineMini: 0.3ms
+
+Benchmark:
+yargs-parser         x 338,983 ops/sec ±1.38% (92 runs sampled)
+nopt                 x 146,650 ops/sec ±0.07% (100 runs sampled)
+minimist             x 1,616,996 ops/sec ±0.13% (100 runs sampled)
+mri                  x 11,491,035 ops/sec ±0.27% (98 runs sampled)
+argMateMini          x 22,627,598 ops/sec ±0.18% (99 runs sampled)
+argMateMini+Config   x 22,405,670 ops/sec ±0.43% (99 runs sampled)
+argMateEngMini+settings  x 56,424,466 ops/sec ±2.04% (98 runs sampled)
+argMateEngineMini    x 22,216,637 ops/sec ±0.15% (99 runs sampled)
+argMate              x 12,087,581 ops/sec ±0.27% (97 runs sampled)
+argMate+Config   x 12,089,522 ops/sec ±0.14% (102 runs sampled)
+argMateEng+settings : 
+argMateEngine        x 12,113,846 ops/sec ±0.16% (101 runs sampled)
+
+
+
+ About to run Bun with --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+Load Times:
+
+Benchmark:
+yargs-parser         x 24,015 ops/sec ±1.14% (97 runs sampled)
+nopt                 x 72,291 ops/sec ±0.35% (96 runs sampled)
+minimist             x 193,587 ops/sec ±0.36% (95 runs sampled)
+mri                  x 392,583 ops/sec ±0.27% (97 runs sampled)
+argMateMini          x 9,887,339 ops/sec ±1.40% (86 runs sampled)
+argMateMini+Config   x 9,676,096 ops/sec ±1.36% (90 runs sampled)
+argMateEngMini+settings  x 57,152,687 ops/sec ±6.08% (65 runs sampled)
+argMateEngineMini    x 12,201,867 ops/sec ±1.77% (87 runs sampled)
+argMate              x 4,445,744 ops/sec ±0.56% (95 runs sampled)
+argMate+Config   x 4,375,197 ops/sec ±0.58% (95 runs sampled)
+argMateEng+settings : 
+argMateEngine        x 4,366,131 ops/sec ±0.49% (95 runs sampled)
+

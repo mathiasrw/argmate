@@ -19,19 +19,19 @@
 	console.timeEnd('mri');
 
 	console.time('argMate');
-	let argMate = (await import('../dist/argMate.js')).default;
+	let argMate = (await import('../../dist/argMate.js')).default;
 	console.timeEnd('argMate');
 
 	console.time('argMateMini');
-	let argMateMini = (await import('../dist/argMateMini.js')).default;
+	let argMateMini = (await import('../../dist/argMateMini.js')).default;
 	console.timeEnd('argMateMini');
 
 	console.time('argMateArgEngine');
-	let argMateArgEngine = (await import('../dist/argEngine.js')).default;
+	let argMateArgEngine = (await import('../../dist/argEngine.js')).default;
 	console.timeEnd('argMateArgEngine');
 
 	console.time('argMateArgEngineMini');
-	let argMateArgEngineMini = (await import('../dist/argEngineMini.js')).default;
+	let argMateArgEngineMini = (await import('../../dist/argEngineMini.js')).default;
 	console.timeEnd('argMateArgEngineMini');
 
 	console.log('\nBenchmark:');

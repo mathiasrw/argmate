@@ -1,7 +1,7 @@
 import {createRequire as createImportMetaRequire} from 'node:module';
 import.meta.require ||= id => createImportMetaRequire(import.meta.url)(id);
 
-import argMate from '../dist/argMate.js';
+import argMate from '../../dist/argMate.js';
 const asTable = import.meta.require('as-table');
 
 let x = argMate((process?.argv || Deno.args).slice(2));

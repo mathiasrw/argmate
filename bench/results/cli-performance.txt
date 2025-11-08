@@ -1,0 +1,257 @@
+
+
+yargs-parser: v20.2.9
+minimist: v1.2.5
+mri: v1.1.1
+nopt: v5.0.0
+argmate: v0.8.3 (v083 @ d03d8de)
+
+
+   [2ms]  bundle  2 modules
+  [89ms] compile  argMate.bun.exe
+running
+Benchmark 1: bun yargs.cjs -b --bool --no-meep --multi=baz
+  Time (mean ± σ):      22.8 ms ±   1.0 ms    [User: 17.7 ms, System: 5.2 ms]
+  Range (min … max):    21.6 ms …  28.3 ms    117 runs
+ 
+Benchmark 2: bun minimist.cjs -b --bool --no-meep --multi=baz
+  Time (mean ± σ):      14.4 ms ±   0.8 ms    [User: 9.4 ms, System: 4.4 ms]
+  Range (min … max):    13.2 ms …  19.8 ms    172 runs
+ 
+Benchmark 3: bun mri.cjs -b --bool --no-meep --multi=baz
+  Time (mean ± σ):      15.5 ms ±   1.8 ms    [User: 9.6 ms, System: 5.1 ms]
+  Range (min … max):    12.9 ms …  25.6 ms    162 runs
+ 
+Benchmark 4: bun nopt.cjs -b --bool --no-meep --multi=baz
+  Time (mean ± σ):      20.8 ms ±   1.3 ms    [User: 15.5 ms, System: 5.0 ms]
+  Range (min … max):    19.5 ms …  31.3 ms    123 runs
+ 
+Benchmark 5: bun argMate.mjs -b --bool --no-meep --multi=baz
+  Time (mean ± σ):      15.4 ms ±   0.9 ms    [User: 9.8 ms, System: 5.1 ms]
+  Range (min … max):    13.8 ms …  19.1 ms    150 runs
+ 
+Benchmark 6: bun argMateEngine.mjs -b --bool --no-meep --multi=baz
+  Time (mean ± σ):      15.0 ms ±   0.7 ms    [User: 9.6 ms, System: 5.0 ms]
+  Range (min … max):    13.4 ms …  17.0 ms    154 runs
+ 
+Benchmark 7: bun argMateMini.mjs -b --bool --no-meep --multi=baz
+  Time (mean ± σ):      14.9 ms ±   0.8 ms    [User: 9.5 ms, System: 4.9 ms]
+  Range (min … max):    13.4 ms …  18.7 ms    163 runs
+ 
+Benchmark 8: bun argMateEngineMini.mjs -b --bool --no-meep --multi=baz
+  Time (mean ± σ):      14.4 ms ±   0.7 ms    [User: 9.3 ms, System: 4.7 ms]
+  Range (min … max):    13.2 ms …  17.1 ms    160 runs
+ 
+Benchmark 9: bun argMate.cjs -b --bool --no-meep --multi=baz
+  Time (mean ± σ):      14.7 ms ±   0.7 ms    [User: 9.6 ms, System: 4.7 ms]
+  Range (min … max):    13.7 ms …  17.4 ms    161 runs
+ 
+Benchmark 10: bun argMateEngine.cjs -b --bool --no-meep --multi=baz
+  Time (mean ± σ):      14.6 ms ±   0.8 ms    [User: 9.5 ms, System: 4.7 ms]
+  Range (min … max):    13.6 ms …  19.4 ms    159 runs
+ 
+Benchmark 11: bun argMateMini.cjs -b --bool --no-meep --multi=baz
+  Time (mean ± σ):      14.5 ms ±   0.7 ms    [User: 9.3 ms, System: 4.7 ms]
+  Range (min … max):    13.4 ms …  18.5 ms    159 runs
+ 
+Benchmark 12: bun argMateEngineMini.cjs -b --bool --no-meep --multi=baz
+  Time (mean ± σ):      14.3 ms ±   0.6 ms    [User: 9.2 ms, System: 4.7 ms]
+  Range (min … max):    13.2 ms …  17.5 ms    163 runs
+ 
+Summary
+  bun argMateEngineMini.cjs -b --bool --no-meep --multi=baz ran
+    1.00 ± 0.07 times faster than bun minimist.cjs -b --bool --no-meep --multi=baz
+    1.01 ± 0.06 times faster than bun argMateEngineMini.mjs -b --bool --no-meep --multi=baz
+    1.01 ± 0.06 times faster than bun argMateMini.cjs -b --bool --no-meep --multi=baz
+    1.02 ± 0.07 times faster than bun argMateEngine.cjs -b --bool --no-meep --multi=baz
+    1.02 ± 0.06 times faster than bun argMate.cjs -b --bool --no-meep --multi=baz
+    1.04 ± 0.07 times faster than bun argMateMini.mjs -b --bool --no-meep --multi=baz
+    1.05 ± 0.07 times faster than bun argMateEngine.mjs -b --bool --no-meep --multi=baz
+    1.07 ± 0.08 times faster than bun argMate.mjs -b --bool --no-meep --multi=baz
+    1.08 ± 0.14 times faster than bun mri.cjs -b --bool --no-meep --multi=baz
+    1.45 ± 0.11 times faster than bun nopt.cjs -b --bool --no-meep --multi=baz
+    1.59 ± 0.10 times faster than bun yargs.cjs -b --bool --no-meep --multi=baz
+Benchmark 1: bun yargs.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+  Time (mean ± σ):      24.4 ms ±   1.0 ms    [User: 20.4 ms, System: 5.8 ms]
+  Range (min … max):    22.9 ms …  29.6 ms    112 runs
+ 
+Benchmark 2: bun minimist.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+  Time (mean ± σ):      15.0 ms ±   0.6 ms    [User: 10.7 ms, System: 4.8 ms]
+  Range (min … max):    14.2 ms …  18.4 ms    164 runs
+ 
+Benchmark 3: bun mri.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+  Time (mean ± σ):      14.7 ms ±   0.6 ms    [User: 10.5 ms, System: 4.8 ms]
+  Range (min … max):    13.9 ms …  18.0 ms    161 runs
+ 
+Benchmark 4: bun nopt.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+  Time (mean ± σ):      21.2 ms ±   0.6 ms    [User: 16.5 ms, System: 5.3 ms]
+  Range (min … max):    20.3 ms …  24.2 ms    118 runs
+ 
+Benchmark 5: bun argMate.mjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+  Time (mean ± σ):      15.5 ms ±   3.7 ms    [User: 10.4 ms, System: 5.0 ms]
+  Range (min … max):    14.1 ms …  61.1 ms    157 runs
+ 
+Benchmark 6: bun argMateEngine.mjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+  Time (mean ± σ):      15.0 ms ±   0.5 ms    [User: 10.3 ms, System: 5.0 ms]
+  Range (min … max):    14.1 ms …  17.0 ms    161 runs
+ 
+Benchmark 7: bun argMateMini.mjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+  Time (mean ± σ):      15.0 ms ±   0.5 ms    [User: 10.3 ms, System: 5.0 ms]
+  Range (min … max):    14.2 ms …  17.4 ms    151 runs
+ 
+Benchmark 8: bun argMateEngineMini.mjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+  Time (mean ± σ):      14.9 ms ±   0.7 ms    [User: 10.1 ms, System: 5.0 ms]
+  Range (min … max):    14.0 ms …  19.0 ms    169 runs
+ 
+Benchmark 9: bun argMate.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+  Time (mean ± σ):      15.1 ms ±   0.6 ms    [User: 10.3 ms, System: 4.9 ms]
+  Range (min … max):    14.2 ms …  17.3 ms    165 runs
+ 
+Benchmark 10: bun argMateEngine.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+  Time (mean ± σ):      15.0 ms ±   0.6 ms    [User: 10.2 ms, System: 4.9 ms]
+  Range (min … max):    14.0 ms …  18.8 ms    157 runs
+ 
+Benchmark 11: bun argMateMini.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+  Time (mean ± σ):      14.8 ms ±   0.6 ms    [User: 10.1 ms, System: 4.9 ms]
+  Range (min … max):    14.0 ms …  17.6 ms    154 runs
+ 
+Benchmark 12: bun argMateEngineMini.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+  Time (mean ± σ):      15.1 ms ±   2.4 ms    [User: 10.1 ms, System: 5.0 ms]
+  Range (min … max):    14.0 ms …  44.2 ms    162 runs
+ 
+Summary
+  bun mri.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k ran
+    1.01 ± 0.06 times faster than bun argMateMini.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+    1.01 ± 0.06 times faster than bun argMateEngineMini.mjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+    1.02 ± 0.05 times faster than bun argMateMini.mjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+    1.02 ± 0.06 times faster than bun minimist.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+    1.02 ± 0.05 times faster than bun argMateEngine.mjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+    1.02 ± 0.06 times faster than bun argMateEngine.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+    1.02 ± 0.17 times faster than bun argMateEngineMini.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+    1.02 ± 0.06 times faster than bun argMate.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+    1.05 ± 0.26 times faster than bun argMate.mjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+    1.44 ± 0.07 times faster than bun nopt.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+    1.65 ± 0.10 times faster than bun yargs.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+Benchmark 1: node yargs.cjs -b --bool --no-meep --multi=baz
+  Time (mean ± σ):      31.2 ms ±   0.9 ms    [User: 25.3 ms, System: 4.0 ms]
+  Range (min … max):    30.0 ms …  34.5 ms    84 runs
+ 
+Benchmark 2: node minimist.cjs -b --bool --no-meep --multi=baz
+  Time (mean ± σ):      28.7 ms ±   1.0 ms    [User: 22.8 ms, System: 4.0 ms]
+  Range (min … max):    27.7 ms …  35.1 ms    92 runs
+ 
+Benchmark 3: node mri.cjs -b --bool --no-meep --multi=baz
+  Time (mean ± σ):      28.6 ms ±   1.0 ms    [User: 22.7 ms, System: 4.1 ms]
+  Range (min … max):    27.7 ms …  32.9 ms    83 runs
+ 
+Benchmark 4: node nopt.cjs -b --bool --no-meep --multi=baz
+  Time (mean ± σ):      29.3 ms ±   0.8 ms    [User: 23.4 ms, System: 4.1 ms]
+  Range (min … max):    28.1 ms …  32.5 ms    89 runs
+ 
+Benchmark 5: node argMate.mjs -b --bool --no-meep --multi=baz
+  Time (mean ± σ):      32.9 ms ±   0.8 ms    [User: 26.7 ms, System: 4.5 ms]
+  Range (min … max):    32.1 ms …  36.8 ms    81 runs
+ 
+Benchmark 6: node argMateEngine.mjs -b --bool --no-meep --multi=baz
+  Time (mean ± σ):      32.7 ms ±   0.7 ms    [User: 26.6 ms, System: 4.4 ms]
+  Range (min … max):    31.8 ms …  34.9 ms    83 runs
+ 
+Benchmark 7: node argMateMini.mjs -b --bool --no-meep --multi=baz
+  Time (mean ± σ):      33.1 ms ±   1.0 ms    [User: 26.7 ms, System: 4.6 ms]
+  Range (min … max):    31.8 ms …  36.7 ms    82 runs
+ 
+Benchmark 8: node argMateEngineMini.mjs -b --bool --no-meep --multi=baz
+  Time (mean ± σ):      32.7 ms ±   0.8 ms    [User: 26.5 ms, System: 4.4 ms]
+  Range (min … max):    31.5 ms …  34.6 ms    82 runs
+ 
+Benchmark 9: node argMate.cjs -b --bool --no-meep --multi=baz
+  Time (mean ± σ):      32.3 ms ±   1.1 ms    [User: 26.1 ms, System: 4.4 ms]
+  Range (min … max):    31.2 ms …  35.8 ms    76 runs
+ 
+Benchmark 10: node argMateEngine.cjs -b --bool --no-meep --multi=baz
+  Time (mean ± σ):      32.0 ms ±   0.8 ms    [User: 25.9 ms, System: 4.4 ms]
+  Range (min … max):    31.0 ms …  35.2 ms    84 runs
+ 
+Benchmark 11: node argMateMini.cjs -b --bool --no-meep --multi=baz
+  Time (mean ± σ):      31.8 ms ±   0.7 ms    [User: 25.8 ms, System: 4.3 ms]
+  Range (min … max):    31.1 ms …  34.4 ms    85 runs
+ 
+Benchmark 12: node argMateEngineMini.cjs -b --bool --no-meep --multi=baz
+  Time (mean ± σ):      31.8 ms ±   0.8 ms    [User: 25.7 ms, System: 4.3 ms]
+  Range (min … max):    30.9 ms …  36.8 ms    84 runs
+ 
+Summary
+  node mri.cjs -b --bool --no-meep --multi=baz ran
+    1.00 ± 0.05 times faster than node minimist.cjs -b --bool --no-meep --multi=baz
+    1.02 ± 0.05 times faster than node nopt.cjs -b --bool --no-meep --multi=baz
+    1.09 ± 0.05 times faster than node yargs.cjs -b --bool --no-meep --multi=baz
+    1.11 ± 0.05 times faster than node argMateEngineMini.cjs -b --bool --no-meep --multi=baz
+    1.11 ± 0.05 times faster than node argMateMini.cjs -b --bool --no-meep --multi=baz
+    1.12 ± 0.05 times faster than node argMateEngine.cjs -b --bool --no-meep --multi=baz
+    1.13 ± 0.06 times faster than node argMate.cjs -b --bool --no-meep --multi=baz
+    1.14 ± 0.05 times faster than node argMateEngineMini.mjs -b --bool --no-meep --multi=baz
+    1.14 ± 0.05 times faster than node argMateEngine.mjs -b --bool --no-meep --multi=baz
+    1.15 ± 0.05 times faster than node argMate.mjs -b --bool --no-meep --multi=baz
+    1.16 ± 0.05 times faster than node argMateMini.mjs -b --bool --no-meep --multi=baz
+Benchmark 1: node yargs.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+  Time (mean ± σ):      32.3 ms ±   0.7 ms    [User: 26.0 ms, System: 4.3 ms]
+  Range (min … max):    31.3 ms …  34.2 ms    80 runs
+ 
+Benchmark 2: node minimist.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+  Time (mean ± σ):      29.8 ms ±   1.5 ms    [User: 23.4 ms, System: 4.3 ms]
+  Range (min … max):    28.5 ms …  37.8 ms    92 runs
+ 
+Benchmark 3: node mri.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+  Time (mean ± σ):      29.0 ms ±   0.8 ms    [User: 23.0 ms, System: 4.2 ms]
+  Range (min … max):    28.0 ms …  31.1 ms    90 runs
+ 
+Benchmark 4: node nopt.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+  Time (mean ± σ):      29.6 ms ±   0.9 ms    [User: 23.6 ms, System: 4.1 ms]
+  Range (min … max):    28.8 ms …  34.2 ms    89 runs
+ 
+Benchmark 5: node argMate.mjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+  Time (mean ± σ):      33.3 ms ±   0.9 ms    [User: 27.0 ms, System: 4.6 ms]
+  Range (min … max):    32.2 ms …  35.9 ms    82 runs
+ 
+Benchmark 6: node argMateEngine.mjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+  Time (mean ± σ):      33.2 ms ±   1.0 ms    [User: 26.9 ms, System: 4.5 ms]
+  Range (min … max):    32.1 ms …  39.1 ms    82 runs
+ 
+Benchmark 7: node argMateMini.mjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+  Time (mean ± σ):      33.5 ms ±   1.2 ms    [User: 26.9 ms, System: 4.7 ms]
+  Range (min … max):    32.2 ms …  38.9 ms    82 runs
+ 
+Benchmark 8: node argMateEngineMini.mjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+  Time (mean ± σ):      33.4 ms ±   1.0 ms    [User: 26.9 ms, System: 4.7 ms]
+  Range (min … max):    31.8 ms …  35.9 ms    81 runs
+ 
+Benchmark 9: node argMate.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+  Time (mean ± σ):      32.3 ms ±   0.6 ms    [User: 26.1 ms, System: 4.4 ms]
+  Range (min … max):    31.5 ms …  34.5 ms    82 runs
+ 
+Benchmark 10: node argMateEngine.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+  Time (mean ± σ):      32.2 ms ±   0.6 ms    [User: 26.0 ms, System: 4.4 ms]
+  Range (min … max):    31.4 ms …  35.3 ms    85 runs
+ 
+Benchmark 11: node argMateMini.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+  Time (mean ± σ):      32.4 ms ±   1.1 ms    [User: 26.1 ms, System: 4.5 ms]
+  Range (min … max):    31.3 ms …  37.1 ms    84 runs
+ 
+Benchmark 12: node argMateEngineMini.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+  Time (mean ± σ):      32.0 ms ±   0.6 ms    [User: 25.9 ms, System: 4.4 ms]
+  Range (min … max):    31.1 ms …  34.7 ms    84 runs
+ 
+Summary
+  node mri.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k ran
+    1.02 ± 0.04 times faster than node nopt.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+    1.03 ± 0.06 times faster than node minimist.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+    1.10 ± 0.04 times faster than node argMateEngineMini.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+    1.11 ± 0.04 times faster than node argMateEngine.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+    1.11 ± 0.04 times faster than node yargs.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+    1.11 ± 0.04 times faster than node argMate.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+    1.12 ± 0.05 times faster than node argMateMini.cjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+    1.15 ± 0.05 times faster than node argMateEngine.mjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+    1.15 ± 0.04 times faster than node argMate.mjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+    1.15 ± 0.05 times faster than node argMateEngineMini.mjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+    1.15 ± 0.05 times faster than node argMateMini.mjs --name=meowmers bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo a b c d e f g h i -j k l m n -- a b c d e f g -h i j k
+

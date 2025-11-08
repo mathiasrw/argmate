@@ -3,7 +3,7 @@ import.meta.require ||= id => createImportMetaRequire(import.meta.url)(id);
 
 const asTable = import.meta.require('as-table');
 
-import argMate from '../dist/argEngineMini.js';
+import argMate from '../../dist/argEngineMini.js';
 
 let x = argMate((process?.argv || Deno.args).slice(2));
 console.log(
