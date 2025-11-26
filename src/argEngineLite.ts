@@ -5,10 +5,8 @@ interface ArgMateConfigMandatory extends ArgMateConfig {
 	panic: (msg: string) => void;
 }
 
-export const re = {
-	kebab: /([a-z0-9]|(?=[A-Z]))([A-Z])/g,
-	camel: /-+([^-])|-+$/g,
-};
+// @ts-ignore
+import {re} from './common.js';
 
 /*
 /^(?<stop>--)$|^-(?<full>-)?(?<no>no-)?(?<key>[^=\s]+?)(?<keynum>[\d]*)(?<assign>=(?<val>.*))?$/,
@@ -30,6 +28,7 @@ export const re = {
 # --no-n-o--abc
 
 array of value as default
+# conflicting values
 */
 
 export default function argEngineLite(args: string[], argProcessObj?: ArgProcessObj) {
@@ -39,6 +38,7 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 		},
 		validate: [],
 		mandatory: [],
+		conflict: [],
 		complexDefault: {},
 		conf: {
 			error: msg => {
@@ -91,7 +91,7 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 		}
 
 		if (conf.allowAssign) {
-			let i = KEY.indexOf('=');
+			const i = KEY.indexOf('=');
 			if (-1 < i) {
 				ASSIGN = true;
 				VAL = KEY.slice(i + 1);
@@ -107,10 +107,10 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 		}
 
 		if (!params[KEY]) {
-			if (!conf.allowUnknown) return conf.error(`'${KEY}' not allowed`);
+			if (!conf.allowUnknown) return conf.error(`Unknown parameter '${KEY}' not allowed`);
 
 			if (conf.autoCamelKebabCase) {
-				KEY = KEY.replace(re.camel, function (match, letter) {
+				KEY = KEY.replace(re.kebab2camel, function (match, letter) {
 					return letter.toUpperCase();
 				});
 			}
@@ -121,21 +121,21 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 					VAL = args.pop() || '';
 				}
 				// @ts-ignore
-				output[KEY] = +VAL == VAL ? +VAL : VAL;
+				output[KEY] = +VAL + '' === VAL ? +VAL : VAL;
 			} else {
 				output[KEY] = true;
 			}
 			continue;
 		}
 
-		if ('boolean' === params[KEY].type) {
+		if ('boolean' === params[params[KEY].key].type) {
 			if (ASSIGN) return conf.error(`'${KEY}' is boolean, so can't assign: '${arg}'`);
 			output[params[KEY].key] = true;
 			continue;
 		}
 
-		if ('count' === params[KEY].type) {
-			if (ASSIGN) return conf.error(`'${KEY}' is count, so can't assign: '${arg}'`);
+		if ('count' === params[params[KEY].key].type) {
+			if (ASSIGN) return conf.error(`'${KEY}' counting, so can't assign: '${arg}'`);
 			output[KEY]++;
 			continue;
 		}
@@ -147,7 +147,7 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 
 		let num = 0;
 
-		switch (params[KEY].type) {
+		switch (params[params[KEY].key].type) {
 			case 'string':
 				output[params[KEY].key] = VAL;
 				continue;
@@ -167,19 +167,26 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 			case 'int':
 			case 'int[]':
 				num = +VAL | 0;
-				if ('' + num !== VAL) num = NaN;
+				if (num + '' !== VAL) num = NaN;
 				break;
 
 			case 'hex':
 			case 'hex[]':
-				num = parseInt(VAL, 16);
+				if (re.isHex.test(VAL)) {
+					num = parseInt(VAL, 16);
+				} else {
+					num = NaN;
+				}
 				break;
+
 			default:
-				return conf.panic(`'${KEY}' got invalid type: '${params[KEY].type}'`);
+				return conf.panic(`'${KEY}' got invalid type: '${params[params[KEY].key].type}'`);
 		}
 
 		if (isNaN(num) || !isFinite(num)) {
-			return conf.error(`'${KEY}' not a valid ${params[KEY].type}: '${VAL}'`);
+			return conf.error(
+				`'${KEY}' value is not a valid ${params[params[KEY].key].type}: '${VAL}'`
+			);
 		}
 
 		if (Array.isArray(output[params[KEY].key])) {
@@ -212,7 +219,7 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 		if (undefined === output[key]) {
 			return conf.error(
 				`'${key.length > 1 ? '--' : '-'}${key}' is mandatory` +
-					(params[key].alias.length
+					(params[key]?.alias?.length
 						? `.  Or use an alias: ${params[key].alias
 								.map(v => (v.length > 1 ? '--' : '-') + v)
 								.join(', ')}`
@@ -229,7 +236,7 @@ export default function argEngineLite(args: string[], argProcessObj?: ArgProcess
 		}
 	}
 
-	// todo: check for conflict
+	// todo: check for conflict ?
 
 	return output;
 }
