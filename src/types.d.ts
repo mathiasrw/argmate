@@ -31,6 +31,7 @@ export interface ArgMateParams {
 type IntroOutroType = string | (string | [string, string])[];
 
 export interface ArgMateConfig {
+	panic?: (msg: string) => void;
 	error?: (msg: string) => void;
 	strict?: boolean;
 	allowUnknown?: boolean;
@@ -38,8 +39,14 @@ export interface ArgMateConfig {
 	allowNegatingFlags?: boolean;
 	allowKeyNumValues?: boolean;
 	allowAssign?: boolean;
+	allowBoolString?: boolean;
+	outputAlias?: boolean;
+	outputInflate?: boolean;
 	intro?: IntroOutroType;
 	outro?: IntroOutroType;
+
+	//	'dot-notation': false,
+	//  'boolean-negation': false
 }
 
 export interface ArgMateConfigMandatory extends ArgMateConfig {
@@ -66,6 +73,7 @@ type ArgProcessObj = void | {
 	output: {[key: string]: any};
 	mandatory: string[];
 	validate: string[];
+	conflict: string[];
 	complexDefault: {[key: string]: string[] | number[]};
 	conf: ArgMateConfigMandatory;
 	params: ArgMateParams;

@@ -1,8 +1,8 @@
 {
 	"name": "argmate",
-	"version": "0.8.0",
+	"version": "0.8.2",
 	"author": "Mathias Wulff",
-	"description": "CLI parameter parsing. Zero dependencies. Fast. Convenient features for better DX",
+	"description": "Fast CLI parameter parsing. Zero dependencies. Good DX. Pre-compile for turbo speed.",
 	"license": "CC-BY-SA-4.0",
 	"repository": {
 		"type": "git",
@@ -30,6 +30,11 @@
 	"module": "dist/argMate.js",
 	"type": "module",
 	"types": "src/types.d.ts",
+	"main": "dist/argMate.js",
+	"exports": {
+		"import": "./dist/argMate.js",
+		"macro": "./dist/argMate.macro.js"
+	},
 	"scripts": {
 		"prebuild": "rm -fr dist/",
 		"build": "bun build --target bun src/argMate.ts src/argMateLite.ts src/argEngine.ts src/argEngineLite.ts --outdir dist/ --minify ",
