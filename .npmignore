@@ -8,4 +8,5 @@ tmp/*
 bench/
 *.exe
 package-lock
+dist/argmate-cli
 
