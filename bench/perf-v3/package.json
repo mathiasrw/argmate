@@ -1,0 +1,26 @@
+{
+	"type": "module",
+	"devDependencies": {
+		"alasql": "^4.1.10",
+		"benchmark": "2.1.4",
+		"minimist": "^1.2.8",
+		"mri": "^1.2.0",
+		"nopt": "^9.0.0",
+		"react-native-fetch-blob": "^0.10.8",
+		"yargs-parser": "^22.0.0",
+		"@oclif/core": "^4.8.0",
+		"arg": "^5.0.2",
+		"as-table": "^1.0.55",
+		"commander": "^14.0.2",
+		"is-even": "^1.0.0",
+		"meow": "^14.0.0",
+		"react-native-fs": "^2.20.0",
+		"sade": "^1.8.1",
+		"yargs": "^18.0.0"
+	},
+	"dependencies": {
+		"iconv-lite": "^0.7.0",
+		"object-hash": "^3.0.0",
+		"oclif": "^4.22.44"
+	}
+}

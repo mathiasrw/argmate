@@ -1,18 +1,19 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
 import argMate from '../../src/argMate';
-import argMateLite from '../../src/argMateLite';
+import argMateMini from '../../src/argMateMini';
+import type {ArgMateEngine} from '../../src/types.js';
 
 run(argMate);
-run(argMateLite, ' lite');
+run(argMateMini, ' Mini');
 
-function run(argMate, type = '') {
-	describe('Error fn' + type, () => {
+function run(argMate: ArgMateEngine, engineType = '') {
+	describe('Error fn' + engineType, () => {
 		test('Set error handeling from the outside', done => {
-			let argv = argMate(
+			const argv = argMate(
 				'--bar'.split(' '),
 				{
 					foo: {mandatory: true},

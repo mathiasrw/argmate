@@ -1,18 +1,19 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
 import argMate from '../../src/argMate';
-import argMateLite from '../../src/argMateLite';
+import argMateMini from '../../src/argMateMini';
+import type {ArgMateEngine} from '../../src/types.js';
 
 run(argMate);
-run(argMateLite, ' lite');
+run(argMateMini, ' Mini');
 
-function run(argMate, type = '') {
-	describe('Stop' + type, () => {
+function run(argMate: ArgMateEngine, engineType = '') {
+	describe('Stop' + engineType, () => {
 		test('Default', () => {
-			let argv = argMate('--foo bar -- --foo abc -g=4 -t9'.trim().split(/\s+/));
+			const argv = argMate('--foo bar -- --foo abc -g=4 -t9'.trim().split(/\s+/));
 
 			expect(argv).toEqual({
 				_: ['bar', '--foo', 'abc', '-g=4', '-t9'],
@@ -20,7 +21,7 @@ function run(argMate, type = '') {
 			});
 		});
 
-		let argv = argMate('-s=-- -- -p=--'.split(' '));
+		const argv = argMate('-s=-- -- -p=--'.split(' '));
 		expect(argv).toEqual({_: ['-p=--'], s: '--'});
 	});
 }

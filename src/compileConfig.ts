@@ -1,10 +1,8 @@
-// @ts-ignore
-import {ArgMateParams, ArgMateConfig, ArgMateConfigMandatory, ArgProcessObj} from './types.js';
+import type {ArgMateConfig, ArgMateEngineConfig, ArgMateSettings, EngineSettings} from './types.js';
 
-// @ts-ignore
 import {re} from './common.js';
 
-const strictConf = {
+const strictSettings = {
 	allowUnknown: false,
 	allowNegatingFlags: false,
 	allowKeyNumValues: false,
@@ -12,20 +10,26 @@ const strictConf = {
 	allowBoolString: false,
 };
 
-/** #__PURE__ */ export function precompileConfig(params: ArgMateParams, conf?: ArgMateConfig) {
-	return objectToCode(compileConfig(params, conf));
+/** #__PURE__ */ export function precompileConfig(
+	config: ArgMateConfig,
+	settings?: ArgMateSettings
+) {
+	return objectToCode(configPreprocessing(config, settings));
 }
 
-export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}): ArgProcessObj {
+/** #__PURE__ */ export function configPreprocessing(
+	config: ArgMateConfig,
+	settings: ArgMateSettings = {}
+): ArgMateEngineConfig {
 	const mandatory: string[] = [];
 	const validate: string[] = [];
 	const conflict: string[] = [];
-	const complexDefault: any = {};
-	const output: any = {
+	const complexDefault: {[key: string]: string[] | number[]} = {};
+	const output: {[key: string]: unknown} = {
 		_: [],
 	};
 
-	const conf: ArgMateConfigMandatory = {
+	const finalSettings: EngineSettings = {
 		error: msg => {
 			throw msg;
 		},
@@ -42,16 +46,16 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}):
 		outputInflate: false,
 		intro: '',
 		outro: '',
-		...(conf_.strict ? strictConf : {}),
-		...conf_,
+		...(settings.strict ? strictSettings : {}),
+		...settings,
 	};
 
-	const {panic} = conf;
-	const hasOwnProperty = Object.prototype.hasOwnProperty;
+	const {panic} = finalSettings;
+	const hasOwnPropertyFn = Object.prototype.hasOwnProperty;
 
-	for (const key in params) {
-		if (!hasOwnProperty.call(params, key)) continue;
-		let param = params[key];
+	for (const key in config) {
+		if (!hasOwnPropertyFn.call(config, key)) continue;
+		let param = config[key];
 
 		// If only default value is provided, then transform to object with correct type
 		if (param === null || typeof param !== 'object' || Array.isArray(param)) {
@@ -75,8 +79,7 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}):
 		if (undefined !== param.valid) {
 			validate.push(key);
 			if (undefined === param.default && Array.isArray(param.valid)) {
-				if (!param.valid.length)
-					return panic(`Empty array found for valid values of '${key}'`);
+				if (!param.valid.length) return panic(`Empty array found for valid values of '${key}'`);
 
 				if (undefined === param.type) {
 					param.type = findType(param.valid[0]);
@@ -90,7 +93,7 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}):
 		if (undefined !== param.default) {
 			if (Array.isArray(param.default)) {
 				complexDefault[key] = param.default;
-			} else if ('count' == param.type) {
+			} else if ('count' === param.type) {
 				return panic(
 					`Default parameter '${param.default}' is not allowed for '${key}' because of its type '${param.type}'`
 				);
@@ -99,7 +102,7 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}):
 			}
 		}
 
-		if ('count' == param.type) {
+		if ('count' === param.type) {
 			output[key] = 0;
 		}
 
@@ -121,7 +124,7 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}):
 				: String(param.alias).split(re.listDeviders).filter(Boolean);
 		}
 
-		if (conf.autoCamelKebabCase && re.isCamel.test(key)) {
+		if (finalSettings.autoCamelKebabCase && re.isCamel.test(key)) {
 			const kebab = key.replace(re.camel2kebab, '$1-$2').toLowerCase();
 			if (kebab !== key) {
 				param.alias = param.alias ? [kebab, ...param.alias] : [kebab];
@@ -130,23 +133,23 @@ export function compileConfig(params: ArgMateParams, conf_: ArgMateConfig = {}):
 
 		if (param.alias) {
 			for (const alias of param.alias) {
-				if (undefined === params[alias]) {
-					params[alias] = {key};
+				if (undefined === config[alias]) {
+					config[alias] = {key};
 				}
 			}
 		}
 
-		params[key] = param;
+		config[key] = param;
 	}
 
 	return {
+		config: config as any, // Config has been mutated in place to match EngineFinalConfig structure
+		settings: finalSettings,
 		output,
 		validate,
 		conflict,
 		mandatory,
 		complexDefault,
-		conf,
-		params,
 	};
 }
 

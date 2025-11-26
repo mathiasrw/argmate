@@ -1,34 +1,44 @@
 #!/usr/bin/env node
 
-// @ts-ignore
-import {ArgMateParams, ArgMateConfig, ArgMateArgInfoConfig} from './types.js';
+import type {
+	ArgMateConfig,
+	ArgMateEngineConfig,
+	ArgMateInfoConfig,
+	ArgMateSettings,
+	ArgMateResponse,
+} from './types.js';
 
-// @ts-ignore
-import formatArgInfo from './argInfo.js';
+import argInfoFormat from './argInfo.js';
 
-// @ts-ignore
-import {compileConfig} from './compileConfig.js';
+import {configPreprocessing} from './compileConfig.js';
 
-var params_;
+let config_: ArgMateConfig | undefined;
 
-var conf_;
+let settings_: ArgMateSettings | undefined;
 
-export function argService(engine, args: string[], params?: ArgMateParams, conf?: ArgMateConfig) {
-	if (!params && !conf) return engine(args);
+export function argService<const Config extends ArgMateConfig>(
+	engine: (
+		args: string[],
+		argProcessObj?: ArgMateEngineConfig
+	) => ArgMateResponse<Config> | undefined,
+	args: string[],
+	config?: Config,
+	settings?: ArgMateSettings
+): ArgMateResponse<Config> {
+	if (!config && !settings) return engine(args) as ArgMateResponse<Config>;
 
-	if (params) params_ = {...params};
+	config_ = config ? {...config} : {};
+	settings_ = settings ? {...settings} : {};
 
-	if (conf) conf_ = {...conf};
-
-	return engine(args, compileConfig(params || {}, conf || {}));
+	return engine(args, configPreprocessing(config || {}, settings || {})) as ArgMateResponse<Config>;
 }
 
-export function argInfo(
-	settings: ArgMateArgInfoConfig = {},
-	conf: ArgMateConfig = {},
-	params?: ArgMateParams
+/** #__PURE__ */ export function argInfo(
+	infoConfig: ArgMateInfoConfig = {},
+	settings?: ArgMateSettings,
+	config?: ArgMateConfig
 ) {
-	return formatArgInfo(
+	return argInfoFormat(
 		{
 			preIntro: '',
 			showIntro: true,
@@ -36,9 +46,9 @@ export function argInfo(
 			postOutro: '',
 			format: 'cli',
 			width: 100,
-			...settings,
+			...infoConfig,
 		},
-		{...conf_, ...conf},
-		{...params_, ...params}
+		{...(settings_ || {}), ...(settings || {})},
+		{...(config_ || {}), ...(config || {})}
 	);
 }

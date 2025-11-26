@@ -1,19 +1,20 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
 import argMate from '../../src/argMate';
-import argMateLite from '../../src/argMateLite';
+import argMateMini from '../../src/argMateMini';
+import type {ArgMateEngine} from '../../src/types.js';
 
 run(argMate);
-run(argMateLite, ' lite');
+run(argMateMini, ' Mini');
 
-function run(argMate, type = '') {
-	describe('Hex' + type, () => {
+function run(argMate: ArgMateEngine, engineType = '') {
+	describe('Hex' + engineType, () => {
 		describe('Real hex codes', () => {
 			test('Hex with no 0x prefix', () => {
-				let argv = argMate('--foo a1'.split(' '), {foo: {type: 'hex'}});
+				const argv = argMate('--foo a1'.split(' '), {foo: {type: 'hex'}});
 				expect(argv).toEqual({
 					_: [],
 					foo: 161,
@@ -21,14 +22,14 @@ function run(argMate, type = '') {
 			});
 
 			test('Hex with 0x prefix', () => {
-				let argv = argMate('--foo 0xa1'.split(' '), {foo: {type: 'hex'}});
+				const argv = argMate('--foo 0xa1'.split(' '), {foo: {type: 'hex'}});
 				expect(argv).toEqual({
 					_: [],
 					foo: 161,
 				});
 			});
 			test('Multiple hex values', () => {
-				let argv = argMate('--foo 0xa1 --foo a2'.split(' '), {foo: {type: 'hex'}});
+				const argv = argMate('--foo 0xa1 --foo a2'.split(' '), {foo: {type: 'hex'}});
 				expect(argv).toEqual({
 					_: [],
 					foo: 162,
@@ -41,23 +42,16 @@ function run(argMate, type = '') {
 				);
 			});
 
-			test('Invalid hex input B', done => {
-				argMate(
-					'--foo abx4'.split(' '),
-					{foo: {type: 'hex'}},
-					{
-						error: m => {
-							expect(m).toContain('not a valid hex');
-							done();
-						},
-					}
-				);
+			test('Invalid hex input B', () => {
+				expect(() => {
+					argMate('--foo abx4'.split(' '), {foo: {type: 'hex'}});
+				}).toThrow(/not a valid hex/i);
 			});
 		});
 
-		describe.if(!type)('Hex via int' + type, () => {
+		describe.if(!engineType)('Hex via int' + engineType, () => {
 			test('Hex with 0x prefix', () => {
-				let argv = argMate('--foo 0xa'.split(' '), {foo: {type: 'int'}});
+				const argv = argMate('--foo 0xa'.split(' '), {foo: {type: 'int'}});
 				expect(argv).toEqual({
 					_: [],
 					foo: 10,
@@ -71,7 +65,7 @@ function run(argMate, type = '') {
 			});
 
 			test('Multiple', () => {
-				let argv = argMate('--foo 0xA --foo 0xf'.split(' '), {foo: {type: 'int'}});
+				const argv = argMate('--foo 0xA --foo 0xf'.split(' '), {foo: {type: 'int'}});
 				expect(argv).toEqual({
 					_: [],
 					foo: 15,
@@ -79,7 +73,7 @@ function run(argMate, type = '') {
 			});
 
 			test('Not defined', () => {
-				let argv = argMate('--bar 0xB'.split(' '), {foo: {type: 'int'}});
+				const argv = argMate('--bar 0xB'.split(' '), {foo: {type: 'int'}});
 				expect(argv).toEqual({
 					_: ['0xB'],
 					bar: true,

@@ -1,20 +1,21 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
 import argMate from '../../src/argMate';
-import argMateLite from '../../src/argMateLite';
+import argMateMini from '../../src/argMateMini';
+import type {ArgMateEngine} from '../../src/types.js';
 
 run(argMate);
-run(argMateLite, ' lite');
+run(argMateMini, ' Mini');
 
-function run(argMate, type = '') {
+function run(argMate: ArgMateEngine, engineType = '') {
 	// Enum is really a parameter where an array of values have been set as valid. Will default to first element if default is not provided.
 
-	describe('Enum' + type, () => {
+	describe('Enum' + engineType, () => {
 		test('Set differently', () => {
-			let argv = argMate('--engine V8'.trim().split(/\s+/), {
+			const argv = argMate('--engine V8'.trim().split(/\s+/), {
 				engine: {default: 'V4', valid: ['V4', 'V8', 'V12']},
 				foo2: {type: 'string'},
 			});
@@ -26,7 +27,7 @@ function run(argMate, type = '') {
 		});
 
 		test('Set to default', () => {
-			let argv = argMate('--engine V8'.trim().split(/\s+/), {
+			const argv = argMate('--engine V8'.trim().split(/\s+/), {
 				engine: {default: 'V8', valid: ['V8']},
 			});
 
@@ -37,7 +38,7 @@ function run(argMate, type = '') {
 		});
 
 		test('Not set', () => {
-			let argv = argMate('--foobar 123'.trim().split(/\s+/), {
+			const argv = argMate('--foobar 123'.trim().split(/\s+/), {
 				engine: {default: 'V8', valid: ['V8']},
 			});
 

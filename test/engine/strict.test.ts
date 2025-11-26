@@ -1,33 +1,32 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
 import argMate from '../../src/argMate';
-import argMateLite from '../../src/argMateLite';
+import argMateMini from '../../src/argMateMini';
+import type {ArgMateConfig, ArgMateSettings} from '../../src/types';
 
 run(argMate);
-run(argMateLite, ' lite');
+run(argMateMini, ' Mini');
 
-function run(argMate, type = '') {
-	describe('strictConf' + type, () => {
-		test('Unknown parameter gives error', done => {
-			argMate(
-				'--bar value'.split(' '),
-				{foo: {type: 'string'}},
-				{
-					strict: true,
-					error: msg => {
-						expect(msg).toContain('Unknown parameter');
-						expect(msg).toContain('bar');
-						done();
-					},
-				}
-			);
+function run(
+	argMate: (
+		args: string[],
+		config?: ArgMateConfig,
+		settings?: ArgMateSettings
+	) => {[key: string]: any},
+	type = ''
+) {
+	describe('strictSettings' + type, () => {
+		test('Unknown parameter gives error', () => {
+			expect(() => {
+				argMate('--bar value'.split(' '), {foo: {type: 'string'}}, {strict: true});
+			}).toThrow(/Unknown parameter.+bar/i);
 		});
 
 		test('No auto aliass from kebab to camel case', () => {
-			let argv = argMate(
+			const argv = argMate(
 				'--foo-bar value'.split(' '),
 				{'foo-bar': {type: 'string'}},
 				{strict: true}
@@ -39,11 +38,11 @@ function run(argMate, type = '') {
 
 			expect(() => {
 				argMate('--fooBar value'.split(' '), {'foo-bar': {type: 'string'}}, {strict: true});
-			}).toThrow('Unknown parameter', 'not allowed');
+			}).toThrow(/Unknown parameter.+not allowed/i);
 		});
 
 		test('Ignore negating flags', () => {
-			let argv = argMate(
+			const argv = argMate(
 				'--no-flag'.split(' '),
 				{flag: {type: 'boolean'}, 'no-flag': {type: 'boolean'}},
 				{strict: true}
@@ -55,7 +54,7 @@ function run(argMate, type = '') {
 		});
 
 		test.todo('No keynum value assignments', () => {
-			let argv = argMate(
+			const argv = argMate(
 				'-p123'.split(' '),
 				{p: {type: 'boolean'}, p123: {type: 'boolean'}},
 				{strict: true}
@@ -67,7 +66,7 @@ function run(argMate, type = '') {
 		});
 
 		test.todo('Combination of strict behaviors', () => {
-			let argv = argMate(
+			const argv = argMate(
 				'--defined-param value --foo-bar othervalue -p123'.split(' '),
 				{
 					'defined-param': {type: 'string'},
@@ -84,23 +83,18 @@ function run(argMate, type = '') {
 			});
 		});
 
-		test.todo('Error on multiple undefined parameters', done => {
-			argMate(
-				'--undefined1 value1 --undefined2 value2'.split(' '),
-				{definedParam: {type: 'string'}},
-				{
-					strict: true,
-					error: msg => {
-						expect(msg).toContain('Unknown parameter');
-						expect(msg).toContain('undefined1');
-						done();
-					},
-				}
-			);
+		test('Error on multiple undefined parameters', () => {
+			expect(() => {
+				argMate(
+					'--undefined1 value1 --undefined2 value2'.split(' '),
+					{definedParam: {type: 'string'}},
+					{strict: true}
+				);
+			}).toThrow(/Unknown parameter.+undefined1/i);
 		});
 
 		test('Correct handling of defined boolean flags', () => {
-			let argv = argMate(
+			const argv = argMate(
 				'--flag1 --flag2'.split(' '),
 				{flag1: true, flag2: false},
 				{strict: true}
@@ -112,19 +106,14 @@ function run(argMate, type = '') {
 			});
 		});
 
-		test.todo('Error on assigning value to boolean flag', done => {
-			argMate(
-				'--flag value'.split(' '),
-				{flag: {type: 'boolean'}},
-				{
-					strict: true,
-					error: msg => {
-						expect(msg).toContain('boolean');
-						expect(msg).toContain('flag');
-						done();
-					},
-				}
-			);
+		test('Error on assigning value to boolean flag', () => {
+			expect(() => {
+				argMate(
+					'--flag=value'.split(' '),
+					{flag: {type: 'boolean'}},
+					{strict: true, allowAssign: true}
+				);
+			}).toThrow(/flag.+boolean.+can't assign/i);
 		});
 	});
 }

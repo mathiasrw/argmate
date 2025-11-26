@@ -1,34 +1,27 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
 import argMate from '../../src/argMate';
-import argMateLite from '../../src/argMateLite';
+import argMateMini from '../../src/argMateMini';
+import type {ArgMateEngine} from '../../src/types.js';
 
 run(argMate);
-run(argMateLite, ' lite');
+run(argMateMini, ' Mini');
 
-function run(argMate, type = '') {
-	describe('Valid' + type, () => {
-		test('as function' + type, done => {
-			let argv = argMate(
-				'--foo 3'.split(' '),
-				{
+function run(argMate: ArgMateEngine, engineType = '') {
+	describe('Valid' + engineType, () => {
+		test('as function' + engineType, () => {
+			expect(() => {
+				argMate('--foo 3'.split(' '), {
 					foo: {type: 'number', valid: v => v > 4},
-				},
-				{
-					error: msg => {
-						expect(msg).toContain('foo');
-						expect(msg).toContain('3');
-						done();
-					},
-				}
-			);
+				});
+			}).toThrow(/foo.*3/i);
 		});
 
 		test('as array', () => {
-			let argv = argMate('--foo b'.split(' '), {
+			const argv = argMate('--foo b'.split(' '), {
 				foo: {valid: ['a', 'b', 'c']},
 			});
 
