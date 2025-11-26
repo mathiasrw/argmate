@@ -1,21 +1,21 @@
-function breakLines(text, columnWidth) {
+/** #__PURE__ */ function breakLines(text: string | number, columnWidth: number) {
 	const regex = new RegExp(`([^\s].{0,${columnWidth - 1}})(?:[\\s]|$)`, 'g');
 	const lines = ('' + text).split('\n');
-	return lines.map(l => l.match(regex) || []).flat();
+	return lines.flatMap(l => l.match(regex) || []);
 	('');
 }
 
-function minimizeLineBreaks(data, maxWidth = 120) {
+/** #__PURE__ */ function minimizeLineBreaks(data: string[][], maxWidth = 120) {
 	const numColumns = data[0].length;
-	let columnWidths = Array(numColumns).fill(0);
-	let columnMinWidths = Array(numColumns).fill(0);
+	const columnWidths = Array(numColumns).fill(0);
+	const columnMinWidths = Array(numColumns).fill(0);
 	let longestWord = 0;
 
 	// Step 1: Calculate the Initial Minimum Widths and Column Widths
-	data.forEach(row => {
-		row.forEach((cell, i) => {
+	data.forEach((row: string[]) => {
+		row.forEach((cell: string, i: number) => {
 			cell ||= '';
-			const longestWordInCell = Math.max(...cell.split(' ').map(word => word.length));
+			const longestWordInCell = Math.max(...cell.split(' ').map((word: string) => word.length));
 			longestWord = Math.max(longestWord, longestWordInCell);
 			columnMinWidths[i] = Math.max(columnMinWidths[i], longestWordInCell);
 			columnWidths[i] = Math.max(columnWidths[i], cell.length, columnMinWidths[i]);
@@ -28,7 +28,7 @@ function minimizeLineBreaks(data, maxWidth = 120) {
 	}
 
 	// Calculate initial total width and overflow
-	let totalWidth = columnWidths.reduce((a, b) => a + b, 0);
+	const totalWidth = columnWidths.reduce((a, b) => a + b, 0);
 	let overflow = totalWidth - maxWidth;
 
 	// Step 2: Adjust the column widths if there's an overflow
@@ -45,15 +45,15 @@ function minimizeLineBreaks(data, maxWidth = 120) {
 	return columnWidths;
 }
 
-function tupple(row, widths) {
-	const fields = row.map((v, i) => breakLines(v, widths[i]));
+/** #__PURE__ */ function tupple(row: string[], widths: number[]) {
+	const fields = row.map((v: string, i: number) => breakLines(v, widths[i]));
 
 	let active = true;
-	let lines: any[] = [];
+	const lines: any[] = [];
 	for (let i = 0; active; i++) {
 		active = false;
-		let line: string[] = [];
-		fields.forEach((f, j) => {
+		const line: string[] = [];
+		fields.forEach((f: string[], j: number) => {
 			if (i < f.length) {
 				active = true;
 				return line.push(f[i].padEnd(widths[j], ' '));
@@ -66,34 +66,37 @@ function tupple(row, widths) {
 	return lines;
 }
 
-export function tableLayout(data, conf_?: any) {
-	const conf = {
+/** #__PURE__ */ export function tableLayout(
+	data: string[][],
+	settings_?: {maxWidth?: number; left?: string; join?: string; right?: string}
+) {
+	const settings = {
 		...{
 			maxWidth: 120,
 			left: '  ',
 			join: '   ',
 			right: '  ',
 		},
-		...conf_,
+		...settings_,
 	};
 	debugger;
 	const workingWidth =
-		conf.maxWidth -
-		conf.left.length -
-		conf.join.length * (data.slice(-1).pop()?.length - 1) -
-		conf.right.length;
+		settings.maxWidth -
+		settings.left.length -
+		settings.join.length * ((data.slice(-1).pop()?.length || 0) - 1) -
+		settings.right.length;
 
 	const optimizedWidths = minimizeLineBreaks(data, workingWidth);
 
-	const table = data.map((t, i) => tupple(t, optimizedWidths));
+	const table = data.map((t: string[], i: number) => tupple(t, optimizedWidths));
 
 	let ascii = '';
 
-	table.forEach(r => {
-		r.forEach(f => {
-			ascii += conf.left;
-			ascii += f.join(conf.join);
-			ascii += conf.right;
+	table.forEach((r: string[][]) => {
+		r.forEach((f: string[]) => {
+			ascii += settings.left;
+			ascii += f.join(settings.join);
+			ascii += settings.right;
 			ascii += '\n';
 		});
 		ascii += '\n\n';
@@ -102,53 +105,18 @@ export function tableLayout(data, conf_?: any) {
 	return ascii;
 }
 
-export default function formatArgInfo(settings_ = {}, conf = {}) {
-	return;
-	/*let settings =	{
-		...{
-			preIntro: '',
-			showIntro: true,
-			showOutrp: true,
-			postOutro: '',
-			format: 'cli',
-			width: 100,
-		}, 
-		...settings_,
-	}
-	{...conf_, ...settings_},
-	params || JSON.parse(JSON.stringify(params_))
-
-
-
-	const settings = {
-		...{
-			maxWidth: 120,
-			left: '    ',
-			join: '    ',
-			right: ' ',
-		},
-		...settings_,
-	};
-*/
-	const dasData: any = [];
-
-	for (let key in data) {
-		let val = data[key];
-		let params = [...val.alias, ...[key]].sort((a, b) => b.length - a.length).map(camelToKebab);
-		dasData.push([
-			params.pop(),
-			params.join(', ') + (undefined === val.default ? '' : `\n[=${val.default}]`),
-			val.describe || '' + (undefined === val.type ? '' : ` [${val.type}]`),
-		]);
-	}
-
-	return tableLayout(dasData, settings);
+export default function argInfoFormat(settings_: any = {}, conf: any = {}) {
+	// This function appears to be deprecated/unused
+	// The actual implementation is in argInfo.ts
+	return '';
 }
 
-function camelToKebab(str) {
+function camelToKebab(str: string) {
 	if (str.length === 1) return '-' + str;
 	str = str
-		.replace(/([A-Z])/g, (match, val, index) => (index === 0 ? val : '-' + val))
+		.replace(/([A-Z])/g, (match: string, val: string, index: number) =>
+			index === 0 ? val : '-' + val
+		)
 		.toLowerCase();
 
 	return '--' + str;
@@ -164,6 +132,7 @@ console.log(
 		right: '',
 	})
 );
+
 
 console.log(process.stdout.columns);
 

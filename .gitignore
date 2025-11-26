@@ -1,10 +1,9 @@
 node_modules
 dist/
 *.log
-*.txt
 *.file
 *.lock
 *.exe
-bench/p*.json
+bench/perf/package*.json
 
 /tmp

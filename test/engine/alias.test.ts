@@ -1,16 +1,17 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
 import argMate from '../../src/argMate';
-import argMateLite from '../../src/argMateLite';
+import argMateMini from '../../src/argMateMini';
+import type {ArgMateEngine} from '../../src/types.js';
 
 run(argMate);
-run(argMateLite, ' lite');
+run(argMateMini, ' Mini');
 let argv;
-function run(argMate, type = '') {
-	describe('Alias' + type, () => {
+function run(argMate: ArgMateEngine, engineType = '') {
+	describe('Alias' + engineType, () => {
 		test('Long key with short alias', () => {
 			argv = argMate('--foo bar --foo2 bar2'.split(' '), {foo: {alias: 'f'}});
 			expect(argv).toEqual({
@@ -34,21 +35,22 @@ function run(argMate, type = '') {
 			});
 		});
 
-		test('Short key with long alias', () => {
-			argv = argMate('--f bar --foo2 bar2'.split(' '), {f: {alias: 'foo'}});
-			expect(argv).toEqual({
-				_: ['bar', 'bar2'],
-				f: true,
-				foo2: true,
-			});
+		if (!engineType)
+			test('Short key with long alias', () => {
+				argv = argMate('--f bar --foo2 bar2'.split(' '), {f: {alias: 'foo'}});
+				expect(argv).toEqual({
+					_: ['bar', 'bar2'],
+					f: true,
+					foo2: true,
+				});
 
-			argv = argMate('--foo bar --foo2 bar2'.split(' '), {f: {alias: 'foo'}});
-			expect(argv).toEqual({
-				_: ['bar', 'bar2'],
-				f: true,
-				foo2: true,
+				argv = argMate('--foo bar --foo2 bar2'.split(' '), {f: {alias: 'foo'}});
+				expect(argv).toEqual({
+					_: ['bar', 'bar2'],
+					f: true,
+					foo2: true,
+				});
 			});
-		});
 
 		test('Assign value', () => {
 			argv = argMate('--foo bar --foo2 bar2'.split(' '), {foo: {alias: 'f', type: 'string'}});

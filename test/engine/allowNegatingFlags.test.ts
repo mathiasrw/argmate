@@ -1,26 +1,28 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
 import argMate from '../../src/argMate';
-import argMateLite from '../../src/argMateLite';
+import argMateMini from '../../src/argMateMini';
+import type {ArgMateEngine} from '../../src/types.js';
 
 run(argMate);
-run(argMateLite, ' lite');
+run(argMateMini, ' Mini');
 
-function run(argMate, type = '') {
-	describe('allowNegatingFlags' + type, () => {
-		test.if(!type)('Default', () => {
-			let argv = argMate('---no-foo bar'.split(' '));
-			expect(argv).toEqual({
-				_: ['bar'],
-				foo: false,
+function run(argMate: ArgMateEngine, engineType = '') {
+	describe('allowNegatingFlags' + engineType, () => {
+		if (!engineType)
+			test('Default', () => {
+				const argv = argMate('---no-foo bar'.split(' '));
+				expect(argv).toEqual({
+					_: ['bar'],
+					foo: false,
+				});
 			});
-		});
 
-		test.if(!type)('Disabled', () => {
-			let argv = argMate('--no-foo bar'.split(' '), {}, {allowNegatingFlags: false});
+		test('Disabled', () => {
+			const argv = argMate('--no-foo bar'.split(' '), {}, {allowNegatingFlags: false});
 			expect(argv).toEqual({
 				_: ['bar'],
 				noFoo: true,

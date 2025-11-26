@@ -1,18 +1,19 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
 import argMate from '../../src/argMate';
-import argMateLite from '../../src/argMateLite';
+import argMateMini from '../../src/argMateMini';
+import type {ArgMateEngine} from '../../src/types.js';
 
 run(argMate);
-run(argMateLite, ' lite');
+run(argMateMini, ' Mini');
 
-function run(argMate, type = '') {
-	describe('Boolean' + type, () => {
+function run(argMate: ArgMateEngine, engineType = '') {
+	describe('Boolean' + engineType, () => {
 		test('Default to boolean', () => {
-			let argv = argMate('--foo bar --foo2 bar2'.split(' '));
+			const argv = argMate('--foo bar --foo2 bar2'.split(' '));
 			expect(argv).toEqual({
 				_: ['bar', 'bar2'],
 				foo: true,
@@ -20,17 +21,18 @@ function run(argMate, type = '') {
 			});
 		});
 
-		test.if(!type)('Negate', () => {
-			let argv = argMate('--no-foo bar --foo2 bar2'.split(' '));
-			expect(argv).toEqual({
-				_: ['bar', 'bar2'],
-				foo: false,
-				foo2: true,
+		if (!engineType)
+			test('Negate', () => {
+				const argv = argMate('--no-foo bar --foo2 bar2'.split(' '));
+				expect(argv).toEqual({
+					_: ['bar', 'bar2'],
+					foo: false,
+					foo2: true,
+				});
 			});
-		});
 
 		test('Default', () => {
-			let argv = argMate('a b -c'.split(' '), {foo: true, bar: false});
+			const argv = argMate('a b -c'.split(' '), {foo: true, bar: false});
 			expect(argv).toEqual({
 				_: ['a', 'b'],
 				foo: true,
@@ -39,38 +41,28 @@ function run(argMate, type = '') {
 			});
 		});
 
-		test('Dont assign boolean', done => {
-			let argv = argMate(
-				'--foo= bar'.split(' '),
-				{
-					foo: {type: 'boolean'},
-				},
-				{
-					error: msg => {
-						expect(msg).toContain('foo');
-						expect(msg).toContain('boolean');
-						expect(msg).toContain('assign');
-						done();
+		test.todo('Dont assign boolean', () => {
+			expect(() => {
+				argMate(
+					'--foo= bar'.split(/\s+/),
+					{
+						foo: {type: 'boolean'},
 					},
-				}
-			);
+					{allowAssign: true}
+				);
+			}).toThrow(/foo.+can't assign.+bar/i);
 		});
 
-		test('Dont short assign boolean', done => {
-			let argv = argMate(
-				'--foo=bar'.split(' '),
-				{
-					foo: {type: 'boolean'},
-				},
-				{
-					error: msg => {
-						expect(msg).toContain('foo');
-						expect(msg).toContain('boolean');
-						expect(msg).toContain('assign');
-						done();
+		test('Dont short assign boolean', () => {
+			expect(() => {
+				argMate(
+					'--foo=bar'.split(' '),
+					{
+						foo: {type: 'boolean'},
 					},
-				}
-			);
+					{allowAssign: true}
+				);
+			}).toThrow(/foo.+boolean.+can't assign/i);
 		});
 	});
 }

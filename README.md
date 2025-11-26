@@ -1,5 +1,4 @@
-
-![mamate](https://github.com/mathiasrw/argmate/assets/1063454/b63fe097-dc1b-49c2-919e-cd665024e34d)
+![ArgMate](https://github.com/mathiasrw/argmate/assets/1063454/b63fe097-dc1b-49c2-919e-cd665024e34d)
 
 # ArgMate
 
@@ -26,50 +25,55 @@ yargs-parser    67,417 ops/sec ±0.39% (97 runs sampled)         135x
 
 **Meet ArgMate**, a CLI parameter parser that's not just fast - it's 4-5 times faster than other parsers focused on speed, while still being feature-rich. _But how?!?_ A computer processes instructions at a set pace. To get results faster, the only option is to do fewer things. By minimising how many times variables are touched and keeping those operations close together, the implementation enables efficient caching of data, resulting in fewer CPU cycles to get stuff done.
 
-## Installation
+## Usage
 
 ```sh
+bun add argmate
+# or
 yarn add argmate
 # or
 npm install argmate
-```
-
-## Usage
-
-```js
-argMate(arguments, [parameterDetails [, config ]]);
-```
+````
 
 ## Examples
 
-### Getting started
 
-ArgMate follows traditional CLI notations - similar to yargs and mri. Here are some simple examples:
+Getting parameters from CLI command `node index.js --foo=bar -X .md`
 
 ```js
 import argMate from 'argmate';
-
 let argv;
-
-// By default, parameters are treated as boolean flags
-// Non-parameters are stored in the `_` property of the output
-argv = argMate(['--foo', 'bar', '-i']);
-// {_: ['bar'], foo: true, i: true}
-
-// Use the `=` notation for assignment, with or without seperation to the value
-// Type is inferred from the value (string or number)
-argv = argMate(['--foo=', 'bar', '-i=123']);
-// {_: [], foo: 'bar', i: 123}
-
-// Setting a default value makes the parser treat it as a parameter that must be assigned
-// The type is guessed based on the default value
-argv = argMate(['--foo', 'bar2'], { foo: 'bar', i: 42 });
-// {_: [], foo: 'bar2', i: 42}
-
-// Example running params from CLI `node index.js --foo=bar -X .md`
-argv = argMate(process.argv.slice(2));
-// { _: ['.md'], foo: "bar", X: true }
+argv = argMate(process.argv.slice(2)); // Slice(2) to ignore the node executable and the path to your script
+console.log(argv);
+// {foo: "bar", X: true, _: ['.md']}
 ```
+
+
+By default, parameters are treated as boolean flags. Non-parameters are stored in the `_` property of the output
+
+
+```js
+argMate(['--foo', 'bar', '-i']);
+// {_: ['bar'], foo: true, i: true}
+```
+
+
+
+
+Use the `=` notation for assignment, with or without separation to the value. Type is inferred from the value (string or number).
+
+```js
+argMate(['--foo=', 'bar', '-i=123']);
+// {_: [], foo: 'bar', i: 123}
+```
+
+Setting a default value of a parameter in the config will ensure the parameter is always present in the output. The type is derived from the default value.
+
+```js
+argMate(['--foo', 'bar2'], { foo: 'bar', i: 42 });
+// {_: [], foo: 'bar2', i: 42}
+```
+
 
 ### Default values and limiting input to known parameters
 
@@ -80,17 +84,18 @@ import argMate from 'argmate';
 
 const args = process.argv.slice(2);
 
-// Define parameter types and default values
-const params = {
-	foo: 10,	// --foo is expected to be an integer, default: 10
-	bar: false  // --bar is expected to be a boolean, default: false
+// Define what parameters you expect
+const config = {
+	foo: {default: 10},	// --foo is expected to be an integer and will defaults to 10 if not set
+	bar: {default: false}  // --bar is expected to be a boolean and will default to false if not set
 };
 
-const config = {
+// Define how argMate is to behave
+const settings = {
 	allowUnknown: false  // Only allow specified parameters (--foo and --bar)
 };
 
-const argv = argMate(args, params, config);
+const argv = argMate(args, config, settings);
 ```
 
 Same example but a bit shorter
@@ -100,8 +105,8 @@ import argMate from 'argmate';
 
 const argv = argMate(process.argv.slice(2), 
 	{
-		foo: 10,   
-		bar: false 
+		foo: 10,   // shorthand for {default: 10} is to set the default value directly
+		bar: false // shorthand for {default: false} is to set the default value directly
 	}, {
 		allowUnknown: false 
 	});
@@ -116,23 +121,23 @@ import argMate, { argInfo } from 'argmate';
 
 const args = process.argv.slice(2);
 
-const params = {
+const config = {
 	start: {
 		default: 0,
 		alias: ['s']
 	},
 	steps: {
-		type: 'number',
+		type: 'int',
 		mandatory: true,
 		alias: ['l', 'loops'],
-		valid: v => v > 0  // Validate the input
+		valid: v => v > 0  // Validate the input is larger than zero
 	},
 	help: {
 		alias: ['h']
 	}
 };
 
-const config = {
+const settings = {
 	allowUnknown: false,
 	error: msg => {
 		console.error('Error:', msg);
@@ -140,7 +145,7 @@ const config = {
 	}
 };
 
-const argv = argMate(args, params, config);
+const argv = argMate(args, config, settings);
 
 // Display help and exit if the help flag is set
 if (argv.help) {
@@ -155,218 +160,210 @@ for (let i = argv.start; i < argv.start + argv.steps; i++) {
 ```
 
 
-### Enforcing parameter types and limiting allowed values
 
-You can provide default values and enforce that no other parameters are allowed:
 
-```js
-import argMate from 'argmate';
+## API Reference
 
-const args = process.argv.slice(2);
-
-// Define parameter types and default values
-const params = {
-    foo: 10,    // --foo is expected to be an integer, default: 10
-    bar: false  // --bar is expected to be a boolean, default: false
-};
-
-const config = {
-    allowUnknown: false  // Only allow specified parameters (--foo and --bar)
-};
-
-const argv = argMate(args, params, config);
-```
-
-Same example but a bit shorter
-
-```js
-import argMate from 'argmate';
-
-const argv = ArgMate(process.argv.slice(2), 
-	{
-		foo: 10,   
-		bar: false 
-	}, {
-    	allowUnknown: false 
-	});
-```
-
-### Real world example
-
-Here's a more comprehensive example demonstrating additional features:
+The `argMate` function has the following signature:
 
 ```javascript
-import argMate, { argInfo } from 'argmate';
-
-const args = process.argv.slice(2);
-
-const params = {
-    start: {
-        default: 0,
-        alias: ['s']
-    },
-    steps: {
-        type: 'number',
-        mandatory: true,
-        alias: ['l', 'loops'],
-        valid: v => v > 0  // Validate the input
-    },
-    help: {
-        alias: ['h']
-    }
-};
-
-const config = {
-    allowUnknown: false,
-    error: msg => {
-        console.error('Error:', msg);
-        process.exit(1);
-    }
-};
-
-const argv = argMate(args, params, config);
-
-// Display help and exit if the help flag is set
-if (argv.help) {
-    console.log(argInfo());
-    process.exit(0);
-}
-
-// Use the parsed arguments
-for (let i = argv.start; i < argv.start + argv.steps; i++) {
-    console.log(i);
-}
+argMate(<arguments>, [<config> [, <settings> ]]);
 ```
 
+### Parameter Configuration
 
-## Configuration
+The second argument is a config object that defines the parameters you expect, their types, aliases, and behavior.
 
-### Params
+```javascript
+const config = {
+	// Each key corresponds to a parameter name (e.g., --hight)
+	hight: {
+		// The expected data type.
+		// Can be: 'string', 'boolean', 'bool', 'number', 'int', 'float', 'hex', 
+		// or array types: 'string[]'/'array', 'boolean[]', 'bool[]', 'number[]', 'int[]', 'float[]', 'hex[]'
+		// If not set, type is detemined form the value of  from `default`, or defaults to boolean.
+		type: 'int',
 
-the second parameter for argMate is a a configuration object defining the parameters you expect and their propeties
+		// The default value if the parameter is not provided in the input.
+		// If type is not specified, the type will be determined from the default value.
+		default: 'val',
 
-```js
-const params = {
-	// The object returned from argMate will only have propety names provided in this object (foo in this example) But see outputAlias config below 
-	foo: {
-		type: 'string', 				// boolean | string | number | float | int | hex | array | string[] | number[] | float[] | int[] | hex[]. Optional. Defaults to boolean.
-		default: 'val', 				// The default value for the parameter. If the type is not specified, the type will be determined from this field. Optional. 
-		mandatory: true, 				// Calls config.error if the value is not provided. No effect if used in combination with "default".
-		alias: [], 						// Other values to be treated as this parameter. Also accepts a string with a single value.
-										// If you camelCase the property name, it will treat kebab-case of the word as an alias (so fooBar will automaticly have foo-bar as alias). Can also be a comma seperated string
-		conflict: [], 					// Other keys to be treated as conflicting. Also accepts a single string. Can also be a comma seperated string. 
-		valid: () => {}|[], 				// Function to check if the value is valid (will call config.error if not valid). Can also be an array of valid values (case sensitive). If you want case insensitive make a function with a regex valid:v=>/foo|bar/i.test(v) will accept both Foo and BAR.
-		transform: 						// function that will transform the value. Example: trim values by using transform:v=>v.trim();
-		describe: 'Description here', 	// A description of the parameter. Will be used for the help text (see below).
+		// A list of alternate names for the parameter.
+		// can also be a string witn a single value or comma seperated values
+		alias: ['s'],
+
+		// An array of other parameters that cannot be used in the same input.
+		// can also be a string witn a single value or comma seperated values
+		conflict: ['range'],
+
+		// A function or an array to validate the parameter's value.
+		// If the function returns false, the error handler is called.
+		valid: (v) => {v >= 0},
+
+		// A function to modify the value before it's returned.
+		transform: (v) => v.trim(),
+	
+		// Makes the parameter required in the input. The error handler is called if it's missing.
+		mandatory: false,
+
+		// A description used for generating the help text.
+		describe: 'The starting number for the loop.',
 	},
 };
 ```
 
-### Config
+### Settings
 
-```js
-// THe default values of all possible porperties of the config object
-const config = {
-	error: msg => {throw msg},		// This function will be called when there is a problem with input data (foreample if you try to assign a value to a parameter you have defined as boolean). Defaults to throwing the error messages.
-	panic: msg => {throw msg},		// This function will be called when there is a problem with the configuration of the parameters. YOu should only encounter these during development. Defaults to throwing the error messages. 
-	allowUnknown: true, 	// Allows you to provie parameters not defined in the config objecet
-	allowNegatingFlags: true, 				// Will let you prepend boolean parameters with "no-" provide the value as false. If so, --no-foo will result in {'_':[], 'foo': false}. 
-	allowKeyNumValues: true		// Allows you to use ultra short notations like '-r255' to set -r = 255 
-	allowAssign: true			// Allow the use of = after a parameter to indicate that the next value should to be assigned as a value. Works both for the value as part of the same parameter (-p=2) or the value in the next argument (-p= 2)
-	allowBoolString: true		// Let you assign boolean parameters from strings like true|yes|on|false|no|off
-	strict: false				// Will set all allow* propeties to false. Individual paramters can overwrite this by also being provided. 
-	autoCamelKebabCase: true	// Let you treat input like 'foo-bar' as 'fooBar'
-	outputAlias: false			// If set to true the returned data object will contain one property per parameter plus one for each alias. (Normally --foo with -f as alias will only come as {foo:...}. If this option is set to true it will output {foo:..., f: ...})
-	outputInflate:false			// Will expand keys with dots in them into nested objects (--a.b=22 will result in {a:{b:22}})		
-	intro: 'Intro Text', 	// Text that goes above the information about each parameter in the help text.
-	outro: 'Outro Text', 	// Text that goes below the information about each parameter in the help text.
+The third argument is a settings object that controls the overall behavior of the parser.
+
+```javascript
+const settings = {
+	// The function invoked when there's an input error (e.g., validation fails)
+	// Defaults to throwing an error.
+	error: msg => {throw msg},
+
+	// The function invoked for configuration errors (e.g., invalid config or settings)
+	// Defaults to throwing an error.
+	panic: msg => {throw msg},
+
+	// Allow any parameter as part of the input
+	// If false only parameters defined in the config object are allowed in the input
+	allowUnknown: true,
+
+	// Allow allow negating boolean flags with a 'no-' prefix (e.g., --no-color).
+	// If false, boolean flags with a 'no-' in front will be treated as any other parameter. 
+	allowNegatingFlags: true,
+
+	// Allows short-hand number assignment (e.g., -n100 for n=100)
+	// If false, the short-hand number assignment notation will be ginored 
+	// (so `-n100` will become `n100 = true` instead of the default behavour of becoming `n=100`).
+	allowKeyNumValues: true,
+
+	// If true, allows assignment with '=' (e.g., --foo=bar).
+	// If false, parameters with `=` will raise an error instead of assigning 
+	// (`--foo=10` will raise error)
+	allowAssign: true,
+
+	// If true, converts "true", "yes", "on" to boolean true, and vice-versa for false.
+	// If false, strings are not tested for values like "true", "yes", "on" before converted to boolean true 
+	// (and vice-versa for false).
+	allowBoolString: true,
+
+	// A shorthand to set all `allow*` settings to `false`.
+	strict: false,
+
+	// If true, kebab-case args (--foo-bar) automatically become camelCase (fooBar).
+	// If false kebab-case input parameters liike (--foo-bar) will not automatically become camelCase (fooBar).
+	autoCamelKebabCase: true,
+
+	// If true, inflates dot-notation keys into nested objects.
+	// --user.name=mate becomes { user: { name: 'mate' } }
+	outputInflate: false,
+
+	// If true, all arguments after a double dash (--) will be merged into one single argument joined by space.
+	// Default is false.
+	greedy: false,
+
+	// Text to display before the parameter list in the help output.
+	intro: 'My Awesome CLI Tool - Usage:',
+
+	// Text to display after the parameter list.
+	outro: 'For more help, visit https://example.com',
 };
 ```
 
+### Help Text Generation (`argInfo`)
 
-### Help Text
+You can call `argInfo()` after invoking `argMate()` to get a CLI-friendly help description based on your configuration.
 
-You can call `argInfo()` after invoking `argMate()` to get a CLI-friendly description.
-
-```js
+```javascript
 import argMate, {argInfo} from 'argmate';
 
 const argv = argMate(
 	process.argv.slice(2),
 	{
-		foo: {type: 'string'},
-		foo2: {type: 'string'},
+		foo: {describe: 'A foo parameter.', type: 'string'},
+		bar: {describe: 'A bar parameter.', alias: 'b'},
 	},
 	{
-		intro: 'Introduction here', 	// Text to add above the information about each parameter in the help text.
-		outro: 'See you later!', 		// Text to add below the information about each parameter in the help text.
+		intro: 'Introduction here',
+		outro: 'See you later!',
 	}
 );
 
 console.log(
 	argInfo({
-		width: 100,			// Max character limit of the width of the output. 
-		format: 'cli', 		// cli | markdown. Default CLI. 
-		voidIntro: false, 	// Avoid including the intro. Default false.
-		voidOutro: false, 	// Avoid including the outro. Default false .
+		width: 100,			// Max character limit for the output width.
+		format: 'cli', 		// 'cli' | 'markdown'. Default is 'cli'.
+		voidIntro: false, 	// If true, omits the intro text.
+		voidOutro: false, 	// If true, omits the outro text.
 	})
 );
 ```
 
-## Notes
-- Demonstrate how to use macros to pregenerate engineConfig to make things even faster. manual or via https://bun.sh/docs/bundler/macros - https://bun.sh/docs/bundler/macros#export-condition-macro
-- If you provide array kind of types (like string[]) you can trust the value is alwas an array. If no values provided the array is emptly. 
-- If you dont specify, you get some help, but not consistency. If you specify you know exactly what you get. 
-- Defaults to consider unknown params as flags. IF you want unknown things to be assigned you add a = behind the flag.
-	 - undefined parameters will default to being a boolean. If you want to assign values you need to A) define a type (or a default value) in the config obj, or B) add "=" to the parameter in the inputs
+## Please note
+- If you provide array kind of types (like string[]) you can trust the value is always an array. If no values are provided the array is empty. 
+- If you don't specify, you get help, but not consistency. If you specify you know exactly what you get. 
+ - Unknown parameters will be treated as booleans. If you want to assign a value to an unknown parameter you need to A) define a type or a default value in the config obj, or B) add "=" at the end of the parameter in the inputs.
 - If you provide the same alias to two parameters, the alias will stay with the first parameter you define. 
-- for defined params you need to provide int, number or float as type for it to be a number in the resulting data object
-			expect(
-				argMate(['--host', 'localhost', '--port', '555'], {
-					host: '',
-					port: 0,
-				})
-			).toEqual({
-				host: 'localhost',
-				port: 555,
-				_: [],
-			});
-
-- but if you have not defined the param and provide is as assigned then numbers will be identified and provided as value
-
-			expect(argMate(['--host=', 'localhost', '--port=', '555'], {})).toEqual({
-				host: 'localhost',
-				port: 555,
-				_: [],
-			});
-			expect(argMate(['--host=localhost', '--port=55.5'], {})).toEqual({
-				host: 'localhost',
-				port: 55.5,
-				_: [],
-			});
+- for defined config you need to provide int, number or float as type for it to be a number in the resulting data object
+- but if you have not defined the parameter and assign a value then numerical values will beidentified and provided as a value
 
 
 
+## argMateMini
 
-### lite quirks
+Sometimes all you want is no fuss and a bit more speed. If you don't need magic and convinience, then `argMateMini` is your friend.
 
-- Lite will not convert your 0x prepended hexvalues to int
+```javascript
+import argMate from 'argmate/mini';
+```
 
+`argMateMini` is a stripped-down version of `argMate` with only the essential aspects for common use cases:
 
-### ideas
-- ? Flag to outoconvert _ values to int when convertable? (like deno)
-- We do not support autoconverting magic strings like "true" and "false" 
-	- maybe we should have an option to convert magic strings...
-- ? input type json thet is parsed and added as data?
-- ? Commaseperated list to array?
- 
+*   No parameter conflict detection
+*   No parameter value transformation
+*   No parameter value validation
+*   No hex conversion from `0x` notation to integer
+*   No flag negation like the `--no-flag` syntax.
+*   No ultra-short assignments like `-r255`.
+*   Only numeric values are auto-converted; all other values remain strings.
 
 ---
 
-Please note that argMate is an [OPEN open source software](http://open-oss.com) project.
-This means that individuals making significant and valuable contributions are given commit access to the project to contribute as they see fit. This project is more like an open wiki than a standard guarded open source project.
+Sometimes all you want is simplicity, speed and a minimal footprint. If you dont need too much magic and convinience, then argMateMini is your friend. 
 
-[![OPEN open source software](https://img.shields.io/badge/Open--OSS-%E2%9C%94-brightgreen.svg)](http://open-oss.com)
+```js
+import argMate from 'argmate/mini';
+```
+
+ArgMateMini contains all the essense of CLI parsing and, to be frank, will be the best fit for most use cases. But compared to it's big brother _argMate_ it has:
+- No parameter conflict detection
+- No arameter value transformation
+- No parameter value validation
+- No emojis and fancy unicode in parameter names
+
+It also does not recognise slightly more escotic aspects of the traditions in CLI parameter formats:
+- No flag negation like the `--no-flag` syntax.
+- No ultra short assignments with notation like `-r255` as a shorthand for -r=255
+
+Only numeric values are auto-converted, all other values remain strings:
+- No hex conversion of `0x...`, 
+- No magic string conversion to boolean from true/false, yes/no, on/off
+
+Eveything else is exactly like argMate, just faster. 
+
+
+# Ideas
+- ? Flag to autoconvert _ values to int when convertible? (like deno)
+- We do not support autoconverting magic strings like "true" and "false" 
+	- maybe we should have an option to convert magic strings...
+- ? input type json that is parsed and added as data?
+- ? comma-separated list to array?
+- Demonstrate how to use macros to pregenerate engineConfig to make things even faster. manual or via https://bun.sh/docs/bundler/macros - https://bun.sh/docs/bundler/macros#export-condition-macro
+- Add bool as phsynonym for boolean parameter type
+
+ 
 
 ## License
 

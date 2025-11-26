@@ -1,0 +1,98 @@
+
+arg: v5.0.2
+commander: v14.0.2
+meow: v14.0.0
+yargs-parser: v22.0.0
+minimist: v1.2.8
+mri: v1.2.0
+nopt: v9.0.0
+oclif: v4.8.0
+sade: v1.8.1
+yargs: v18.0.0
+argmate: v0.8.3-v083-ce63abe
+
+
+node ... --foo=bar -is foobar
+
+Benchmark:
+arg                             x 445,239 ops/sec ±11.97% (86 runs sampled)
+commander                       x 237,131 ops/sec ±0.28% (99 runs sampled)
+meow                            x 181 ops/sec ±3.40% (77 runs sampled)
+minimist                     x 2,338,833 ops/sec ±0.36% (99 runs sampled)
+mri                          x 16,680,624 ops/sec ±0.56% (98 runs sampled)
+nopt                         x 1,244,580 ops/sec ±2.21% (96 runs sampled)
+oclif                        x 64,924 ops/sec ±12.17% (64 runs sampled)
+sade                         x 257,366 ops/sec ±14.48% (86 runs sampled)
+yargs                        x 4,450 ops/sec ±10.55% (67 runs sampled)
+yargs-parser                 x 182,535 ops/sec ±1.70% (87 runs sampled)
+argmate                      x 3,795,141 ops/sec ±3.16% (87 runs sampled)
+<Test #12> x 3,397,432 ops/sec ±11.53% (45 runs sampled)
+argmate engine               x 4,043,058 ops/sec ±1.56% (93 runs sampled)
+argmate engine + config      x 14,999,666 ops/sec ±0.99% (95 runs sampled)
+argmate engine mini          x 4,610,885 ops/sec ±3.47% (86 runs sampled)
+argmate engine mini + config x 20,764,841 ops/sec ±1.20% (86 runs sampled)
+argmate mini                 x 4,952,433 ops/sec ±1.14% (86 runs sampled)
+<Test #18> x 4,754,511 ops/sec ±4.20% (88 runs sampled)
+
+bun ... --foo=bar -is foobar
+
+Benchmark:
+arg                             x 943,278 ops/sec ±0.67% (98 runs sampled)
+commander                       x 234,224 ops/sec ±3.29% (94 runs sampled)
+meow                            x 7,832 ops/sec ±0.56% (97 runs sampled)
+minimist                     x 1,474,022 ops/sec ±0.31% (98 runs sampled)
+mri                          x 3,253,827 ops/sec ±0.34% (95 runs sampled)
+nopt                         x 475,370 ops/sec ±0.26% (99 runs sampled)
+oclif                        x 253,569 ops/sec ±7.95% (72 runs sampled)
+sade                         x 341,133 ops/sec ±15.45% (71 runs sampled)
+yargs                        x 8,249 ops/sec ±9.92% (75 runs sampled)
+yargs-parser                 x 45,830 ops/sec ±19.32% (60 runs sampled)
+argmate                      x 1,638,369 ops/sec ±12.58% (59 runs sampled)
+<Test #12> x 1,464,496 ops/sec ±16.75% (58 runs sampled)
+argmate engine               x 1,480,735 ops/sec ±21.58% (56 runs sampled)
+argmate engine + config      x 5,925,125 ops/sec ±15.67% (51 runs sampled)
+argmate engine mini          x 1,704,071 ops/sec ±13.37% (72 runs sampled)
+argmate engine mini + config x 6,486,883 ops/sec ±6.07% (84 runs sampled)
+argmate mini                 x 1,659,097 ops/sec ±10.36% (40 runs sampled)
+<Test #18> x 1,375,708 ops/sec ±14.03% (59 runs sampled)
+
+node ... --name=me bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo "a b c d e f g h i -j k l m n" -- a b c d e f g -h i j k
+
+Benchmark:
+arg                             x 507,158 ops/sec ±0.27% (95 runs sampled)
+commander                       x 225,338 ops/sec ±0.45% (100 runs sampled)
+meow                            x 180 ops/sec ±4.07% (78 runs sampled)
+minimist                     x 1,545,734 ops/sec ±0.71% (95 runs sampled)
+mri                          x 11,740,241 ops/sec ±0.68% (93 runs sampled)
+nopt                         x 140,939 ops/sec ±4.57% (95 runs sampled)
+oclif                        x 40,070 ops/sec ±5.78% (72 runs sampled)
+sade                         x 237,911 ops/sec ±9.73% (85 runs sampled)
+yargs                        x 5,070 ops/sec ±5.92% (81 runs sampled)
+yargs-parser                 x 171,544 ops/sec ±1.69% (94 runs sampled)
+argmate                      x 4,856,054 ops/sec ±0.97% (92 runs sampled)
+<Test #12> x 4,897,769 ops/sec ±0.88% (56 runs sampled)
+argmate engine               x 4,446,473 ops/sec ±3.49% (88 runs sampled)
+argmate engine + config      x 16,270,880 ops/sec ±4.04% (87 runs sampled)
+argmate engine mini          x 5,831,347 ops/sec ±1.22% (89 runs sampled)
+argmate engine mini + config x 21,968,619 ops/sec ±0.86% (89 runs sampled)
+argmate mini                 x 5,418,615 ops/sec ±3.70% (88 runs sampled)
+<Test #18> x 5,643,695 ops/sec ±1.55% (89 runs sampled)
+
+bun ... --name=me bare -cats woo -h awesome --multi=quux --key value --no-meep --blatzk=1000 -fp node my-program.js --many1 5 --many1 null --many1 foo "a b c d e f g h i -j k l m n" -- a b c d e f g -h i j k
+
+Benchmark:
+arg                             x 378,854 ops/sec ±2.80% (96 runs sampled)
+Usage: test [options]
+
+Options:
+  --foo <value>     foo option
+  -i                i flag
+  -s                s flag
+  --name <value>    name option
+  --multi <value>   multi option
+  --key <value>     key option
+  --no-meep         no-meep flag
+  --blatzk <value>  blatzk option
+  --many1 <value>   many1 option
+  -h, --help        display help for command
+

@@ -1,18 +1,19 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
 import argMate from '../../src/argMate';
-import argMateLite from '../../src/argMateLite';
+import argMateMini from '../../src/argMateMini';
+import type {ArgMateEngine} from '../../src/types.js';
 
 run(argMate);
-run(argMateLite, ' lite');
+run(argMateMini, ' Mini');
 
-function run(argMate, type = '') {
-	describe('Mandatory' + type, () => {
+function run(argMate: ArgMateEngine, engineType = '') {
+	describe('Mandatory' + engineType, () => {
 		test('Default', () => {
-			let argv = argMate('--foo bar'.split(' '), {
+			const argv = argMate('--foo bar'.split(' '), {
 				foo: {mandatory: true},
 			});
 			expect(argv).toEqual({
@@ -22,7 +23,7 @@ function run(argMate, type = '') {
 		});
 
 		test('with default', () => {
-			let argv = argMate('--foo bar'.split(' '), {
+			const argv = argMate('--foo bar'.split(' '), {
 				foo: {mandatory: true, default: 'abc'},
 			});
 			expect(argv).toEqual({
@@ -30,19 +31,12 @@ function run(argMate, type = '') {
 				foo: 'bar',
 			});
 		});
-		test('missing', done => {
-			let argv = argMate(
-				'--bar'.split(' '),
-				{
+		test('missing', () => {
+			expect(() => {
+				argMate('--bar'.split(' '), {
 					foo: {mandatory: true},
-				},
-				{
-					error: msg => {
-						expect(msg).toContain('mandatory');
-						done();
-					},
-				}
-			);
+				});
+			}).toThrow(/mandatory/i);
 		});
 	});
 }

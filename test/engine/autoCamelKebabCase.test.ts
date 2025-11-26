@@ -1,16 +1,24 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
 import argMate from '../../src/argMate';
-import argMateLite from '../../src/argMateLite';
+import argMateMini from '../../src/argMateMini';
+import type {ArgMateConfig, ArgMateSettings} from '../../src/types';
 
 run(argMate);
-run(argMateLite, ' lite');
+run(argMateMini, ' Mini');
 let argv;
 
-function run(argMate, type = '') {
+function run(
+	argMate: (
+		args: string[],
+		config?: ArgMateConfig,
+		settings?: ArgMateSettings
+	) => {[key: string]: any},
+	type = ''
+) {
 	describe('autoCamelKebabCase' + type, () => {
 		test('Default', () => {
 			argv = argMate('--foo-bar 234'.split(' '), {fooBar: {type: 'int'}});
@@ -44,7 +52,7 @@ function run(argMate, type = '') {
 			});
 		});
 
-		test('CamelCaseing with single char params ?', () => {
+		test('CamelCaseing with single char config', () => {
 			argv = argMate('-F -f -a=1 -A=2'.split(' '), {}, {autoCamelKebabCase: false});
 			expect(argv).toEqual({
 				_: [],
@@ -53,8 +61,10 @@ function run(argMate, type = '') {
 				a: 1,
 				A: 2,
 			});
+		});
 
-			argv = argMate('-F -f -a=1 -A=2'.split(' '), {}, {autoCamelKebabCase: false});
+		test('Not CamelCaseing with single char config', () => {
+			argv = argMate('-F -f -a=1 -A=2'.split(' '), {}, {autoCamelKebabCase: true});
 			expect(argv).toEqual({
 				_: [],
 				F: true,

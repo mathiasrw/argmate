@@ -1,6 +1,6 @@
 {
 	"name": "argmate",
-	"version": "0.8.2",
+	"version": "0.8.3",
 	"author": "Mathias Wulff",
 	"description": "Fast CLI parameter parsing. Zero dependencies. Good DX. Pre-compile for turbo speed.",
 	"license": "CC-BY-SA-4.0",
@@ -27,37 +27,70 @@
 		"yargs",
 		"meow"
 	],
-	"module": "dist/argMate.js",
 	"type": "module",
-	"types": "src/types.d.ts",
-	"main": "dist/argMate.js",
+	"types": "./dist/types.d.ts",
+	"main": "./dist/cjs/argMate.cjs",
+	"module": "./dist/argMate.js",
 	"exports": {
-		"import": "./dist/argMate.js",
-		"macro": "./dist/argMate.macro.js"
+		".": {
+			"import": "./dist/argMate.js",
+			"require": "./dist/cjs/argMate.cjs",
+			"types": "./dist/types.d.ts"
+		},
+		"./mini": {
+			"import": "./dist/argMateMini.js",
+			"require": "./dist/cjs/argMateMini.cjs",
+			"types": "./dist/types.d.ts"
+		},
+		"./engine": {
+			"import": "./dist/argEngine.js",
+			"require": "./dist/cjs/argEngine.cjs",
+			"types": "./dist/types.d.ts"
+		},
+		"./mini/engine": {
+			"import": "./dist/argEngineMini.js",
+			"require": "./dist/cjs/argEngineMini.cjs",
+			"types": "./dist/types.d.ts"
+		}
 	},
+	"bun-macro": "./dist/argMate.macro.js",
 	"scripts": {
+		"dev": "cmdlook '{src,test}/**/*.{ts,js}' bun tst",
 		"prebuild": "rm -fr dist/",
-		"build": "bun build --target bun src/argMate.ts src/argMateLite.ts src/argEngine.ts src/argEngineLite.ts --outdir dist/ --minify ",
-		"test": "yarn test-only && yarn build && yarn test-bundle",
-		"test-only": "bun test --bail",
+		"build": "bun run build-esm && bun run build-cjs && bun run build-types",
+		"build-cli": "bun build src/argMate-cli.js --compile --outfile dist/argmate-cli",
+		"build-esm": "bun build --target node --format esm src/argMate.ts src/argMateMini.ts src/argEngine.ts src/argEngineMini.ts --outdir dist/ --minify --sourcemap=none",
+		"build-cjs": "bun build --target node --format cjs src/argMate.ts src/argMateMini.ts src/argEngine.ts src/argEngineMini.ts --outdir dist/cjs/ --minify",
+		"build-types": "bunx tsc -p tsconfig.json --emitDeclarationOnly --declaration --outDir dist/types && rexreplace '^#!.*' '' dist/types/*.d.ts && cat dist/types/*.d.ts > dist/types.d.ts && rm -fr dist/types",
+		"lint": "biome check && tsc --noEmit && bun test/misc/types.ai.ts",
+		"test": "bun tst && bun run build-esm && bun run test-bundle",
+		"tst": "biome format --write && CLAUDECODE=1 bun test --bail --timeout 500",
+		"test-only": "bun test --bail --timeout 500",
 		"test-bundle": "sh test/test.bundle.sh",
-		"test-ci": "yarn test-format && yarn test && yarn test-cov",
-		"test-cov": "bun test --coverage --bail",
-		"test-perf-cli": "yarn test && cd bench/ && sh test-cli.sh",
-		"test-perf-js": "yarn test && cd bench/ && sh test-js.sh",
-		"test-format": "prettier --list-different . || (echo 'Please correct file formatting using `yarn format` and try again.' && exit 1)",
-		"format": "prettier --write .",
+		"test-ci": "bun run test-format && bun lint && bun run test && bun run test-cov",
+		"test-cov": "bun test --coverage --bail --timeout 500",
+		"test-perf": "bun run test-perf-cli && bun run test-perf-js",
+		"test-perf-cli": "bun run test && cd bench/perf-v3 && sh test-cli3.sh",
+		"test-perf-js": "bun run test && cd bench/perf-v3 && sh test-js.sh ",
+		"test-format": "biome format",
+		"format": "biome format --write",
+
 		"release": "yarn version",
-		"prerelease": "yarn && yarn format && yarn test",
+		"prerelease": "bun install && bun format && bun run test",
 		"postrelease": "npm publish && git push && git push --tags && echo \"Successfully released version $npm_package_version\"",
 		"prepare": "husky"
 	},
-	"dependencies": {},
-	"devDependencies": {
-		"bun-types": "1.1.21",
+	"dependencies": {
+		"cmdlook": "^1.0.0",
 		"columnify": "^1.6.0",
+		"onchange": "^7.1.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"bun-types": "1.1.21",
+		"dts-bundle-generator": "^9.5.1",
 		"husky": "^9.1.4",
-		"prettier": "3.3.3",
-		"rexreplace": "^7.1.3"
+		"rexreplace": "^7.1.13",
+		"typescript": "^5.9.3"
 	}
 }

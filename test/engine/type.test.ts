@@ -1,31 +1,23 @@
 // https://bun.sh/docs/test/writing
 
 // @ts-ignore
-import {expect, test, describe} from 'bun:test';
+import {describe, expect, test} from 'bun:test';
 
 import argMate from '../../src/argMate';
-import argMateLite from '../../src/argMateLite';
+import argMateMini from '../../src/argMateMini';
+import type {ArgMateEngine} from '../../src/types.js';
 
 run(argMate);
-run(argMateLite, ' lite');
+run(argMateMini, ' Mini');
 
-function run(argMate, caliber = '') {
+function run(argMate: ArgMateEngine, caliber = '') {
 	describe('Provide value type' + caliber, () => {
-		test('Unsupported type', done => {
-			argMate(
-				'--bar'.split(' '),
-				{
+		test('Unsupported type', () => {
+			expect(() => {
+				argMate('--bar'.split(' '), {
 					foo: {type: 'xyz'},
-				},
-				{
-					panic: msg => {
-						expect(msg).toContain('foo');
-						expect(msg).toContain('Invalid type');
-						expect(msg).toContain('xyz');
-						done();
-					},
-				}
-			);
+				});
+			}).toThrow(/Invalid type.*xyz.*parameter.*foo/i);
 		});
 
 		test('Unexpected type will throw', () => {
