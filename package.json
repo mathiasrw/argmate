@@ -1,6 +1,6 @@
 {
 	"name": "argmate",
-	"version": "0.8.3",
+	"version": "0.8.4",
 	"author": "Mathias Wulff",
 	"description": "Fast CLI parameter parsing. Zero dependencies. Good DX. Pre-compile for turbo speed.",
 	"license": "CC-BY-SA-4.0",
@@ -74,7 +74,6 @@
 		"test-perf-js": "bun run test && cd bench/perf-v3 && sh test-js.sh ",
 		"test-format": "biome format",
 		"format": "biome format --write",
-
 		"release": "yarn version",
 		"prerelease": "bun install && bun format && bun run test",
 		"postrelease": "npm publish && git push && git push --tags && echo \"Successfully released version $npm_package_version\"",
