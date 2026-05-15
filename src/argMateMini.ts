@@ -12,8 +12,8 @@ import argEngineMini from './argEngineMini.js';
 
 export default function argMate(
 	args: string[],
-	config?: ArgMateConfig,
-	settings?: ArgMateSettings
+	parameterConfig?: ArgMateConfig,
+	engineSettings?: ArgMateSettings
 ) {
-	return argService(argEngineMini, args, config, settings);
+	return argService(argEngineMini, args, parameterConfig, engineSettings);
 }

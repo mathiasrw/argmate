@@ -24,7 +24,7 @@ function run(argMate, argInfo, engineType = '') {
 		});
 
 		test('Mention param info', () => {
-			argMate('--foo'.split(' '), {bar: 42});
+			argMate('--foo'.split(' '), {bar: {type: 'number', default: 42}});
 			const help = argInfo();
 
 			expect(help).toMatch(/bar/);
@@ -34,11 +34,11 @@ function run(argMate, argInfo, engineType = '') {
 		test('Intro + outro', () => {
 			argMate(
 				'--foo bar --foo2 bar2'.split(' '),
-				{},
 				{
 					intro: 'This is the first line',
 					outro: 'That was amazing - thank you!',
-				}
+				},
+				{}
 			);
 			help = argInfo();
 			expect(help).toMatch(/first line/);

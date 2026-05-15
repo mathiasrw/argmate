@@ -38,19 +38,29 @@
 			"require": "./dist/cjs/argMate.cjs",
 			"types": "./dist/types.d.ts"
 		},
-		"./mini": {
-			"import": "./dist/argMateMini.js",
-			"require": "./dist/cjs/argMateMini.cjs",
-			"types": "./dist/types.d.ts"
-		},
 		"./engine": {
 			"import": "./dist/argEngine.js",
 			"require": "./dist/cjs/argEngine.cjs",
 			"types": "./dist/types.d.ts"
 		},
+		"./mini": {
+			"import": "./dist/argMateMini.js",
+			"require": "./dist/cjs/argMateMini.cjs",
+			"types": "./dist/types.d.ts"
+		},
 		"./mini/engine": {
 			"import": "./dist/argEngineMini.js",
 			"require": "./dist/cjs/argEngineMini.cjs",
+			"types": "./dist/types.d.ts"
+		},
+		"./info": {
+			"import": "./dist/argInfo.js",
+			"require": "./dist/cjs/argInfo.cjs",
+			"types": "./dist/types.d.ts"
+		},
+		"./precompile": {
+			"import": "./dist/compileConfig.js",
+			"require": "./dist/cjs/compileConfig.cjs",
 			"types": "./dist/types.d.ts"
 		}
 	},
@@ -59,8 +69,8 @@
 		"prebuild": "rm -fr dist/",
 		"build": "bun run build-esm && bun run build-cjs && bun run build-types",
 		"build-cli": "bun build src/argMate-cli.js --compile --outfile dist/argmate-cli",
-		"build-esm": "bun build --target node --format esm src/argMate.ts src/argMateMini.ts src/argEngine.ts src/argEngineMini.ts --outdir dist/ --minify --sourcemap=none",
-		"build-cjs": "bun build --target node --format cjs src/argMate.ts src/argMateMini.ts src/argEngine.ts src/argEngineMini.ts --outdir dist/cjs/ --minify --entry-naming [name].cjs --footer 'module.exports = Object.assign(module.exports.default || {}, module.exports)'",
+		"build-esm": "bun build --target node --format esm src/argMate.ts src/argMateMini.ts src/argEngine.ts src/argEngineMini.ts src/argInfo.ts src/compileConfig.ts --outdir dist/ --minify --sourcemap=none",
+		"build-cjs": "bun build --target node --format cjs src/argMate.ts src/argMateMini.ts src/argEngine.ts src/argEngineMini.ts src/argInfo.ts src/compileConfig.ts --outdir dist/cjs/ --minify",
 		"build-types": "bunx tsc -p tsconfig.json --emitDeclarationOnly --declaration --outDir dist/types && rexreplace '^#!.*' '' dist/types/*.d.ts && cat dist/types/*.d.ts > dist/types.d.ts && rm -fr dist/types",
 		"lint": "biome check && tsc --noEmit && bun test/misc/types.ai.ts",
 		"test": "bun tst && bun run build-esm && bun run test-bundle",

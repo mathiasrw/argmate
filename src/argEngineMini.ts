@@ -43,10 +43,11 @@ export default function argEngineMini(
 			_: [],
 		},
 		validate: [],
+		transform: [],
 		mandatory: [],
 		conflict: [],
 		complexDefault: {},
-		settings: {
+		engineSettings: {
 			error: (msg: string) => {
 				throw msg;
 			},
@@ -59,10 +60,19 @@ export default function argEngineMini(
 			allowKeyNumValues: true,
 			allowAssign: true,
 		},
-		config: {},
+		parameterConfig: {},
 	};
 
-	const {mandatory, validate, complexDefault, output, settings, config, conflict} = argProcessObj;
+	const {
+		mandatory,
+		validate,
+		transform,
+		complexDefault,
+		output,
+		engineSettings,
+		parameterConfig,
+		conflict,
+	} = argProcessObj;
 	const _ = output._ as (string | number)[];
 
 	args.reverse(); // Reverse, pop, push, reverse 8.77 times faster than unshft, shift
@@ -88,7 +98,7 @@ export default function argEngineMini(
 
 		// STOP
 		if (LONG && !KEY) {
-			if (settings.greedy) {
+			if (engineSettings.greedy) {
 				output['_'].push(args.reverse().join(' '));
 			} else {
 				output['_'] = output['_'].concat(args.reverse());
@@ -101,7 +111,7 @@ export default function argEngineMini(
 			continue;
 		}
 
-		if (settings.allowAssign) {
+		if (engineSettings.allowAssign) {
 			const i = KEY.indexOf('=');
 			if (-1 < i) {
 				ASSIGN = true;
@@ -111,22 +121,23 @@ export default function argEngineMini(
 		}
 
 		if (!LONG && 1 !== KEY.length) {
-			if (ASSIGN) return settings.error(`Unsupported format: '${arg}'`);
+			if (ASSIGN) return engineSettings.error(`Unsupported format: '${arg}'`);
 			const multi = KEY.split('').map(v => '-' + v);
 			args = args.concat(multi.reverse());
 			continue;
 		}
 
-		if (!config[KEY]) {
-			if (!settings.allowUnknown) return settings.error(`Unknown parameter '${KEY}' not allowed`);
+		if (!parameterConfig[KEY]) {
+			if (!engineSettings.allowUnknown)
+				return engineSettings.error(`Unknown parameter '${KEY}' not allowed`);
 
-			if (settings.autoCamelKebabCase) {
+			if (engineSettings.autoCamelKebabCase) {
 				KEY = KEY.replace(re.kebab2camel, (match, letter) => letter.toUpperCase());
 			}
 
 			if (ASSIGN) {
 				if (!VAL) {
-					if (0 === args.length) return settings.error(`No data provided for '${KEY}'`);
+					if (0 === args.length) return engineSettings.error(`No data provided for '${KEY}'`);
 					VAL = args.pop() || '';
 				}
 				// @ts-ignore
@@ -137,24 +148,24 @@ export default function argEngineMini(
 			continue;
 		}
 
-		const param = config[config[KEY].key || KEY];
+		const param = parameterConfig[parameterConfig[KEY].key || KEY];
 		const type = param.type;
 
 		if ('boolean' === type) {
 			if (ASSIGN)
-				return settings.error(`'${KEY}' is boolean, so can't assign: '${VAL.slice(0, 16)}'`);
+				return engineSettings.error(`'${KEY}' is boolean, so can't assign: '${VAL.slice(0, 16)}'`);
 			output[param.key] = true;
 			continue;
 		}
 
 		if ('count' === param.type) {
-			if (ASSIGN) return settings.error(`'${KEY}' counting, so can't assign: '${arg}'`);
+			if (ASSIGN) return engineSettings.error(`'${KEY}' counting, so can't assign: '${arg}'`);
 			(output[KEY] as number)++;
 			continue;
 		}
 
 		if (!VAL) {
-			if (0 === args.length) return settings.error(`No data provided for '${KEY}'`);
+			if (0 === args.length) return engineSettings.error(`No data provided for '${KEY}'`);
 			VAL = args.pop() || '';
 		}
 
@@ -193,11 +204,15 @@ export default function argEngineMini(
 				break;
 
 			default:
-				return settings.panic(`'${KEY}' got invalid type: '${config[config[KEY].key].type}'`);
+				return engineSettings.panic(
+					`'${KEY}' got invalid type: '${parameterConfig[parameterConfig[KEY].key].type}'`
+				);
 		}
 
-		if (isNaN(num) || !isFinite(num)) {
-			return settings.error(`'${KEY}' value is not a valid ${config[param.key].type}: '${VAL}'`);
+		if (Number.isNaN(num) || !Number.isFinite(num)) {
+			return engineSettings.error(
+				`'${KEY}' value is not a valid ${parameterConfig[param.key].type}: '${VAL}'`
+			);
 		}
 
 		if (Array.isArray(output[param.key])) {
@@ -208,13 +223,13 @@ export default function argEngineMini(
 	}
 
 	for (const key of validate) {
-		const el = config[config[key].key || key];
+		const el = parameterConfig[parameterConfig[key].key || key];
 		let help = '';
 		if ('function' === typeof el.valid) {
 			if (el.valid(output[key])) continue;
 		} else {
 			if (!Array.isArray(el.valid)) {
-				return settings.panic(`"valid" property of '${key}' must be function or array`);
+				return engineSettings.panic(`"valid" property of '${key}' must be function or array`);
 			}
 
 			if (el.valid.includes(output[key])) {
@@ -224,15 +239,30 @@ export default function argEngineMini(
 			help = '. Valid values: ' + JSON.stringify(el.valid);
 		}
 
-		return settings.error(`Invalid value for '${key}': '${output[key]}'` + help);
+		return engineSettings.error(`Invalid value for '${key}': '${output[key]}'` + help);
+	}
+
+	for (const key of transform) {
+		if (undefined === output[key]) continue;
+		const fn = parameterConfig[key].transform;
+		if ('function' !== typeof fn) {
+			return engineSettings.panic(`'${key}' transform must be a function`);
+		}
+		try {
+			output[key] = fn(output[key]);
+		} catch (e) {
+			return engineSettings.error(
+				`'${key}' transform threw: ${e instanceof Error ? e.message : String(e)}`
+			);
+		}
 	}
 
 	for (const key of mandatory) {
 		if (undefined === output[key]) {
-			return settings.error(
+			return engineSettings.error(
 				`'${key.length > 1 ? '--' : '-'}${key}' is mandatory` +
-					(config[config[key].key || key]?.alias?.length
-						? `.  Or use an alias: ${config[config[key].key || key].alias
+					(parameterConfig[parameterConfig[key].key || key]?.alias?.length
+						? `.  Or use an alias: ${parameterConfig[parameterConfig[key].key || key]?.alias
 								?.map((v: string) => (v.length > 1 ? '--' : '-') + v)
 								.join(', ')}`
 						: '')
@@ -241,8 +271,8 @@ export default function argEngineMini(
 	}
 
 	for (let key in complexDefault) {
-		key = config[key].key || key;
-		if (!config.hasOwnProperty(key)) continue;
+		key = parameterConfig[key].key || key;
+		if (!parameterConfig.hasOwnProperty(key)) continue;
 
 		if (undefined === output[key] || !(output[key] as any[]).length) {
 			output[key] = complexDefault[key];

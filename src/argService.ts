@@ -8,13 +8,13 @@ import type {
 	ArgMateResponse,
 } from './types.js';
 
-import argInfoFormat from './argInfo.js';
+import {argInfoFormat, ArgMateHelpConfig} from './argInfo.js';
 
 import {configPreprocessing} from './compileConfig.js';
 
-let config_: ArgMateConfig | undefined;
+let parameterConfig_: ArgMateConfig | undefined;
 
-let settings_: ArgMateSettings | undefined;
+let engineSettings_: ArgMateSettings | undefined;
 
 export function argService<const Config extends ArgMateConfig>(
 	engine: (
@@ -22,22 +22,32 @@ export function argService<const Config extends ArgMateConfig>(
 		argProcessObj?: ArgMateEngineConfig
 	) => ArgMateResponse<Config> | undefined,
 	args: string[],
-	config?: Config,
-	settings?: ArgMateSettings
+	parameterConfig?: Config,
+	engineSettings?: ArgMateSettings
 ): ArgMateResponse<Config> {
-	if (!config && !settings) return engine(args) as ArgMateResponse<Config>;
+	if (!parameterConfig && !engineSettings) return engine(args) as ArgMateResponse<Config>;
 
-	config_ = config ? {...config} : {};
-	settings_ = settings ? {...settings} : {};
+	parameterConfig_ = parameterConfig ? {...parameterConfig} : {};
+	engineSettings_ = engineSettings ? {...engineSettings} : {};
 
-	return engine(args, configPreprocessing(config || {}, settings || {})) as ArgMateResponse<Config>;
+	return engine(
+		args,
+		configPreprocessing(parameterConfig || {}, engineSettings || {})
+	) as ArgMateResponse<Config>;
 }
 
 /** #__PURE__ */ export function argInfo(
 	infoConfig: ArgMateInfoConfig = {},
-	settings?: ArgMateSettings,
-	config?: ArgMateConfig
+	parameterConfig?: ArgMateConfig,
+	engineSettings?: ArgMateSettings
 ) {
+	const mergedEngineSettings = {...(engineSettings_ || {}), ...(engineSettings || {})};
+	const mergedParameterConfig = {...(parameterConfig_ || {}), ...(parameterConfig || {})};
+
+	// Extract help text (intro, outro) from parameterConfig, and keep the rest as parameter definitions
+	const {intro, outro, ...paramConfig} = mergedParameterConfig;
+	const helpConfig: ArgMateHelpConfig = {intro, outro};
+
 	return argInfoFormat(
 		{
 			preIntro: '',
@@ -48,7 +58,7 @@ export function argService<const Config extends ArgMateConfig>(
 			width: 100,
 			...infoConfig,
 		},
-		{...(settings_ || {}), ...(settings || {})},
-		{...(config_ || {}), ...(config || {})}
+		helpConfig,
+		paramConfig
 	);
 }

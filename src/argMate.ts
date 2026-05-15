@@ -14,8 +14,8 @@ export {argEngine};
 
 export default function argMate<const Config extends ArgMateConfig | undefined = undefined>(
 	args: string[],
-	config?: Config,
-	settings?: ArgMateSettings
+	parameterConfig?: Config,
+	engineSettings?: ArgMateSettings
 ): ArgMateResponse<Config> {
-	return argService(argEngine, args, config, settings) as ArgMateResponse<Config>;
+	return argService(argEngine, args, parameterConfig, engineSettings) as ArgMateResponse<Config>;
 }

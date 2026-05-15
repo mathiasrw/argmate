@@ -11,18 +11,19 @@ const strictSettings = {
 };
 
 /** #__PURE__ */ export function precompileConfig(
-	config: ArgMateConfig,
-	settings?: ArgMateSettings
+	parameterConfig: ArgMateConfig,
+	engineSettings?: ArgMateSettings
 ) {
-	return objectToCode(configPreprocessing(config, settings));
+	return objectToCode(configPreprocessing(parameterConfig, engineSettings));
 }
 
 /** #__PURE__ */ export function configPreprocessing(
-	config: ArgMateConfig,
-	settings: ArgMateSettings = {}
+	parameterConfig: ArgMateConfig,
+	engineSettings: ArgMateSettings = {}
 ): ArgMateEngineConfig {
 	const mandatory: string[] = [];
 	const validate: string[] = [];
+	const transform: string[] = [];
 	const conflict: string[] = [];
 	const complexDefault: {[key: string]: string[] | number[]} = {};
 	const output: {[key: string]: unknown} = {
@@ -46,16 +47,16 @@ const strictSettings = {
 		outputInflate: false,
 		intro: '',
 		outro: '',
-		...(settings.strict ? strictSettings : {}),
-		...settings,
+		...(engineSettings.strict ? strictSettings : {}),
+		...engineSettings,
 	};
 
 	const {panic} = finalSettings;
 	const hasOwnPropertyFn = Object.prototype.hasOwnProperty;
 
-	for (const key in config) {
-		if (!hasOwnPropertyFn.call(config, key)) continue;
-		let param = config[key];
+	for (const key in parameterConfig) {
+		if (!hasOwnPropertyFn.call(parameterConfig, key)) continue;
+		let param = parameterConfig[key];
 
 		// If only default value is provided, then transform to object with correct type
 		if (param === null || typeof param !== 'object' || Array.isArray(param)) {
@@ -74,6 +75,10 @@ const strictSettings = {
 			if (param.conflict.length) {
 				conflict.push(key);
 			}
+		}
+
+		if ('function' === typeof param.transform) {
+			transform.push(key);
 		}
 
 		if (undefined !== param.valid) {
@@ -133,20 +138,21 @@ const strictSettings = {
 
 		if (param.alias) {
 			for (const alias of param.alias) {
-				if (undefined === config[alias]) {
-					config[alias] = {key};
+				if (undefined === parameterConfig[alias]) {
+					parameterConfig[alias] = {key};
 				}
 			}
 		}
 
-		config[key] = param;
+		parameterConfig[key] = param;
 	}
 
 	return {
-		config: config as any, // Config has been mutated in place to match EngineFinalConfig structure
-		settings: finalSettings,
+		parameterConfig: parameterConfig as any, // Config has been mutated in place to match EngineFinalConfig structure
+		engineSettings: finalSettings,
 		output,
 		validate,
+		transform,
 		conflict,
 		mandatory,
 		complexDefault,

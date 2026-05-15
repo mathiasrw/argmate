@@ -203,14 +203,14 @@ export interface ArgMateInfoConfig {
 
 export type ArgMateEngine = (
 	args: string[],
-	config?: ArgMateConfig,
-	settings?: ArgMateSettings
+	parameterConfig?: ArgMateConfig,
+	engineSettings?: ArgMateSettings
 ) => {[key: string]: any};
 
 export declare function argMate<const Config extends ArgMateConfig | undefined = undefined>(
 	args: string[],
-	config?: Config,
-	settings?: ArgMateSettings
+	parameterConfig?: Config,
+	engineSettings?: ArgMateSettings
 ): ArgMateResponse<Config>;
 
 /**
@@ -221,10 +221,11 @@ export type ArgMateEngineConfig = {
 	output: {[key: string]: any};
 	mandatory: string[];
 	validate: string[];
+	transform: string[];
 	conflict: string[];
 	complexDefault: {[key: string]: string[] | number[]};
-	settings: EngineSettings;
-	config: EngineFinalConfig;
+	engineSettings: EngineSettings;
+	parameterConfig: EngineFinalConfig;
 };
 
 // ============================================================================

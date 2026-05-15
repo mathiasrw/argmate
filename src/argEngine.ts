@@ -44,11 +44,12 @@ export default function argEngine(
 	const configObj = argProcessObj || {
 		output: {_: []},
 		validate: [],
+		transform: [],
 		mandatory: [],
 		conflict: [],
 		complexDefault: {},
-		config: {},
-		settings: {
+		parameterConfig: {},
+		engineSettings: {
 			error: (msg: string) => {
 				throw new Error(msg);
 			},
@@ -69,11 +70,12 @@ export default function argEngine(
 	const {
 		output,
 		validate,
+		transform,
 		mandatory,
 		conflict,
 		complexDefault,
-		config,
-		settings: {
+		parameterConfig,
+		engineSettings: {
 			error,
 			panic,
 			allowUnknown,
@@ -150,7 +152,7 @@ export default function argEngine(
 		}
 
 		// Key is not a defined parameter
-		if (!config[KEY]) {
+		if (!parameterConfig[KEY]) {
 			if (!allowUnknown) return error(`Unknown parameter '${KEY}' not allowed`);
 
 			if (autoCamelKebabCase && re.isKebab.test(KEY)) {
@@ -172,8 +174,8 @@ export default function argEngine(
 			continue;
 		}
 
-		const theKey = config[KEY].key;
-		const theType = config[theKey || KEY].type;
+		const theKey = parameterConfig[KEY].key;
+		const theType = parameterConfig[theKey || KEY].type;
 
 		if (!VAL && !('count' === theType || ('boolean' === theType && !ASSIGN))) {
 			if (0 === args.length) {
@@ -276,14 +278,14 @@ export default function argEngine(
 	}
 
 	for (const [key, value] of Object.entries(complexDefault)) {
-		if (!hasProp.call(config, key)) continue;
+		if (!hasProp.call(parameterConfig, key)) continue;
 		if (undefined === output[key] || !(output[key] as unknown[]).length) {
 			output[key] = value;
 		}
 	}
 
 	for (const key of validate) {
-		const param = config[key];
+		const param = parameterConfig[key];
 		let help = '';
 		if ('function' === typeof param.valid) {
 			if (param.valid(output[key])) continue;
@@ -292,7 +294,7 @@ export default function argEngine(
 				return panic(
 					`The "valid" property of '${key}' parameter must be a function or an array of valid values`
 				);
-			if (param.valid.includes(output[key])) continue;
+			if ((param.valid as any[]).includes(output[key])) continue;
 			help = '. Please use one of the following values: ' + JSON.stringify(param.valid);
 		}
 		return error(
@@ -300,15 +302,30 @@ export default function argEngine(
 		);
 	}
 
+	for (const key of transform) {
+		if (undefined === output[key]) continue;
+		const fn = parameterConfig[key].transform;
+		if ('function' !== typeof fn) {
+			return panic(`The "transform" property of '${key}' parameter must be a function`);
+		}
+		try {
+			output[key] = fn(output[key]);
+		} catch (e) {
+			return error(
+				`The transform for '${key}' threw: ${e instanceof Error ? e.message : String(e)}`
+			);
+		}
+	}
+
 	for (const key of mandatory) {
 		if (undefined === output[key])
 			return error(
-				`The parameter '${key}' is mandatory.${config[key]?.alias?.length ? ` You can also use an alias: ${config[key].alias.join(', ')}` : ''}`
+				`The parameter '${key}' is mandatory.${parameterConfig[key]?.alias?.length ? ` You can also use an alias: ${parameterConfig[key].alias.join(', ')}` : ''}`
 			);
 	}
 	for (const conflictingKey of conflict) {
 		if (!inputLog.includes(conflictingKey)) continue;
-		const conflicting = config[conflictingKey]?.conflict?.find((value: string) =>
+		const conflicting = parameterConfig[conflictingKey]?.conflict?.find((value: string) =>
 			//const conflicting = config[config[conflictingKey].key]?.conflict?.find((value: string) =>
 			inputLog.includes(value)
 		);
@@ -323,7 +340,7 @@ export default function argEngine(
 			if ('_' === key || !hasProp.call(output, key)) continue;
 			const result = output[key];
 			tempOutput[key] = result;
-			const alias = config[key].alias;
+			const alias = parameterConfig[key].alias;
 			if (!alias) continue;
 			for (const a of alias) {
 				tempOutput[a] = result;

@@ -825,10 +825,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 
 			test('Transform function', () => {
-				expect(argMate(['--name', ' John '], {name: {transform: v => v.trim()}})).toEqual({
-					_: [],
-					name: 'John',
-				});
+				expect(argMate(['--name', ' John '], {name: {transform: (v: string) => v.trim()}})).toEqual(
+					{
+						_: [],
+						name: 'John',
+					}
+				);
 			});
 
 			test('Positional arguments', () => {

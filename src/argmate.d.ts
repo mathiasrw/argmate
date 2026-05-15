@@ -9,28 +9,28 @@ import type {
 
 export default function argMate<const Config extends ArgMateConfig | undefined = undefined>(
 	args: string[],
-	config?: Config,
-	settings?: ArgMateSettings
+	parameterConfig?: Config,
+	engineSettings?: ArgMateSettings
 ): ArgMateResponse<Config>;
 
 export function configPreprocessing(
-	config: ArgMateConfig,
-	settings: EngineSettings,
+	parameterConfig: ArgMateConfig,
+	engineSettings: EngineSettings,
 	precompile: boolean
 ): ArgMateEngineConfig | string;
 
 export function argEngine<Config extends ArgMateConfig>(
-	config: ArgMateEngineConfig & {config: Config}
+	parameterConfig: ArgMateEngineConfig & {parameterConfig: Config}
 ): ArgMateResponse<Config>;
 
 export function argInfoFormat(
 	infoConfig: ArgMateInfoConfig,
-	config: ArgMateConfig,
-	settings: ArgMateSettings
+	parameterConfig: ArgMateConfig,
+	engineSettings: ArgMateSettings
 ): string;
 
 export function argInfo(
 	infoConfig: ArgMateInfoConfig,
-	settings?: ArgMateSettings,
-	config?: ArgMateConfig
+	engineSettings?: ArgMateSettings,
+	parameterConfig?: ArgMateConfig
 ): string;
