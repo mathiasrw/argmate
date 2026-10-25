@@ -79,16 +79,13 @@
 		"postrelease": "npm publish && git push && git push --tags && echo \"Successfully released version $npm_package_version\"",
 		"prepare": "husky"
 	},
-	"dependencies": {
-		"cmdlook": "^1.0.0",
-		"columnify": "^1.6.0",
-		"onchange": "^7.1.0"
-	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
 		"bun-types": "1.1.21",
+		"cmdlook": "^1.0.0",
 		"dts-bundle-generator": "^9.5.1",
 		"husky": "^9.1.4",
+		"onchange": "^7.1.0",
 		"rexreplace": "^7.1.13",
 		"typescript": "^5.9.3"
 	}
