@@ -39,7 +39,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 
 			test('Extremely long value for flag', () => {
 				const longValue = 'a'.repeat(10000);
-				expect(argMate(['--file=', longValue])).toEqual({file: longValue, _: []});
+				expect(argMate(['--file=', longValue])).toEqual({file: '', _: [longValue]});
 			});
 
 			test('Extremely long argument with separator', () => {
@@ -237,10 +237,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			test('Long argument with spaces in value', () => {
 				const longValue =
 					'This is a very long string containing multiple spaces and special characters like @#$%';
-				expect(argMate(['--description=', longValue])).toEqual({
-					description: longValue,
-					_: [],
-				});
+				expect(argMate(['--description=', longValue])).toEqual({description: '', _: [longValue]});
 			});
 
 			test('Repeated flags with both short and long assignments', () => {
@@ -248,7 +245,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 					argMate(['--path=/usr/local/bin', '--path=', '/opt/bin'], {
 						path: {type: 'string[]'},
 					})
-				).toEqual({path: ['/usr/local/bin', '/opt/bin'], _: []});
+				).toEqual({path: ['/usr/local/bin', ''], _: ['/opt/bin']});
 			});
 
 			test.todo('Repeated conflicting flags with alias', () => {

@@ -60,11 +60,14 @@ argMate(['--foo', 'bar', '-i']);
 
 
 
-Use the `=` notation for assignment, with or without separation to the value. Type is inferred from the value (string or number).
+Use the `=` notation for assignment. Type is inferred from the value (string or number). With nothing after the `=` the value is an empty string, and the next argument is not the value.
 
 ```js
-argMate(['--foo=', 'bar', '-i=123']);
+argMate(['--foo=bar', '-i=123']);
 // {_: [], foo: 'bar', i: 123}
+
+argMate(['--foo=', 'bar']);
+// {_: ['bar'], foo: ''}
 ```
 
 Setting a default value of a parameter in the config will ensure the parameter is always present in the output. The type is derived from the default value.

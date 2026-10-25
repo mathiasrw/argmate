@@ -39,7 +39,7 @@ describe('#17 outputAlias with an unknown parameter', () => {
 	});
 
 	test('an unknown parameter with the value in the next argument', () => {
-		expect(argMate(['--bogus=', 'abc'], config(), settings)).toEqual({_: [], bogus: 'abc'});
+		expect(argMate(['--bogus=', 'abc'], config(), settings)).toEqual({_: ['abc'], bogus: ''});
 	});
 
 	test('an unknown parameter that is negated', () => {

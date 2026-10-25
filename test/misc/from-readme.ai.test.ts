@@ -65,7 +65,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 
 		describe('Assignment with = notation', () => {
 			test("Original example: argMate(['--foo=', 'bar', '-i=123'])", () => {
-				expect(argMate(['--foo=', 'bar', '-i=123'])).toEqual({_: [], foo: 'bar', i: 123});
+				expect(argMate(['--foo=', 'bar', '-i=123'])).toEqual({_: ['bar'], foo: '', i: 123});
 			});
 
 			test('Variation: Direct assignment with =', () => {
@@ -74,9 +74,9 @@ function run(argMate: ArgMateEngine, engineType = '') {
 
 			test('Variation: Mixed assignment styles', () => {
 				expect(argMate(['--foo=direct', '--bar=', 'separated', '-x=99'])).toEqual({
-					_: [],
+					_: ['separated'],
 					foo: 'direct',
-					bar: 'separated',
+					bar: '',
 					x: 99,
 				});
 			});

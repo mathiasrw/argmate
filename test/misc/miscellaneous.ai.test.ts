@@ -29,7 +29,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 
 			test('Flag with separated assignment', () => {
-				expect(argMate(['--timeout=', '30'])).toEqual({timeout: 30, _: []});
+				expect(argMate(['--timeout=', '30'])).toEqual({timeout: '', _: ['30']});
 			});
 
 			test('Flag with value containing equal sign', () => {
@@ -44,10 +44,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 
 			test('Flag with quoted value in separated assignment', () => {
-				expect(argMate(['--message=', 'Hello World'])).toEqual({
-					message: 'Hello World',
-					_: [],
-				});
+				expect(argMate(['--message=', 'Hello World'])).toEqual({message: '', _: ['Hello World']});
 			});
 
 			test('Positional arguments', () => {
@@ -139,7 +136,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			test('Flag with no value assignment', () => {
 				expect(() => {
 					argMate(['--timeout='], {timeout: 0}, {allowAssign: true});
-				}).toThrow(/No data provided/i);
+				}).toThrow(/not a valid number/i);
 			});
 
 			if (!engineType)
@@ -213,10 +210,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 
 			test('Flag with value containing spaces', () => {
-				expect(argMate(['--message=', 'Hello World'])).toEqual({
-					message: 'Hello World',
-					_: [],
-				});
+				expect(argMate(['--message=', 'Hello World'])).toEqual({message: '', _: ['Hello World']});
 			});
 
 			test.todo('Flag with array of strings', () => {
@@ -254,8 +248,8 @@ function run(argMate: ArgMateEngine, engineType = '') {
 
 			test.todo('Flag with URL as value', () => {
 				expect(argMate(['--url=', 'https://example.com'])).toEqual({
-					url: 'https://example.com',
-					_: [],
+					url: '',
+					_: ['https://example.com'],
 				});
 			});
 
@@ -275,11 +269,11 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 
 			test('Flag with quoted string containing spaces', () => {
-				expect(argMate(['--name=', 'John Doe'])).toEqual({name: 'John Doe', _: []});
+				expect(argMate(['--name=', 'John Doe'])).toEqual({name: '', _: ['John Doe']});
 			});
 
 			test('Flag with multiple special characters', () => {
-				expect(argMate(['--key=', '!@#$%^&*()_+'])).toEqual({key: '!@#$%^&*()_+', _: []});
+				expect(argMate(['--key=', '!@#$%^&*()_+'])).toEqual({key: '', _: ['!@#$%^&*()_+']});
 			});
 
 			if (!engineType)
@@ -291,10 +285,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				});
 
 			test('Flag with value containing commas', () => {
-				expect(argMate(['--tags=', 'tag1,tag2,tag3'])).toEqual({
-					tags: 'tag1,tag2,tag3',
-					_: [],
-				});
+				expect(argMate(['--tags=', 'tag1,tag2,tag3'])).toEqual({tags: '', _: ['tag1,tag2,tag3']});
 			});
 
 			if (!engineType)
@@ -315,9 +306,10 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				});
 
 			test('Invalid flag with no assignment', () => {
-				expect(() => {
-					argMate(['--foo='], {foo: {type: 'string'}}, {allowAssign: true});
-				}).toThrow(/No data provided/i);
+				expect(argMate(['--foo='], {foo: {type: 'string'}}, {allowAssign: true})).toEqual({
+					foo: '',
+					_: [],
+				});
 			});
 
 			test.todo('Negated flag with alias', () => {
@@ -617,8 +609,8 @@ function run(argMate: ArgMateEngine, engineType = '') {
 
 			test.todo('Coercion to boolean', () => {
 				expect(argMate(['--feature=', 'on'], {feature: {type: 'boolean'}})).toEqual({
-					_: [],
-					feature: true,
+					_: ['on'],
+					feature: '',
 				});
 			});
 

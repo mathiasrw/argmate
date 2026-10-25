@@ -14,10 +14,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 	describe('Assign' + engineType, () => {
 		test('Plain', () => {
 			const argv = argMate('--foo= bar'.split(' '));
-			expect(argv).toEqual({
-				_: [],
-				foo: 'bar',
-			});
+			expect(argv).toEqual({_: ['bar'], foo: ''});
 		});
 
 		test('joint', () => {
@@ -30,10 +27,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 
 		test('short', () => {
 			const argv = argMate('-f= bar'.split(' '));
-			expect(argv).toEqual({
-				_: [],
-				f: 'bar',
-			});
+			expect(argv).toEqual({_: ['bar'], f: ''});
 		});
 
 		test('short joint', () => {
@@ -63,20 +57,20 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 
 		test('Missing assignment', () => {
-			expect(() => {
-				argMate('--foo='.split(' '), {}, {allowAssign: true});
-			}).toThrow(/No data provided for.*foo/i);
+			expect(argMate('--foo='.split(' '), {}, {allowAssign: true})).toEqual({_: [], foo: ''});
 		});
 
 		test('Missing assignment long', () => {
-			expect(() => {
-				argMate('--foo='.split(' '), {}, {allowAssign: true});
-			}).toThrow(/No data provided.*foo/i);
+			expect(argMate('--foo='.split(' '), {}, {allowAssign: true})).toEqual({_: [], foo: ''});
 		});
 		test('Missing assignment short', () => {
-			expect(() => {
-				argMate('-abc ee -f='.split(' '), {}, {allowAssign: true});
-			}).toThrow(/No data provided.*f/i);
+			expect(argMate('-abc ee -f='.split(' '), {}, {allowAssign: true})).toEqual({
+				_: ['ee'],
+				a: true,
+				b: true,
+				c: true,
+				f: '',
+			});
 		});
 	});
 }

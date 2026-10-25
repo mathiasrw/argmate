@@ -127,10 +127,6 @@ export default function argEngineMini(
 			}
 
 			if (ASSIGN) {
-				if (!VAL) {
-					if (0 === args.length) return engineSettings.error(`No data provided for '${KEY}'`);
-					VAL = args.pop() || '';
-				}
 				output[KEY] = +VAL + '' === VAL ? +VAL : VAL;
 			} else {
 				output[KEY] = true;
@@ -160,7 +156,7 @@ export default function argEngineMini(
 			continue;
 		}
 
-		if (!VAL) {
+		if (!ASSIGN) {
 			if (0 === args.length) return engineSettings.error(`No data provided for '${KEY}'`);
 			VAL = args.pop() || '';
 		}
@@ -181,7 +177,7 @@ export default function argEngineMini(
 			case 'float':
 			case 'number[]':
 			case 'float[]':
-				num = +VAL;
+				num = VAL.trim() ? +VAL : Number.NaN;
 				break;
 
 			case 'int':

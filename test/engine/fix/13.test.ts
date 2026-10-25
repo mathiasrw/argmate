@@ -63,7 +63,7 @@ for (const {name, parse, engine} of engines) {
 
 		test('when the parse with no config throws an input error', () => {
 			const args = ['a', '--foo='];
-			expect(() => parse(args)).toThrow();
+			expect(() => parse(args)).not.toThrow();
 			expect(args).toEqual(['a', '--foo=']);
 		});
 

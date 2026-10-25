@@ -15,16 +15,13 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			describe('Spaces in Values', () => {
 				test('Value with leading and trailing spaces', () => {
 					expect(argMate(['--path=', '  /usr/local/bin  '])).toEqual({
-						path: '  /usr/local/bin  ',
-						_: [],
+						path: '',
+						_: ['  /usr/local/bin  '],
 					});
 				});
 
 				test('Value with multiple spaces in the middle', () => {
-					expect(argMate(['--name=', 'John    Doe'])).toEqual({
-						name: 'John    Doe',
-						_: [],
-					});
+					expect(argMate(['--name=', 'John    Doe'])).toEqual({name: '', _: ['John    Doe']});
 				});
 
 				test('Positional argument with spaces', () => {
@@ -37,29 +34,26 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			describe('Quotes (Single and Double)', () => {
 				test('Value with double quotes', () => {
 					expect(argMate(['--message=', '"Hello World"'])).toEqual({
-						message: '"Hello World"',
-						_: [],
+						message: '',
+						_: ['"Hello World"'],
 					});
 				});
 
 				test('Value with single quotes', () => {
 					expect(argMate(['--message=', "'Hello World'"])).toEqual({
-						message: "'Hello World'",
-						_: [],
+						message: '',
+						_: ["'Hello World'"],
 					});
 				});
 
 				test('Quoted value with spaces', () => {
-					expect(argMate(['--title=', '"My Document"'])).toEqual({
-						title: '"My Document"',
-						_: [],
-					});
+					expect(argMate(['--title=', '"My Document"'])).toEqual({title: '', _: ['"My Document"']});
 				});
 
 				test('Mixed quotes in value', () => {
 					expect(argMate(['--quote=', '"This is \'quoted\' inside"'])).toEqual({
-						quote: '"This is \'quoted\' inside"',
-						_: [],
+						quote: '',
+						_: ['"This is \'quoted\' inside"'],
 					});
 				});
 			});
@@ -67,54 +61,51 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			describe('Escape Characters', () => {
 				test('Escape characters in value', () => {
 					expect(argMate(['--path=', 'C:\\\\Program Files\\\\App'])).toEqual({
-						path: 'C:\\\\Program Files\\\\App',
-						_: [],
+						path: '',
+						_: ['C:\\\\Program Files\\\\App'],
 					});
 				});
 
 				test('Escape sequence in double-quoted value', () => {
 					expect(argMate(['--query=', '"SELECT * FROM \\"users\\""'])).toEqual({
-						query: '"SELECT * FROM \\"users\\""',
-						_: [],
+						query: '',
+						_: ['"SELECT * FROM \\"users\\""'],
 					});
 				});
 
 				test('Backslash in value', () => {
 					expect(argMate(['--dir=', 'C:\\Windows\\System32'])).toEqual({
-						dir: 'C:\\Windows\\System32',
-						_: [],
+						dir: '',
+						_: ['C:\\Windows\\System32'],
 					});
 				});
 			});
 
 			describe('Special Shell Characters', () => {
 				test('Dollar sign in value', () => {
-					expect(argMate(['--price=', '$99.99'])).toEqual({price: '$99.99', _: []});
+					expect(argMate(['--price=', '$99.99'])).toEqual({price: '', _: ['$99.99']});
 				});
 
 				test('Ampersand in value', () => {
-					expect(argMate(['--search=', 'fish & chips'])).toEqual({
-						search: 'fish & chips',
-						_: [],
-					});
+					expect(argMate(['--search=', 'fish & chips'])).toEqual({search: '', _: ['fish & chips']});
 				});
 
 				test('Pipe character in value', () => {
 					expect(argMate(['--command=', 'ls | grep "txt"'])).toEqual({
-						command: 'ls | grep "txt"',
-						_: [],
+						command: '',
+						_: ['ls | grep "txt"'],
 					});
 				});
 
 				test('Greater-than sign in value', () => {
 					expect(argMate(['--output=', 'log.txt > errors.txt'])).toEqual({
-						output: 'log.txt > errors.txt',
-						_: [],
+						output: '',
+						_: ['log.txt > errors.txt'],
 					});
 				});
 
 				test('Less-than sign in value', () => {
-					expect(argMate(['--input=', '<stdin>'])).toEqual({input: '<stdin>', _: []});
+					expect(argMate(['--input=', '<stdin>'])).toEqual({input: '', _: ['<stdin>']});
 				});
 			});
 		});
@@ -122,7 +113,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 		describe('Internationalization', () => {
 			describe('Unicode Characters', () => {
 				test('Unicode characters in value', () => {
-					expect(argMate(['--text=', 'こんにちは'])).toEqual({text: 'こんにちは', _: []});
+					expect(argMate(['--text=', 'こんにちは'])).toEqual({text: '', _: ['こんにちは']});
 				});
 
 				test('Unicode characters in positional argument', () => {
@@ -130,16 +121,13 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				});
 
 				test('Mixed Unicode and ASCII characters', () => {
-					expect(argMate(['--title=', 'Hello 世界'])).toEqual({
-						title: 'Hello 世界',
-						_: [],
-					});
+					expect(argMate(['--title=', 'Hello 世界'])).toEqual({title: '', _: ['Hello 世界']});
 				});
 			});
 
 			describe('Non-ASCII Characters', () => {
 				test('Non-ASCII characters in value', () => {
-					expect(argMate(['--author=', 'Jürgen'])).toEqual({author: 'Jürgen', _: []});
+					expect(argMate(['--author=', 'Jürgen'])).toEqual({author: '', _: ['Jürgen']});
 				});
 
 				test('Non-ASCII characters in positional argument', () => {
@@ -148,15 +136,15 @@ function run(argMate: ArgMateEngine, engineType = '') {
 
 				test('Non-ASCII characters in quoted value', () => {
 					expect(argMate(['--quote=', '"Café au lait"'])).toEqual({
-						quote: '"Café au lait"',
-						_: [],
+						quote: '',
+						_: ['"Café au lait"'],
 					});
 				});
 			});
 
 			describe('Right-to-Left Languages', () => {
 				test('Right-to-left language in value', () => {
-					expect(argMate(['--text=', 'مرحبا'])).toEqual({text: 'مرحبا', _: []});
+					expect(argMate(['--text=', 'مرحبا'])).toEqual({text: '', _: ['مرحبا']});
 				});
 
 				test('Right-to-left language in positional argument', () => {
@@ -165,19 +153,19 @@ function run(argMate: ArgMateEngine, engineType = '') {
 
 				test('Mixed right-to-left and left-to-right text', () => {
 					expect(argMate(['--sentence=', 'Hello مرحبا'])).toEqual({
-						sentence: 'Hello مرحبا',
-						_: [],
+						sentence: '',
+						_: ['Hello مرحبا'],
 					});
 				});
 			});
 
 			describe('Emoji', () => {
 				test('Emoji in value', () => {
-					expect(argMate(['--reaction=', '👍'])).toEqual({reaction: '👍', _: []});
+					expect(argMate(['--reaction=', '👍'])).toEqual({reaction: '', _: ['👍']});
 				});
 
 				test('Multiple emojis in value', () => {
-					expect(argMate(['--message=', '🚀🔥'])).toEqual({message: '🚀🔥', _: []});
+					expect(argMate(['--message=', '🚀🔥'])).toEqual({message: '', _: ['🚀🔥']});
 				});
 
 				test('Emoji in positional argument', () => {
@@ -185,7 +173,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				});
 
 				test('Emoji mixed with text', () => {
-					expect(argMate(['--status=', 'Happy 😊'])).toEqual({status: 'Happy 😊', _: []});
+					expect(argMate(['--status=', 'Happy 😊'])).toEqual({status: '', _: ['Happy 😊']});
 				});
 			});
 		});
@@ -193,17 +181,11 @@ function run(argMate: ArgMateEngine, engineType = '') {
 		describe('Additional Edge Cases', () => {
 			describe('Special Characters in Flags', () => {
 				test('Dollar sign in flag name', () => {
-					expect(argMate(['--$debug=', 'true'])).toEqual({
-						$debug: engineType ? 'true' : true,
-						_: [],
-					});
+					expect(argMate(['--$debug=', 'true'])).toEqual({$debug: '', _: ['true']});
 				});
 
 				test('Ampersand in flag name', () => {
-					expect(argMate(['--enable&=', 'true'])).toEqual({
-						'enable&': engineType ? 'true' : true,
-						_: [],
-					});
+					expect(argMate(['--enable&=', 'true'])).toEqual({'enable&': '', _: ['true']});
 				});
 
 				test.todo('Dash in flag name - needs investigation', () => {
@@ -217,46 +199,40 @@ function run(argMate: ArgMateEngine, engineType = '') {
 
 			describe('Unicode in Flags', () => {
 				test('Unicode in flag name', () => {
-					expect(argMate(['--テスト=', 'true'])).toEqual({
-						テスト: engineType ? 'true' : true,
-						_: [],
-					});
+					expect(argMate(['--テスト=', 'true'])).toEqual({テスト: '', _: ['true']});
 				});
 
 				test('Non-ASCII characters in flag name', () => {
-					expect(argMate(['--Über=', 'true'])).toEqual({Über: engineType ? 'true' : true, _: []});
+					expect(argMate(['--Über=', 'true'])).toEqual({Über: '', _: ['true']});
 				});
 
 				test('Right-to-left flag name', () => {
-					expect(argMate(['--مرحبا=', 'true'])).toEqual({مرحبا: engineType ? 'true' : true, _: []});
+					expect(argMate(['--مرحبا=', 'true'])).toEqual({مرحبا: '', _: ['true']});
 				});
 
 				test('Emoji in flag name', () => {
-					expect(argMate(['--🚀=', 'launch'])).toEqual({'🚀': 'launch', _: []});
+					expect(argMate(['--🚀=', 'launch'])).toEqual({'🚀': '', _: ['launch']});
 				});
 			});
 
 			describe('Edge Cases Combining Multiple Features', () => {
 				test('Unicode and special characters in value', () => {
-					expect(argMate(['--input=', 'ファイル$123'])).toEqual({
-						input: 'ファイル$123',
-						_: [],
-					});
+					expect(argMate(['--input=', 'ファイル$123'])).toEqual({input: '', _: ['ファイル$123']});
 				});
 
 				test('Right-to-left text with special characters', () => {
-					expect(argMate(['--text=', 'مرحبا&سلام'])).toEqual({text: 'مرحبا&سلام', _: []});
+					expect(argMate(['--text=', 'مرحبا&سلام'])).toEqual({text: '', _: ['مرحبا&سلام']});
 				});
 
 				test('Emoji and spaces in value', () => {
 					expect(argMate(['--mood=', 'Happy 😊 all day'])).toEqual({
-						mood: 'Happy 😊 all day',
-						_: [],
+						mood: '',
+						_: ['Happy 😊 all day'],
 					});
 				});
 
 				test('Emoji and special characters in value', () => {
-					expect(argMate(['--symbol=', '❤️&💡'])).toEqual({symbol: '❤️&💡', _: []});
+					expect(argMate(['--symbol=', '❤️&💡'])).toEqual({symbol: '', _: ['❤️&💡']});
 				});
 
 				test('Unicode, Emoji, and special characters in positional argument', () => {
@@ -558,22 +534,22 @@ function run(argMate: ArgMateEngine, engineType = '') {
 
 			test('Mixing positional args with special characters', () => {
 				expect(argMate(['file.txt', '--name=', 'John Doe', 'data.csv'])).toEqual({
-					_: ['file.txt', 'data.csv'],
-					name: 'John Doe',
+					_: ['file.txt', 'John Doe', 'data.csv'],
+					name: '',
 				});
 			});
 
 			test('Unicode in positional args', () => {
 				expect(argMate(['файл.txt', '--name=', 'John', '数据.csv'])).toEqual({
-					_: ['файл.txt', '数据.csv'],
-					name: 'John',
+					_: ['файл.txt', 'John', '数据.csv'],
+					name: '',
 				});
 			});
 
 			test('Emoji in positional args', () => {
 				expect(argMate(['📁', '--type=', 'folder', '📄'])).toEqual({
-					_: ['📁', '📄'],
-					type: 'folder',
+					_: ['📁', 'folder', '📄'],
+					type: '',
 				});
 			});
 		});
@@ -729,147 +705,147 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			describe('Split assign notation', () => {
 				test('Space in value', () => {
 					const argv = argMate(['--foo=', 'bar baz']);
-					expect(argv).toEqual({_: [], foo: 'bar baz'});
+					expect(argv).toEqual({_: ['bar baz'], foo: ''});
 				});
 
 				test('Single quotes', () => {
 					const argv = argMate(['--foo=', "'bar baz'"]);
-					expect(argv).toEqual({_: [], foo: "'bar baz'"});
+					expect(argv).toEqual({_: ["'bar baz'"], foo: ''});
 				});
 
 				test('Double quotes', () => {
 					const argv = argMate(['--foo=', '"bar baz"']);
-					expect(argv).toEqual({_: [], foo: '"bar baz"'});
+					expect(argv).toEqual({_: ['"bar baz"'], foo: ''});
 				});
 
 				test('Escaped quotes', () => {
 					const argv = argMate(['--foo=', '\\"bar\\"']);
-					expect(argv).toEqual({_: [], foo: '\\"bar\\"'});
+					expect(argv).toEqual({_: ['\\"bar\\"'], foo: ''});
 				});
 
 				test('Unicode characters', () => {
 					const argv = argMate(['--foo=', 'こんにちは']);
-					expect(argv).toEqual({_: [], foo: 'こんにちは'});
+					expect(argv).toEqual({_: ['こんにちは'], foo: ''});
 				});
 
 				test('Emoji', () => {
 					const argv = argMate(['--foo=', '🚀']);
-					expect(argv).toEqual({_: [], foo: '🚀'});
+					expect(argv).toEqual({_: ['🚀'], foo: ''});
 				});
 
 				test('Special characters', () => {
 					const argv = argMate(['--foo=', '!@#$%^&*()']);
-					expect(argv).toEqual({_: [], foo: '!@#$%^&*()'});
+					expect(argv).toEqual({_: ['!@#$%^&*()'], foo: ''});
 				});
 
 				test('Backslashes', () => {
 					const argv = argMate(['--path=', 'C:\\Program Files\\App']);
-					expect(argv).toEqual({_: [], path: 'C:\\Program Files\\App'});
+					expect(argv).toEqual({_: ['C:\\Program Files\\App'], path: ''});
 				});
 
 				test('Forward slashes', () => {
 					const argv = argMate(['--url=', 'http://example.com/path']);
-					expect(argv).toEqual({_: [], url: 'http://example.com/path'});
+					expect(argv).toEqual({_: ['http://example.com/path'], url: ''});
 				});
 
 				test('Multiple equal signs', () => {
 					const argv = argMate(['--equation=', 'y=mx+b']);
-					expect(argv).toEqual({_: [], equation: 'y=mx+b'});
+					expect(argv).toEqual({_: ['y=mx+b'], equation: ''});
 				});
 
 				test('Value starting with hyphen', () => {
 					const argv = argMate(['--range=', '-10,10']);
-					expect(argv).toEqual({_: [], range: '-10,10'});
+					expect(argv).toEqual({_: [], range: '', 1: true, 0: true, ',': engineType ? true : 10});
 				});
 
 				test('Empty string value', () => {
 					const argv = argMate(['--empty=', '""']);
-					expect(argv).toEqual({_: [], empty: '""'});
+					expect(argv).toEqual({_: ['""'], empty: ''});
 				});
 
 				test('Camel case key', () => {
 					const argv = argMate(['--camelCase=', 'value']);
-					expect(argv).toEqual({_: [], camelCase: 'value'});
+					expect(argv).toEqual({_: ['value'], camelCase: ''});
 				});
 
 				test('Snake case key', () => {
 					const argv = argMate(['--snake_case=', 'value']);
-					expect(argv).toEqual({_: [], snake_case: 'value'});
+					expect(argv).toEqual({_: ['value'], snake_case: ''});
 				});
 
 				test('Numeric key', () => {
 					const argv = argMate(['--123=', 'value']);
-					expect(argv).toEqual({_: [], '123': 'value'});
+					expect(argv).toEqual({_: ['value'], '123': ''});
 				});
 
 				test('Key with underscore', () => {
 					const argv = argMate(['--_private=', 'value']);
-					expect(argv).toEqual({_: [], _private: 'value'});
+					expect(argv).toEqual({_: ['value'], _private: ''});
 				});
 
 				test('Value with comma', () => {
 					const argv = argMate(['--list=', 'a,b,c']);
-					expect(argv).toEqual({_: [], list: 'a,b,c'});
+					expect(argv).toEqual({_: ['a,b,c'], list: ''});
 				});
 
 				test('Value with semicolon', () => {
 					const argv = argMate(['--command=', 'git add; git commit']);
-					expect(argv).toEqual({_: [], command: 'git add; git commit'});
+					expect(argv).toEqual({_: ['git add; git commit'], command: ''});
 				});
 
 				test('Value with pipe', () => {
 					const argv = argMate(['--pipeline=', 'grep foo | sort']);
-					expect(argv).toEqual({_: [], pipeline: 'grep foo | sort'});
+					expect(argv).toEqual({_: ['grep foo | sort'], pipeline: ''});
 				});
 
 				test('Value with ampersand', () => {
 					const argv = argMate(['--bg=', 'node server.js &']);
-					expect(argv).toEqual({_: [], bg: 'node server.js &'});
+					expect(argv).toEqual({_: ['node server.js &'], bg: ''});
 				});
 
 				test('Value with parentheses', () => {
 					const argv = argMate(['--group=', '(a+b)']);
-					expect(argv).toEqual({_: [], group: '(a+b)'});
+					expect(argv).toEqual({_: ['(a+b)'], group: ''});
 				});
 
 				test('Value with square brackets', () => {
 					const argv = argMate(['--array=', '[1,2,3]']);
-					expect(argv).toEqual({_: [], array: '[1,2,3]'});
+					expect(argv).toEqual({_: ['[1,2,3]'], array: ''});
 				});
 
 				test('Value with curly braces', () => {
 					const argv = argMate(['--json=', '{"key":"value"}']);
-					expect(argv).toEqual({_: [], json: '{"key":"value"}'});
+					expect(argv).toEqual({_: ['{"key":"value"}'], json: ''});
 				});
 
 				test('Value with angle brackets', () => {
 					const argv = argMate(['--html=', '<div>content</div>']);
-					expect(argv).toEqual({_: [], html: '<div>content</div>'});
+					expect(argv).toEqual({_: ['<div>content</div>'], html: ''});
 				});
 
 				test('Value with backticks', () => {
 					const argv = argMate(['--command=', '`echo Hello`']);
-					expect(argv).toEqual({_: [], command: '`echo Hello`'});
+					expect(argv).toEqual({_: ['`echo Hello`'], command: ''});
 				});
 
 				test('Value with dollar sign', () => {
 					const argv = argMate(['--var=', '$HOME']);
-					expect(argv).toEqual({_: [], var: '$HOME'});
+					expect(argv).toEqual({_: ['$HOME'], var: ''});
 				});
 
 				test('Value with percent sign', () => {
 					const argv = argMate(['--encoded=', '%20']);
-					expect(argv).toEqual({_: [], encoded: '%20'});
+					expect(argv).toEqual({_: ['%20'], encoded: ''});
 				});
 
 				test('Value with caret', () => {
 					const argv = argMate(['--regex=', '^start']);
-					expect(argv).toEqual({_: [], regex: '^start'});
+					expect(argv).toEqual({_: ['^start'], regex: ''});
 				});
 
 				test('Value with tilde', () => {
 					const argv = argMate(['--home=', '~/Documents']);
-					expect(argv).toEqual({_: [], home: '~/Documents'});
+					expect(argv).toEqual({_: ['~/Documents'], home: ''});
 				});
 			});
 		});

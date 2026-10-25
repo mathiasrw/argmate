@@ -449,9 +449,9 @@ function run(parseArgs, engineType = '') {
 			});
 
 			expect(argMate(['--host=', 'localhost', '--port=', '555'], {})).toEqual({
-				host: 'localhost',
-				port: 555,
-				_: [],
+				host: '',
+				port: '',
+				_: ['localhost', '555'],
 			});
 
 			expect(argMate(['--host=localhost', '--port=55.5'], {})).toEqual({
@@ -496,8 +496,8 @@ function run(parseArgs, engineType = '') {
 		// edited as we dont convert input strings automagicly
 		test('parseArgs() handles already number', () => {
 			const argv = argMate(['-x=', '1234', '789']);
-			expect(argv).toEqual({x: 1234, _: ['789']});
-			expect(typeof argv.x).toBe('number');
+			expect(argv).toEqual({x: '', _: ['1234', '789']});
+			expect(typeof argv.x).toBe('string');
 			expect(typeof argv._[0]).toBe('string');
 		});
 
@@ -599,7 +599,7 @@ function run(parseArgs, engineType = '') {
 			expect(args).toEqual({_: [], s: 'X\nX'});
 
 			const args2 = argMate(['-s=', 'X\nX']); // changed from originally ['--s=X\nX']
-			expect(args2).toEqual({_: [], s: 'X\nX'});
+			expect(args2).toEqual({_: ['X\nX'], s: ''});
 		});
 
 		test('parseArgs() handles strings', () => {

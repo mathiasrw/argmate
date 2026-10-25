@@ -150,10 +150,6 @@ export default function argEngine(
 			}
 
 			if (ASSIGN) {
-				if (!VAL) {
-					if (args.length === 0) return error(`No data provided for '${KEY}'`);
-					VAL = args.pop() || '';
-				}
 				// Speed
 				if (+VAL + '' === VAL) output[KEY] = +VAL;
 				else if (allowBoolString && re.boolStringTrue.test(VAL)) output[KEY] = true;
@@ -169,12 +165,9 @@ export default function argEngine(
 		const theKey = parameterConfig[KEY].key;
 		const theType = parameterConfig[theKey || KEY].type;
 
-		if (!VAL && !(('count' === theType && !ASSIGN) || ('boolean' === theType && !ASSIGN))) {
-			if (0 === args.length) {
-				return error(`No data provided for '${KEY}'`);
-			}
-
-			VAL ||= args.pop() || '';
+		if (!ASSIGN && 'count' !== theType && 'boolean' !== theType) {
+			if (0 === args.length) return error(`No data provided for '${KEY}'`);
+			VAL = args.pop() || '';
 		}
 
 		if ('boolean' === theType) {
@@ -231,7 +224,7 @@ export default function argEngine(
 			case 'float':
 			case 'number[]':
 			case 'float[]':
-				data = +VAL;
+				data = VAL.trim() ? +VAL : Number.NaN;
 				break;
 
 			case 'int':
