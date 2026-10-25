@@ -60,7 +60,7 @@
 		"build": "bun run build-esm && bun run build-cjs && bun run build-types",
 		"build-cli": "bun build src/argMate-cli.js --compile --outfile dist/argmate-cli",
 		"build-esm": "bun build --target node --format esm src/argMate.ts src/argMateMini.ts src/argEngine.ts src/argEngineMini.ts --outdir dist/ --minify --sourcemap=none",
-		"build-cjs": "bun build --target node --format cjs src/argMate.ts src/argMateMini.ts src/argEngine.ts src/argEngineMini.ts --outdir dist/cjs/ --minify",
+		"build-cjs": "bun build --target node --format cjs src/argMate.ts src/argMateMini.ts src/argEngine.ts src/argEngineMini.ts --outdir dist/cjs/ --minify --entry-naming [name].cjs --footer 'module.exports = Object.assign(module.exports.default || {}, module.exports)'",
 		"build-types": "bunx tsc -p tsconfig.json --emitDeclarationOnly --declaration --outDir dist/types && rexreplace '^#!.*' '' dist/types/*.d.ts && cat dist/types/*.d.ts > dist/types.d.ts && rm -fr dist/types",
 		"lint": "biome check && tsc --noEmit && bun test/misc/types.ai.ts",
 		"test": "bun tst && bun run build-esm && bun run test-bundle",
