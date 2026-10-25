@@ -233,7 +233,7 @@ export default function argEngineMini(
 				`'${key.length > 1 ? '--' : '-'}${key}' is mandatory` +
 					(config[config[key].key || key]?.alias?.length
 						? `.  Or use an alias: ${config[config[key].key || key].alias
-								.map((v: string) => (v.length > 1 ? '--' : '-') + v)
+								?.map((v: string) => (v.length > 1 ? '--' : '-') + v)
 								.join(', ')}`
 						: '')
 			);
