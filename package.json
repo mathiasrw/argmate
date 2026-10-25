@@ -2,7 +2,7 @@
 	"name": "argmate",
 	"version": "0.9.1",
 	"author": "Mathias Wulff",
-	"description": "Fast CLI parameter parsing. Zero dependencies. Good DX. Pre-compile for turbo speed.",
+	"description": "Fast CLI parameter parsing. Zero dependencies. Good DX. Pre-compile for extra speed.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
@@ -27,7 +27,11 @@
 		"yargs",
 		"meow"
 	],
-	"files": ["dist", "README.md", "LICENSE"],
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
 	"type": "module",
 	"types": "./dist/types.d.ts",
 	"main": "./dist/cjs/argMate.cjs",
@@ -70,15 +74,21 @@
 		"build": "bun run build-esm && bun run build-cjs && bun run build-types",
 		"build-cli": "bun build src/argMate-cli.js --compile --outfile dist/argmate-cli",
 		"build-esm": "bun build --target node --format esm src/argMate.ts src/argMateMini.ts src/argEngine.ts src/argEngineMini.ts src/argInfo.ts src/compileConfig.ts --outdir dist/ --minify --sourcemap=none",
-		"build-cjs": "bun build --target node --format cjs src/argMate.ts src/argMateMini.ts src/argEngine.ts src/argEngineMini.ts src/argInfo.ts src/compileConfig.ts --outdir dist/cjs/ --minify",
-		"build-types": "bunx tsc -p tsconfig.json --emitDeclarationOnly --declaration --outDir dist/types && rexreplace '^#!.*' '' dist/types/*.d.ts && cat dist/types/*.d.ts > dist/types.d.ts && rm -fr dist/types",
-		"lint": "biome check && tsc --noEmit && bun test/misc/types.ai.ts",
-		"test": "bun tst && bun run build-esm && bun run test-bundle",
-		"tst": "biome format --write && CLAUDECODE=1 bun test --bail --timeout 500",
-		"test-only": "bun test --bail --timeout 500",
-		"test-bundle": "sh test/test.bundle.sh",
-		"test-ci": "bun run test-format && bun lint && bun run test && bun run test-cov",
-		"test-cov": "bun test --coverage --bail --timeout 500",
+		"build-cjs": "bun build --target node --format cjs src/argMate.ts src/argMateMini.ts src/argEngine.ts src/argEngineMini.ts src/argInfo.ts src/compileConfig.ts --outdir dist/cjs/ --minify --entry-naming [name].cjs --footer 'module.exports = Object.assign(module.exports.default || {}, module.exports)'",
+		"build-types": "bunx tsc -p tsconfig.json --emitDeclarationOnly --declaration --outDir dist/types && cat dist/types/*.d.ts > dist/types.d.ts && rm -fr dist/types",
+		"lint": "biome check && tsc --noEmit && bun test/types/types.ai.ts",
+		"test": "bun tst && bun run lint && bun run test-bundle && bun run test-fuzzy",
+		"tst": "biome format --write && bun run test-src",
+		"test-src": "ARGMATE_TEST_TARGET=src bun run test-run",
+		"test-esm": "ARGMATE_TEST_TARGET=esm bun run test-run",
+		"test-cjs": "ARGMATE_TEST_TARGET=cjs bun run test-run",
+		"test-bundle": "bun run build && bun run test-esm && bun run test-cjs",
+		"test-run": "CLAUDECODE=1 bun test --bail --timeout 500 --path-ignore-patterns 'test/{tsc,engine/fuzzy}/**'",
+		"test-fuzzy": "CLAUDECODE=1 bun test ./test/engine/fuzzy --bail --pass-with-no-tests",
+		"test-tsc": "CLAUDECODE=1 bun test ./test/tsc --bail",
+		"test-todo": "bun test ./test/engine/fix --todo",
+		"test-ci": "bun run test-format && bun lint && bun run test-src && bun run test-bundle && bun run test-tsc && bun run test-cov",
+		"test-cov": "bun run test-src --coverage",
 		"test-perf": "bun run test-perf-cli && bun run test-perf-js",
 		"test-perf-cli": "bun run test && cd bench/perf-v3 && sh test-cli3.sh",
 		"test-perf-js": "bun run test && cd bench/perf-v3 && sh test-js.sh ",
@@ -89,14 +99,16 @@
 		"postrelease": "npm publish && git push && git push --tags && echo \"Successfully released version $npm_package_version\"",
 		"prepare": "husky"
 	},
+	"engines": {
+		"node": ">=15"
+	},
 	"devDependencies": {
-		"@biomejs/biome": "^1.9.4",
+		"@biomejs/biome": "^2.5.15",
 		"bun-types": "1.1.21",
 		"cmdlook": "^1.0.0",
 		"dts-bundle-generator": "^9.5.1",
 		"husky": "^9.1.4",
 		"onchange": "^7.1.0",
-		"rexreplace": "^7.1.13",
 		"typescript": "^5.9.3"
 	}
 }

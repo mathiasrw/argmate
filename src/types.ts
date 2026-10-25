@@ -3,10 +3,12 @@
  */
 type ParameterProperties = {
 	mandatory?: boolean;
+	required?: boolean; // Alias of `mandatory`
 	alias?: string | string[];
 	conflict?: string | string[];
-	describe?: string;
-	key?: string; // Added dynamically by configPreprocessing
+	description?: string;
+	describe?: string; // Alias of `description`
+	desc?: string; // Alias of `description`
 };
 
 /**
@@ -17,138 +19,275 @@ type ParameterFinalProperties = {
 	mandatory?: boolean;
 	alias?: string[];
 	conflict?: string[];
-	describe?: string;
+	description?: string;
 	key: string; // Required after processing
 };
 
 /**
- * Typed config options with proper type inference for valid and transform functions
+ * Typed config options with proper type inference for validate and transform functions
  */
 type ParameterConfig =
 	| (ParameterProperties & {
 			type: 'boolean';
 			default?: boolean;
-			valid?: ((value: boolean) => boolean) | boolean[];
+			validate?: ((value: boolean) => boolean) | boolean[];
+			valid?: ((value: boolean) => boolean) | boolean[]; // Alias of `validate`
 			transform?: (value: boolean) => any;
 	  })
 	| (ParameterProperties & {
 			type: 'string' | 'array';
 			default?: string | string[];
-			valid?: ((value: string | string[]) => boolean) | string[];
+			validate?: ((value: string | string[]) => boolean) | string[] | RegExp;
+			valid?: ((value: string | string[]) => boolean) | string[] | RegExp; // Alias of `validate`
 			transform?: (value: string | string[]) => any;
 	  })
 	| (ParameterProperties & {
 			type: 'number' | 'float' | 'int' | 'hex' | 'count';
 			default?: number;
-			valid?: ((value: number) => boolean) | number[];
+			validate?: ((value: number) => boolean) | number[] | RegExp;
+			valid?: ((value: number) => boolean) | number[] | RegExp; // Alias of `validate`
 			transform?: (value: number) => any;
 	  })
 	| (ParameterProperties & {
 			type: 'string[]';
 			default?: string[];
-			valid?: ((value: string[]) => boolean) | string[];
+			validate?: ((value: string[]) => boolean) | string[] | RegExp;
+			valid?: ((value: string[]) => boolean) | string[] | RegExp; // Alias of `validate`
 			transform?: (value: string[]) => any;
 	  })
 	| (ParameterProperties & {
 			type: 'number[]' | 'float[]' | 'int[]' | 'hex[]';
 			default?: number[];
-			valid?: ((value: number[]) => boolean) | number[];
+			validate?: ((value: number[]) => boolean) | number[] | RegExp;
+			valid?: ((value: number[]) => boolean) | number[] | RegExp; // Alias of `validate`
 			transform?: (value: number[]) => any;
 	  })
 	| (ParameterProperties & {
 			default: string;
 			type?: 'string' | 'array';
-			valid?: ((value: string) => boolean) | string[];
+			validate?: ((value: string) => boolean) | string[] | RegExp;
+			valid?: ((value: string) => boolean) | string[] | RegExp; // Alias of `validate`
 			transform?: (value: string) => any;
 	  })
 	| (ParameterProperties & {
 			default: number;
 			type?: 'number' | 'float' | 'int' | 'hex';
-			valid?: ((value: number) => boolean) | number[];
+			validate?: ((value: number) => boolean) | number[] | RegExp;
+			valid?: ((value: number) => boolean) | number[] | RegExp; // Alias of `validate`
 			transform?: (value: number) => any;
 	  })
 	| (ParameterProperties & {
 			default: boolean;
 			type?: 'boolean';
-			valid?: ((value: boolean) => boolean) | boolean[];
+			validate?: ((value: boolean) => boolean) | boolean[];
+			valid?: ((value: boolean) => boolean) | boolean[]; // Alias of `validate`
 			transform?: (value: boolean) => any;
 	  })
 	| (ParameterProperties & {
 			default: string[];
 			type?: 'string[]' | 'array';
-			valid?: ((value: string[]) => boolean) | string[];
+			validate?: ((value: string[]) => boolean) | string[] | RegExp;
+			valid?: ((value: string[]) => boolean) | string[] | RegExp; // Alias of `validate`
 			transform?: (value: string[]) => any;
 	  })
 	| (ParameterProperties & {
 			default: number[];
 			type?: 'number[]' | 'float[]' | 'int[]' | 'hex[]';
-			valid?: ((value: number[]) => boolean) | number[];
+			validate?: ((value: number[]) => boolean) | number[] | RegExp;
+			valid?: ((value: number[]) => boolean) | number[] | RegExp; // Alias of `validate`
 			transform?: (value: number[]) => any;
 	  })
 	| (ParameterProperties & {
-			type?: Exclude<
-				string,
-				| 'boolean'
-				| 'string'
-				| 'array'
-				| 'number'
-				| 'float'
-				| 'int'
-				| 'hex'
-				| 'count'
-				| 'string[]'
-				| 'number[]'
-				| 'float[]'
-				| 'int[]'
-				| 'hex[]'
-			>;
-			default?: any;
-			valid?: ((value: any) => boolean) | any[];
-			transform?: (value: any) => any;
+			// A regular expression with no `type` and no `default` gives the type `string`
+			type?: undefined;
+			default?: undefined;
+			validate: RegExp;
+			valid?: undefined;
+			transform?: (value: string) => any;
+	  })
+	| (ParameterProperties & {
+			type?: undefined;
+			default?: undefined;
+			validate?: undefined;
+			valid: RegExp; // Alias of `validate`
+			transform?: (value: string) => any;
+	  })
+	| (ParameterProperties & {
+			// Mutually-exclusive fallback for configs WITHOUT `type` AND WITHOUT `default`,
+			// e.g. `{mandatory: true}`, `{alias: 'v'}`, `{conflict: 'foo'}`, `{}`.
+			// Such entries default to boolean semantics at runtime.
+			//
+			// `type` and `default` are explicitly `undefined` here so that configs declaring
+			// either field are forced to match one of the typed variants above. This makes
+			// type mismatches (e.g. `{type: 'int', transform: (v: string) => ...}`) and
+			// unknown type strings (e.g. `{type: 'date'}`) fail at compile time.
+			type?: undefined;
+			default?: undefined;
+			validate?: ((value: boolean) => boolean) | boolean[];
+			valid?: ((value: boolean) => boolean) | boolean[]; // Alias of `validate`
+			transform?: (value: boolean) => any;
 	  });
+
+/**
+ * The set of valid `type` string literals accepted by ArgMate.
+ * Adding a new type requires updating:
+ * - This union
+ * - `ValueOfType<T>` below
+ * - The engine switch statement in `argEngine.ts` / `argEngineMini.ts`
+ * - The `re.validTypes` regex in `common.ts`
+ */
+export type ParameterTypeName =
+	| 'boolean'
+	| 'string'
+	| 'array'
+	| 'string[]'
+	| 'number'
+	| 'float'
+	| 'int'
+	| 'hex'
+	| 'count'
+	| 'number[]'
+	| 'float[]'
+	| 'int[]'
+	| 'hex[]';
+
+/**
+ * Map a `type` literal to the value-type that ArgMate will produce at runtime.
+ * This is what `transform` and `validate` callbacks receive as their first argument.
+ */
+type ValueOfType<T> = T extends 'boolean'
+	? boolean
+	: T extends 'string' | 'array'
+		? string | string[]
+		: T extends 'number' | 'float' | 'int' | 'hex' | 'count'
+			? number
+			: T extends 'string[]'
+				? string[]
+				: T extends 'number[]' | 'float[]' | 'int[]' | 'hex[]'
+					? number[]
+					: unknown;
+
+/**
+ * Map a `default` value to its value-type. Used when `type` is omitted.
+ */
+type ValueOfDefault<D> = D extends boolean
+	? boolean
+	: D extends number
+		? number
+		: D extends string
+			? string
+			: D extends readonly string[]
+				? string[]
+				: D extends readonly number[]
+					? number[]
+					: unknown;
+
+/**
+ * Extract the value-type from a single config entry shape `E`.
+ * Prefers `type` over `default` when both are present.
+ */
+type ValueOf<E> = E extends {type: infer T}
+	? ValueOfType<T>
+	: E extends {default: infer D}
+		? ValueOfDefault<D>
+		: unknown;
+
+/**
+ * Utility type that produces a stricter per-entry shape for a user config:
+ * `transform` / `validate` callbacks are typed against the value-type inferred
+ * from each entry's `type` / `default`, and `type` is restricted to
+ * `ParameterTypeName`.
+ *
+ * Not currently used by the default `argMate` signature (the discriminated
+ * union in `ParameterConfig` already provides this narrowing for `as const`
+ * configs). Exported for advanced users who want to author a config object
+ * separately from the `argMate` call and have it type-checked end-to-end,
+ * e.g. `const cfg = {...} satisfies ValidateConfig<typeof cfg>`.
+ */
+export type ValidateConfig<C> = {
+	[K in keyof C]: C[K] extends object
+		? Omit<C[K], 'transform' | 'validate' | 'valid' | 'type'> & {
+				type?: ParameterTypeName;
+				transform?: (value: ValueOf<C[K]>) => unknown;
+				validate?: ((value: ValueOf<C[K]>) => boolean) | readonly ValueOf<C[K]>[] | RegExp;
+				valid?: ((value: ValueOf<C[K]>) => boolean) | readonly ValueOf<C[K]>[] | RegExp;
+			}
+		: C[K];
+};
 
 /**
  * Processed config options after configPreprocessing has normalized them
  * Key is required and alias/conflict are arrays
- * Note: valid function accepts any to avoid union narrowing issues
+ * Note: validate function accepts any to avoid union narrowing issues
  */
 type ParameterFinalConfig =
 	| (ParameterFinalProperties & {
 			type: 'boolean';
 			default?: boolean;
-			valid?: ((value: any) => boolean) | boolean[];
+			validate?: ((value: any) => boolean) | boolean[];
 			transform?: (value: boolean) => any;
 	  })
 	| (ParameterFinalProperties & {
 			type: 'string' | 'array';
 			default?: string | string[];
-			valid?: ((value: any) => boolean) | string[];
+			validate?: ((value: any) => boolean) | string[] | RegExp;
 			transform?: (value: string | string[]) => any;
 	  })
 	| (ParameterFinalProperties & {
 			type: 'number' | 'float' | 'int' | 'hex' | 'count';
 			default?: number;
-			valid?: ((value: any) => boolean) | number[];
+			validate?: ((value: any) => boolean) | number[] | RegExp;
 			transform?: (value: number) => any;
 	  })
 	| (ParameterFinalProperties & {
 			type: 'string[]';
 			default?: string[];
-			valid?: ((value: any) => boolean) | string[];
+			validate?: ((value: any) => boolean) | string[] | RegExp;
 			transform?: (value: string[]) => any;
 	  })
 	| (ParameterFinalProperties & {
 			type: 'number[]' | 'float[]' | 'int[]' | 'hex[]';
 			default?: number[];
-			valid?: ((value: any) => boolean) | number[];
+			validate?: ((value: any) => boolean) | number[] | RegExp;
 			transform?: (value: number[]) => any;
 	  })
 	| (ParameterFinalProperties & {
 			type: string;
 			default?: any;
-			valid?: ((value: any) => boolean) | any[];
+			validate?: ((value: any) => boolean) | any[] | RegExp;
 			transform?: (value: any) => any;
 	  });
+
+/**
+ * The config properties of a parameter that ArgMate knows: the canonical names and their aliases.
+ * Keep in sync with the check in `configPreprocessing` in `compileConfig.ts`.
+ */
+type ConfigPropertyName =
+	| 'type'
+	| 'default'
+	| 'alias'
+	| 'conflict'
+	| 'validate'
+	| 'valid' // Alias of `validate`
+	| 'transform'
+	| 'mandatory'
+	| 'required' // Alias of `mandatory`
+	| 'description'
+	| 'describe' // Alias of `description`
+	| 'desc'; // Alias of `description`
+
+type RejectUnknownProperties<V> = V extends readonly unknown[]
+	? V
+	: V extends object
+		? {[P in keyof V]: P extends ConfigPropertyName ? V[P] : never}
+		: V;
+
+/**
+ * Gives the type `never` to each config property of a parameter that ArgMate does not know,
+ * thus a misspelled property (`alais`) is a compile error. A generic `Config` gets no
+ * excess property check from TypeScript, so `argMate` asks for `Config & StrictConfig<Config>`.
+ */
+export type StrictConfig<Config> = {[K in keyof Config]: RejectUnknownProperties<Config[K]>};
 
 /**
  * User-facing config passed to argMate/configPreprocessing
@@ -209,7 +348,7 @@ export type ArgMateEngine = (
 
 export declare function argMate<const Config extends ArgMateConfig | undefined = undefined>(
 	args: string[],
-	parameterConfig?: Config,
+	parameterConfig?: Config & StrictConfig<Config>,
 	engineSettings?: ArgMateSettings
 ): ArgMateResponse<Config>;
 
@@ -240,7 +379,7 @@ export type ArgMateEngineConfig = {
  * - {foo: {type: 'string'}} -> {foo: {type: 'string'}}
  */
 type NormalizeConfigValue<T> = T extends {type?: any; default?: any}
-	? T extends {type: infer Type}
+	? T extends {type: unknown}
 		? T
 		: T extends {default: infer D}
 			? D extends string
@@ -277,7 +416,13 @@ type NormalizeConfigValue<T> = T extends {type?: any; default?: any}
 									? {default: T; type: 'number[]'}
 									: T extends null
 										? {type: 'boolean'}
-										: {type: 'boolean'};
+										: // An object with no `type` and no `default` (for example `{mandatory: true}`)
+											// keeps its properties, thus `mandatory` and `validate` are read from it
+											T extends readonly unknown[]
+											? {type: 'boolean'}
+											: T extends object
+												? T
+												: {type: 'boolean'};
 
 /**
  * Widen literal types to their base types
@@ -352,7 +497,13 @@ type InferConfigType<Config> = Config extends {readonly default: infer D} | {def
 													? number[]
 													: Config extends {readonly type: 'hex[]'} | {type: 'hex[]'}
 														? number[]
-														: boolean; // default to boolean if no type or default specified
+														: Config extends
+																	| {readonly validate: RegExp}
+																	| {validate: RegExp}
+																	| {readonly valid: RegExp}
+																	| {valid: RegExp}
+															? string // a regular expression is for text
+															: boolean; // default to boolean if no type or default specified
 
 /**
  * Check if a config field has a default value
@@ -360,9 +511,13 @@ type InferConfigType<Config> = Config extends {readonly default: infer D} | {def
 type HasDefault<Config> = Config extends {readonly default: any} | {default: any} ? true : false;
 
 /**
- * Check if a config field is mandatory (has mandatory: true flag)
+ * Check if a config field is mandatory (has mandatory: true flag, or its alias required: true)
  */
-type IsMandatory<Config> = Config extends {readonly mandatory: true} | {mandatory: true}
+type IsMandatory<Config> = Config extends
+	| {readonly mandatory: true}
+	| {mandatory: true}
+	| {readonly required: true}
+	| {required: true}
 	? true
 	: false;
 
@@ -370,11 +525,8 @@ type IsMandatory<Config> = Config extends {readonly mandatory: true} | {mandator
  * Check if a config field is required (always present in result)
  * A field is required if it has mandatory: true OR has a default value
  */
-type IsRequired<Config> = HasDefault<Config> extends true
-	? true
-	: IsMandatory<Config> extends true
-		? true
-		: false;
+type IsRequired<Config> =
+	HasDefault<Config> extends true ? true : IsMandatory<Config> extends true ? true : false;
 
 /**
  * Check if a config field is optional (may be undefined in result)

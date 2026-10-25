@@ -1,16 +1,15 @@
 // https://bun.sh/docs/test/writing
 
-// @ts-ignore
+// @ts-expect-error
 import {describe, expect, test} from 'bun:test';
 
-import argMate from '../../src/argMate';
-import argMateMini from '../../src/argMateMini';
 import type {ArgMateEngine} from '../../src/types.js';
+import {argMate, argMateMini} from '../helper.ts';
 
 run(argMate);
 run(argMateMini, ' Mini');
 
-let argv;
+let argv: unknown;
 function run(argMate: ArgMateEngine, engineType = '') {
 	if (!engineType)
 		describe('AI on alias' + engineType, () => {

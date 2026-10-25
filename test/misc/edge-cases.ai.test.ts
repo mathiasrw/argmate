@@ -1,16 +1,13 @@
 // https://bun.sh/docs/test/writing
 
-// @ts-ignore
+// @ts-expect-error
 import {describe, expect, test} from 'bun:test';
 
-import argMate from '../../src/argMate';
-import argMateMini from '../../src/argMateMini';
 import type {ArgMateEngine} from '../../src/types.js';
+import {argMate, argMateMini} from '../helper.ts';
 
 run(argMate);
 run(argMateMini, ' Mini');
-
-let argv;
 
 function run(argMate: ArgMateEngine, engineType = '') {
 	describe('Edge cases' + engineType, () => {
@@ -600,6 +597,32 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				).toEqual({_: [], pattern: 'aaaa'});
 			});
 
+			test('Config object is not mutated after multiple calls (regression)', () => {
+				const cfg = {
+					verbose: {type: 'boolean', alias: 'v'},
+					name: {type: 'string', default: 'anon'},
+					greet: {alias: 'g,hello', conflict: 'shout', type: 'string'},
+					shout: {type: 'string'},
+				};
+				const originalKeys = Object.keys(cfg);
+				const originalVerbose = JSON.stringify(cfg.verbose);
+				const originalGreet = JSON.stringify(cfg.greet);
+
+				// Call argMate multiple times with the same config
+				argMate(['--verbose', '--name', 'mw'], cfg);
+				argMate(['-v'], cfg);
+				argMate(['--greet', 'hi'], cfg);
+				argMate(['-g', 'yo'], cfg);
+				argMate(['--hello', 'sup'], cfg);
+
+				// Verify config is unchanged
+				expect(Object.keys(cfg)).toEqual(originalKeys);
+				expect(JSON.stringify(cfg.verbose)).toBe(originalVerbose);
+				expect(JSON.stringify(cfg.greet)).toBe(originalGreet);
+				expect(cfg.verbose).toEqual({type: 'boolean', alias: 'v'});
+				expect(cfg.greet).toEqual({alias: 'g,hello', conflict: 'shout', type: 'string'});
+			});
+
 			test.todo('Extremely long camelCase conversion', () => {
 				const longKebab = 'a-'.repeat(1000) + 'z';
 				const longCamel = 'a'.repeat(1000) + 'Z';
@@ -607,6 +630,15 @@ function run(argMate: ArgMateEngine, engineType = '') {
 					_: [],
 					[longCamel]: 'value',
 				});
+			});
+
+			test('Parameter named hasOwnProperty should not break', () => {
+				// @ts-expect-error - testing edge case with hasOwnProperty parameter name
+				const result = argMate([], {
+					hasOwnProperty: {type: 'string[]' as const, default: ['default']},
+				});
+				// Access via bracket notation to avoid shadowing
+				expect(result['hasOwnProperty']).toEqual(['default']);
 			});
 		});
 	});

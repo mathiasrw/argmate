@@ -1,15 +1,15 @@
 // https://bun.sh/docs/test/writing
 
-// @ts-ignore
+// @ts-expect-error
 import {describe, expect, test} from 'bun:test';
 
-import argMate, {argInfo} from '../../src/argMate.js';
-import argMateMini, {argInfo as argInfoMini} from '../../src/argMateMini.js';
+import {argInfo, argMate} from '../helper.ts';
+import {argInfoMini, argMateMini} from '../helper.ts';
 
 run(argMate, argInfo);
 run(argMateMini, argInfoMini, ' Mini');
 
-let help;
+let help: unknown;
 
 function run(argMate, argInfo, engineType = '') {
 	describe('argInfo' + engineType, () => {

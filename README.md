@@ -130,7 +130,7 @@ const config = {
 		type: 'int',
 		mandatory: true,
 		alias: ['l', 'loops'],
-		valid: v => v > 0  // Validate the input is larger than zero
+		validate: v => v > 0  // Validate the input is larger than zero
 	},
 	help: {
 		alias: ['h']
@@ -180,7 +180,8 @@ const config = {
 	hight: {
 		// The expected data type.
 		// Can be: 'string', 'boolean', 'bool', 'number', 'int', 'float', 'hex', 
-		// or array types: 'string[]'/'array', 'boolean[]', 'bool[]', 'number[]', 'int[]', 'float[]', 'hex[]'
+		// or array types: 'string[]', 'boolean[]', 'bool[]', 'number[]', 'int[]', 'float[]', 'hex[]'
+		// `array` is an alias for `string[]`.
 		// If not set, type is detemined form the value of  from `default`, or defaults to boolean.
 		type: 'int',
 
@@ -196,21 +197,27 @@ const config = {
 		// can also be a string witn a single value or comma seperated values
 		conflict: ['range'],
 
-		// A function or an array to validate the parameter's value.
-		// If the function returns false, the error handler is called.
-		valid: (v) => {v >= 0},
+		// A function, a regular expression or an array to validate the parameter's value.
+		// The error handler is called if the function returns false, the regular expression
+		// does not match (use ^ and $ to match the full value), or the value is not in the array.
+		// Alias: valid
+		validate: (v) => {v >= 0},
 
 		// A function to modify the value before it's returned.
 		transform: (v) => v.trim(),
 	
 		// Makes the parameter required in the input. The error handler is called if it's missing.
+		// Alias: required
 		mandatory: false,
 
 		// A description used for generating the help text.
-		describe: 'The starting number for the loop.',
+		// Aliases: describe, desc
+		description: 'The starting number for the loop.',
 	},
 };
 ```
+
+These are all the properties of a parameter. `validate`, `mandatory` and `description` have aliases: `valid`, `required`, and `describe` or `desc`. Use one name only: the canonical name and its alias in the same parameter is a configuration error. Any other property, for example a misspelled `alais`, is a configuration error also: `panic` is called when the config is read, and TypeScript rejects it at compile time.
 
 ### Settings
 
@@ -282,8 +289,8 @@ import argMate, {argInfo} from 'argmate';
 const argv = argMate(
 	process.argv.slice(2),
 	{
-		foo: {describe: 'A foo parameter.', type: 'string'},
-		bar: {describe: 'A bar parameter.', alias: 'b'},
+		foo: {description: 'A foo parameter.', type: 'string'},
+		bar: {description: 'A bar parameter.', alias: 'b'},
 	},
 	{
 		intro: 'Introduction here',
@@ -295,8 +302,8 @@ console.log(
 	argInfo({
 		width: 100,			// Max character limit for the output width.
 		format: 'cli', 		// 'cli' | 'markdown'. Default is 'cli'.
-		voidIntro: false, 	// If true, omits the intro text.
-		voidOutro: false, 	// If true, omits the outro text.
+		showIntro: true, 	// If false, omits the intro text.
+		showOutro: true, 	// If false, omits the outro text.
 	})
 );
 ```
@@ -313,45 +320,50 @@ console.log(
 
 ## argMateMini
 
-Sometimes all you want is no fuss and a bit more speed. If you don't need magic and convinience, then `argMateMini` is your friend.
+Sometimes all you want is simplicity, speed and a minimal footprint. If you don't need too much magic and convenience, then `argMateMini` is your friend.
 
 ```javascript
 import argMate from 'argmate/mini';
 ```
 
-`argMateMini` is a stripped-down version of `argMate` with only the essential aspects for common use cases:
+`argMateMini` contains all the essence of CLI parsing and, to be frank, will be the best fit for most use cases. But compared to its big brother `argMate` it has:
 
-*   No parameter conflict detection
-*   No parameter value transformation
-*   No parameter value validation
-*   No hex conversion from `0x` notation to integer
-*   No flag negation like the `--no-flag` syntax.
-*   No ultra-short assignments like `-r255`.
-*   Only numeric values are auto-converted; all other values remain strings.
-
----
-
-Sometimes all you want is simplicity, speed and a minimal footprint. If you dont need too much magic and convinience, then argMateMini is your friend. 
-
-```js
-import argMate from 'argmate/mini';
-```
-
-ArgMateMini contains all the essense of CLI parsing and, to be frank, will be the best fit for most use cases. But compared to it's big brother _argMate_ it has:
 - No parameter conflict detection
-- No arameter value transformation
-- No parameter value validation
 - No emojis and fancy unicode in parameter names
 
-It also does not recognise slightly more escotic aspects of the traditions in CLI parameter formats:
-- No flag negation like the `--no-flag` syntax.
-- No ultra short assignments with notation like `-r255` as a shorthand for -r=255
+It also does not recognise the slightly more exotic traditions in CLI parameter formats:
+
+- No flag negation like the `--no-flag` syntax
+- No ultra-short assignments like `-r255` as a shorthand for `-r=255`
 
 Only numeric values are auto-converted, all other values remain strings:
-- No hex conversion of `0x...`, 
+
+- No auto hex conversion for `int` type (but `type: 'hex'` is supported)
 - No magic string conversion to boolean from true/false, yes/no, on/off
 
-Eveything else is exactly like argMate, just faster. 
+Everything else is exactly like `argMate`, just faster.
+
+
+## Type Reference
+
+| Type | ArgMate | ArgMateMini |
+|------|---------|-------------|
+| `boolean` | Expect a boolean value. `--flag` gives `true`, `--no-flag` gives `false`. Boolean-representative strings can be used for explicit assignments like `--flag=true` (works for `true`, `on`, `yes`, `1`, `false`, `off`, `no` and `0`). | Negation is not supported (`--no-myflag`) and setting booleans from strings is not supported. |
+| `bool` | Alias for `boolean` | Same |
+| `string` | Expect a string. `--name bob` gives `name: 'bob'`. | Same |
+| `int` | Expect integer values. `--count 42` gives `count: 42`. `0x...` values are auto-converted from hex so `--port 0x1f` gives `port: 31`. | No `0x...` conversion of values. |
+| `float` | Numeric values. `--rate 3.14` gives `rate: 3.14`. | Same |
+| `number`  | Alias for `float` | Same |
+| `count` | Counter behaving like a summarised `int[]`. Each plain occurrence adds 1 (`-vvv` gives `v: 3`), and explicit ints add their value (`-v=4 -v -v` gives `v: 6`, `-v=-2` subtracts 2). Non-int assignments error. Negation is not supported (`--no-foo` errors). | Same, except negation is treated as an unknown `noFoo` flag (no error). |
+| `hex` | Hexadecimal values. `--id 0xabc` and `--id abc` both give `id: 2748`. | Same |
+| `string[]` | Same as `string`. You can provide the parameter multiple times and it will always be an array. | Same |
+| `array` | Alias for `string[]` | Same |
+| `hex[]` | Same as `hex`. You can provide the parameter multiple times and it will always be an array. | Same |
+| `number[]` / `float[]` | Same as `number`. You can provide the parameter multiple times and it will always be an array. | Same |
+| `boolean[]` / `bool[]` | Same as `boolean`. You can provide the parameter multiple times and it will always be an array. | Same |
+| `int[]` | Same as `int`. You can provide the parameter multiple times and it will always be an array. | Same, but no `0x...` values. Use `type: 'hex[]'` for hex input. |
+| derived from default | Type is inferred from the `default` value. `{n: 1}` reads numbers, `{name: 'bob'}` reads strings, `{flag: false}` reads booleans, `{tags: []}` reads string arrays. | Same |
+| unspecified | Unknown parameters are booleans: `--flag` gives `flag: true`. Assigned unknown values are auto-converted: `--n=42` gives `n: 42`, `--yes=true` gives `yes: true`, `--name=bob` gives `name: 'bob'`. A separated value is positional: `--name bob` gives `name: true` and `_: ['bob']`. | Same, but only numbers are auto-converted. `--yes=true` gives `yes: 'true'`. |
 
 
 # Ideas

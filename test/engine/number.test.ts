@@ -1,15 +1,14 @@
 // https://bun.sh/docs/test/writing
 
-// @ts-ignore
+// @ts-expect-error
 import {describe, expect, test} from 'bun:test';
 
 // also test float
 
-import argMate from '../../src/argMate';
-import argMateMini from '../../src/argMateMini';
 import type {ArgMateEngine} from '../../src/types.js';
+import {argMate, argMateMini} from '../helper.ts';
 
-let argv;
+let argv: unknown;
 
 run(argMate);
 run(argMateMini, ' Mini');

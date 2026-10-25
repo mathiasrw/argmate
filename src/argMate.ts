@@ -1,6 +1,4 @@
-#!/usr/bin/env node
-
-import type {ArgMateConfig, ArgMateResponse, ArgMateSettings} from './types.js';
+import type {ArgMateConfig, ArgMateResponse, ArgMateSettings, StrictConfig} from './types.js';
 
 export {configPreprocessing, precompileConfig} from './compileConfig.js';
 
@@ -14,8 +12,13 @@ export {argEngine};
 
 export default function argMate<const Config extends ArgMateConfig | undefined = undefined>(
 	args: string[],
-	parameterConfig?: Config,
+	parameterConfig?: Config & StrictConfig<Config>,
 	engineSettings?: ArgMateSettings
 ): ArgMateResponse<Config> {
-	return argService(argEngine, args, parameterConfig, engineSettings) as ArgMateResponse<Config>;
+	return argService(
+		argEngine,
+		args,
+		parameterConfig as Config,
+		engineSettings
+	) as ArgMateResponse<Config>;
 }

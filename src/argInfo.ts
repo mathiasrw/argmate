@@ -1,6 +1,4 @@
-// @ts-ignore
-import {ArgMateConfig, ArgMateInfoConfig} from './types.js';
-// @ts-ignore
+import type {ArgMateConfig, ArgMateInfoConfig} from './types.js';
 import {tableLayout, camelToKebab, toArray, formatIntroOutro} from './formatArgInfo.js';
 
 export interface ArgMateHelpConfig {
@@ -33,9 +31,10 @@ export function argInfoFormat(
 				.sort((a, b) => a.length - b.length);
 			const short = names.shift() || '';
 			const long = names;
-			const desc = val.describe || '';
-			const meta = val.valid?.length
-				? `[${val.valid.join('|')}${val.default !== undefined ? `=${val.default}` : ''}]`
+			const desc = val.description || val.describe || val.desc || '';
+			const valid = val.validate || val.valid;
+			const meta = valid?.length
+				? `[${valid.join('|')}${val.default !== undefined ? `=${val.default}` : ''}]`
 				: val.type || val.default !== undefined
 					? `[${val.type || 'boolean'}${val.default !== undefined ? `=${val.default}` : ''}]`
 					: '';

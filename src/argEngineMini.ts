@@ -1,13 +1,4 @@
-import {
-	ArgMateConfig,
-	type ArgMateEngineConfig,
-	type ArgMateSettings,
-	type ArgMateResponse,
-} from './types.js';
-interface EngineSettings extends ArgMateSettings {
-	error: (msg: string) => never;
-	panic: (msg: string) => never;
-}
+import type {ArgMateConfig, ArgMateEngineConfig, ArgMateResponse} from './types.js';
 
 import {re} from './common.js';
 
@@ -63,19 +54,11 @@ export default function argEngineMini(
 		parameterConfig: {},
 	};
 
-	const {
-		mandatory,
-		validate,
-		transform,
-		complexDefault,
-		output,
-		engineSettings,
-		parameterConfig,
-		conflict,
-	} = argProcessObj;
+	const {mandatory, validate, transform, complexDefault, output, engineSettings, parameterConfig} =
+		argProcessObj;
 	const _ = output._ as (string | number)[];
 
-	args.reverse(); // Reverse, pop, push, reverse 8.77 times faster than unshft, shift
+	args = args.slice().reverse(); // Reverse, pop, push, reverse 8.77 times faster than unshft, shift. A copy: the array of the caller does not change
 
 	while (args.length) {
 		const arg: string = '' + args.pop();
@@ -99,16 +82,11 @@ export default function argEngineMini(
 		// STOP
 		if (LONG && !KEY) {
 			if (engineSettings.greedy) {
-				output['_'].push(args.reverse().join(' '));
+				output._.push(args.reverse().join(' '));
 			} else {
-				output['_'] = output['_'].concat(args.reverse());
+				output._ = output._.concat(args.reverse());
 			}
 			break;
-		}
-
-		if (!KEY) {
-			output['_'].push(arg);
-			continue;
 		}
 
 		if (engineSettings.allowAssign) {
@@ -120,7 +98,16 @@ export default function argEngineMini(
 			}
 		}
 
+		if (!KEY) {
+			_.push(arg);
+			continue;
+		}
+
 		if (!LONG && 1 !== KEY.length) {
+			if (re.hasSpace.test(KEY)) {
+				_.push(arg);
+				continue;
+			}
 			if (ASSIGN) return engineSettings.error(`Unsupported format: '${arg}'`);
 			const multi = KEY.split('').map(v => '-' + v);
 			args = args.concat(multi.reverse());
@@ -128,11 +115,15 @@ export default function argEngineMini(
 		}
 
 		if (!parameterConfig[KEY]) {
+			if (re.hasSpace.test(KEY)) {
+				_.push(arg);
+				continue;
+			}
 			if (!engineSettings.allowUnknown)
 				return engineSettings.error(`Unknown parameter '${KEY}' not allowed`);
 
 			if (engineSettings.autoCamelKebabCase) {
-				KEY = KEY.replace(re.kebab2camel, (match, letter) => letter.toUpperCase());
+				KEY = KEY.replace(re.kebab2camel, (_match, letter) => letter.toUpperCase());
 			}
 
 			if (ASSIGN) {
@@ -140,7 +131,6 @@ export default function argEngineMini(
 					if (0 === args.length) return engineSettings.error(`No data provided for '${KEY}'`);
 					VAL = args.pop() || '';
 				}
-				// @ts-ignore
 				output[KEY] = +VAL + '' === VAL ? +VAL : VAL;
 			} else {
 				output[KEY] = true;
@@ -159,8 +149,14 @@ export default function argEngineMini(
 		}
 
 		if ('count' === param.type) {
-			if (ASSIGN) return engineSettings.error(`'${KEY}' counting, so can't assign: '${arg}'`);
-			(output[KEY] as number)++;
+			let inc = 1;
+			if (ASSIGN) {
+				inc = +VAL | 0;
+				if (inc + '' !== VAL) {
+					return engineSettings.error(`'${KEY}' value is not a valid int: '${VAL}'`);
+				}
+			}
+			(output[param.key] as number) += inc;
 			continue;
 		}
 
@@ -223,20 +219,28 @@ export default function argEngineMini(
 	}
 
 	for (const key of validate) {
+		if (undefined === output[key]) continue;
+
 		const el = parameterConfig[parameterConfig[key].key || key];
 		let help = '';
-		if ('function' === typeof el.valid) {
-			if (el.valid(output[key])) continue;
-		} else {
-			if (!Array.isArray(el.valid)) {
-				return engineSettings.panic(`"valid" property of '${key}' must be function or array`);
-			}
 
-			if (el.valid.includes(output[key])) {
+		if ('function' === typeof el.validate) {
+			if (el.validate(output[key])) continue;
+		} else if (el.validate instanceof RegExp) {
+			if (
+				(Array.isArray(output[key]) ? output[key] : [output[key]]).every(
+					v => -1 < String(v).search(el.validate as RegExp)
+				)
+			) {
+				continue;
+			}
+			help = '. Must match ' + el.validate;
+		} else {
+			if ((el.validate as any[]).includes(output[key])) {
 				continue;
 			}
 
-			help = '. Valid values: ' + JSON.stringify(el.valid);
+			help = '. Valid values: ' + JSON.stringify(el.validate);
 		}
 
 		return engineSettings.error(`Invalid value for '${key}': '${output[key]}'` + help);
@@ -244,7 +248,7 @@ export default function argEngineMini(
 
 	for (const key of transform) {
 		if (undefined === output[key]) continue;
-		const fn = parameterConfig[key].transform;
+		const fn: unknown = parameterConfig[key].transform;
 		if ('function' !== typeof fn) {
 			return engineSettings.panic(`'${key}' transform must be a function`);
 		}
@@ -272,7 +276,7 @@ export default function argEngineMini(
 
 	for (let key in complexDefault) {
 		key = parameterConfig[key].key || key;
-		if (!parameterConfig.hasOwnProperty(key)) continue;
+		if (!Object.hasOwn(parameterConfig, key)) continue;
 
 		if (undefined === output[key] || !(output[key] as any[]).length) {
 			output[key] = complexDefault[key];

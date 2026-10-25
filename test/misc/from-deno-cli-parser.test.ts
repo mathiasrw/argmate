@@ -1,13 +1,12 @@
 // The Tests below are inpsired from the Deno CLI parseArgs https://github.com/denoland/std/blob/main/cli/parse_args_test.ts
 // https://bun.sh/docs/test/writing
 
-// @ts-ignore
+// @ts-expect-error
 import {describe, expect, test} from 'bun:test';
 
-import argMate from '../../src/argMate';
-import argMateMini from '../../src/argMateMini';
+import {argMate, argMateMini} from '../helper.ts';
 
-let argv;
+let argv: any;
 
 const Deno = {
 	test: (...a) => {},
@@ -208,19 +207,18 @@ function run(parseArgs, engineType = '') {
 
 			const parsed = argMate(['--boool', '--other=true'], opts);
 			expect(parsed.boool).toEqual(true);
-			expect(parsed.other).toEqual('true');
+			expect(parsed.other).toEqual(true);
 
 			const parsed2 = argMate(['--boool', '--other=false'], opts);
 			expect(parsed2.boool).toEqual(true);
-			expect(parsed2.other).toEqual('false');
+			expect(parsed2.other).toEqual(false);
 		});
 
-		// Modified from the original as we dont want to convert string "true" to a boolean
 		test('parseArgs() handles boolean true parsing', () => {
 			const argv = argMate('--boool=true'.split(' '));
 			expect(argv).toEqual({
 				_: [],
-				boool: 'true',
+				boool: true,
 			});
 		});
 

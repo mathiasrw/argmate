@@ -1,11 +1,10 @@
 // https://bun.sh/docs/test/writing
 
-// @ts-ignore
+// @ts-expect-error
 import {describe, expect, test} from 'bun:test';
 
-import argMate from '../../src/argMate';
-import argMateMini from '../../src/argMateMini';
 import type {ArgMateConfig, ArgMateSettings} from '../../src/types';
+import {argMate, argMateMini} from '../helper.ts';
 
 run(argMate);
 run(argMateMini, ' Mini');

@@ -1,16 +1,4 @@
-import type {
-	ArgMateConfig,
-	ArgMateEngineConfig,
-	ArgMateSettings,
-	ArgMateResponse,
-} from './types.js';
-
-//import use from './strip.macro.js' with { type: 'macro' };
-
-interface EngineSettings extends ArgMateSettings {
-	error: (msg: string) => never;
-	panic: (msg: string) => never;
-}
+import type {ArgMateConfig, ArgMateEngineConfig, ArgMateResponse} from './types.js';
 
 import {re} from './common.js';
 
@@ -82,7 +70,7 @@ export default function argEngine(
 			autoCamelKebabCase,
 			allowNegatingFlags,
 			allowKeyNumValues,
-			allowAssign,
+			// allowAssign,
 			outputAlias,
 			allowBoolString,
 			outputInflate,
@@ -96,10 +84,10 @@ export default function argEngine(
 	const hasProp = Object.prototype.hasOwnProperty;
 
 	// Reverse, pop, push, reverse 8.77 times faster than unshft, shift
-	args.reverse();
+	args = args.slice().reverse(); // A copy: the array of the caller does not change
 
 	while (args.length) {
-		// biome-ignore lint: Speed
+		// Speed
 		const arg: string = '' + args.pop();
 
 		if (arg.charCodeAt(0) !== 45) {
@@ -109,15 +97,18 @@ export default function argEngine(
 
 		const token = arg.match(re.paramTokens);
 
-		if (!token) return panic('Group not returned');
+		if (!token) {
+			_.push(arg);
+			continue;
+		}
 
 		let {STOP, LONG, NO, KEY, KEYNUM, ASSIGN, VAL} = token.groups as {[key: string]: string};
 
 		if (STOP) {
 			if (greedy) {
-				output['_'].push(args.reverse().join(' '));
+				output._.push(args.reverse().join(' '));
 			} else {
-				output['_'] = output['_'].concat(args.reverse());
+				output._ = output._.concat(args.reverse());
 			}
 			break;
 		}
@@ -127,24 +118,23 @@ export default function argEngine(
 			NO = '';
 		}
 
-		if (KEYNUM) {
-			if (!allowKeyNumValues || LONG || ASSIGN) {
-				KEY += KEYNUM;
-				KEYNUM = '';
-			} else {
-				if (!LONG && 1 < KEY.length) {
-					return error(`Unsupported format: '${arg}'. Did you miss a dash at the beginning?`);
-				}
-				VAL = ASSIGN = KEYNUM;
+		if (KEYNUM && (!allowKeyNumValues || LONG || ASSIGN)) {
+			KEY += KEYNUM;
+			KEYNUM = '';
+		}
+
+		if (!LONG && 1 < KEY.length) {
+			const multi = re.hasNonAscii.test(KEY)
+				? (KEY.match(re.graphemes) as string[])
+				: KEY.split('');
+			if (1 < multi.length) {
+				multi[multi.length - 1] += KEYNUM + (ASSIGN || '');
+				args = args.concat(multi.map(v => (NO ? '-no-' : '-') + v).reverse());
+				continue;
 			}
 		}
 
-		if (!LONG && 1 < [...KEY].length) {
-			const multi = KEY.split('').map(v => (NO ? '-no-' : '-') + v);
-			multi[multi.length - 1] += ASSIGN || '';
-			args = args.concat(multi.reverse());
-			continue;
-		}
+		if (KEYNUM) VAL = ASSIGN = KEYNUM;
 
 		if (!KEY) {
 			_.push(arg);
@@ -164,9 +154,11 @@ export default function argEngine(
 					if (args.length === 0) return error(`No data provided for '${KEY}'`);
 					VAL = args.pop() || '';
 				}
-				// @ts-ignore
-				// biome-ignore lint: Speed
-				output[KEY] = +VAL + '' === VAL ? +VAL : VAL;
+				// Speed
+				if (+VAL + '' === VAL) output[KEY] = +VAL;
+				else if (allowBoolString && re.boolStringTrue.test(VAL)) output[KEY] = true;
+				else if (allowBoolString && re.boolStringFalse.test(VAL)) output[KEY] = false;
+				else output[KEY] = VAL;
 			} else {
 				output[KEY] = !NO;
 			}
@@ -177,7 +169,7 @@ export default function argEngine(
 		const theKey = parameterConfig[KEY].key;
 		const theType = parameterConfig[theKey || KEY].type;
 
-		if (!VAL && !('count' === theType || ('boolean' === theType && !ASSIGN))) {
+		if (!VAL && !(('count' === theType && !ASSIGN) || ('boolean' === theType && !ASSIGN))) {
 			if (0 === args.length) {
 				return error(`No data provided for '${KEY}'`);
 			}
@@ -193,11 +185,11 @@ export default function argEngine(
 
 				if (allowBoolString && re.boolStringTrue.test(VAL)) {
 					result = true;
-				} else if (allowBoolString && re.boolstringfalse.test(VAL)) {
+				} else if (allowBoolString && re.boolStringFalse.test(VAL)) {
 					result = false;
 				} else {
 					return error(
-						`The parameter '${KEY}' is a boolean (a flag) so can't assign a value like '${VAL == VAL.slice(0, 16) ? VAL : VAL.slice(0, 16)}'`
+						`The parameter '${KEY}' is a boolean (a flag) so can't assign a value like '${VAL === VAL.slice(0, 16) ? VAL : VAL.slice(0, 16)}'`
 					);
 				}
 			}
@@ -211,7 +203,14 @@ export default function argEngine(
 		}
 
 		if ('count' === theType) {
-			(output[theKey] as number)++;
+			let inc = 1;
+			if (ASSIGN) {
+				inc = +VAL | 0;
+				if (inc + '' !== VAL) {
+					return error(`The value of '${KEY}' is not a valid int: '${VAL}'`);
+				}
+			}
+			(output[theKey] as number) += inc;
 			inputLog.push(theKey);
 			continue;
 		}
@@ -267,7 +266,7 @@ export default function argEngine(
 				return panic(`Parameter '${KEY}' configuration has an invalid type: '${theType}'`);
 		}
 
-		if (Number.isNaN(data) || !isFinite(data))
+		if (Number.isNaN(data) || !Number.isFinite(data))
 			return error(`The value of '${KEY}' is not a valid ${theType}: '${VAL}'`);
 
 		if (Array.isArray(output[theKey])) {
@@ -285,18 +284,26 @@ export default function argEngine(
 	}
 
 	for (const key of validate) {
+		if (undefined === output[key]) continue;
+
 		const param = parameterConfig[key];
 		let help = '';
-		if ('function' === typeof param.valid) {
-			if (param.valid(output[key])) continue;
+
+		if ('function' === typeof param.validate) {
+			if (param.validate(output[key])) continue;
+		} else if (param.validate instanceof RegExp) {
+			if (
+				(Array.isArray(output[key]) ? output[key] : [output[key]]).every(
+					v => -1 < String(v).search(param.validate as RegExp)
+				)
+			)
+				continue;
+			help = '. The value must match ' + param.validate;
 		} else {
-			if (!Array.isArray(param.valid))
-				return panic(
-					`The "valid" property of '${key}' parameter must be a function or an array of valid values`
-				);
-			if ((param.valid as any[]).includes(output[key])) continue;
-			help = '. Please use one of the following values: ' + JSON.stringify(param.valid);
+			if ((param.validate as any[]).includes(output[key])) continue;
+			help = '. Please use one of the following values: ' + JSON.stringify(param.validate);
 		}
+
 		return error(
 			`The value provided for the parameter '${key}' is not valid: '${output[key]}'` + help
 		);
@@ -304,7 +311,7 @@ export default function argEngine(
 
 	for (const key of transform) {
 		if (undefined === output[key]) continue;
-		const fn = parameterConfig[key].transform;
+		const fn: unknown = parameterConfig[key].transform;
 		if ('function' !== typeof fn) {
 			return panic(`The "transform" property of '${key}' parameter must be a function`);
 		}
@@ -340,7 +347,7 @@ export default function argEngine(
 			if ('_' === key || !hasProp.call(output, key)) continue;
 			const result = output[key];
 			tempOutput[key] = result;
-			const alias = parameterConfig[key].alias;
+			const alias = parameterConfig[key]?.alias;
 			if (!alias) continue;
 			for (const a of alias) {
 				tempOutput[a] = result;

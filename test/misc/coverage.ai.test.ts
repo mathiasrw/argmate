@@ -1,12 +1,11 @@
 // Coverage tests to reach uncovered lines
-// @ts-ignore
+// @ts-expect-error
 import {describe, expect, test} from 'bun:test';
 
-import argMate from '../../src/argMate';
-import argMateMini from '../../src/argMateMini';
-import {argEngine} from '../../src/argMate';
-import argEngineMini from '../../src/argEngineMini';
-import {precompileConfig} from '../../src/compileConfig';
+import {argMate, argMateMini} from '../helper.ts';
+import {argEngine} from '../helper.ts';
+import {argEngineMini} from '../helper.ts';
+import {precompileConfig} from '../helper.ts';
 
 run(argMate, argEngine);
 run(argMateMini, argEngineMini, ' Mini');
@@ -113,61 +112,82 @@ function run(argMate, engine, engineType = '') {
 		});
 
 		// Test for allowBoolString with false values (line 177 in argEngine.ts)
-		describe('Boolean string values', () => {
-			test.skip('should parse false boolean string', () => {
-				const result = argMate(
-					['--flag=false'],
-					{flag: {type: 'boolean'}},
-					{allowBoolString: true, allowAssign: true}
-				);
-				expect(result.flag).toBe(false);
-			});
+		// Skip for Mini engine (doesn't support allowBoolString)
+		if (!engineType) {
+			describe('Boolean string values', () => {
+				test('should parse false boolean string', () => {
+					const result = argMate(
+						['--flag=false'],
+						{flag: {type: 'boolean'}},
+						{allowBoolString: true, allowAssign: true}
+					);
+					expect(result.flag).toBe(false);
+				});
 
-			test.skip('should parse "no" as false', () => {
-				const result = argMate(
-					['--enabled=no'],
-					{enabled: {type: 'boolean'}},
-					{allowBoolString: true, allowAssign: true}
-				);
-				expect(result.enabled).toBe(false);
-			});
+				test('should parse "no" as false', () => {
+					const result = argMate(
+						['--enabled=no'],
+						{enabled: {type: 'boolean'}},
+						{allowBoolString: true, allowAssign: true}
+					);
+					expect(result.enabled).toBe(false);
+				});
 
-			test.skip('should parse "off" as false', () => {
-				const result = argMate(
-					['--active=off'],
-					{active: {type: 'boolean'}},
-					{allowBoolString: true, allowAssign: true}
-				);
-				expect(result.active).toBe(false);
-			});
+				test('should parse "off" as false', () => {
+					const result = argMate(
+						['--active=off'],
+						{active: {type: 'boolean'}},
+						{allowBoolString: true, allowAssign: true}
+					);
+					expect(result.active).toBe(false);
+				});
 
-			test.skip('should parse "0" as false', () => {
-				const result = argMate(
-					['--debug=0'],
-					{debug: {type: 'boolean'}},
-					{allowBoolString: true, allowAssign: true}
-				);
-				expect(result.debug).toBe(false);
-			});
+				test('should parse "0" as false', () => {
+					const result = argMate(
+						['--debug=0'],
+						{debug: {type: 'boolean'}},
+						{allowBoolString: true, allowAssign: true}
+					);
+					expect(result.debug).toBe(false);
+				});
 
-			test.skip('should parse true boolean string', () => {
-				const result = argMate(
-					['--flag=true'],
-					{flag: {type: 'boolean'}},
-					{allowBoolString: true, allowAssign: true}
-				);
-				expect(result.flag).toBe(true);
-			});
+				test('should parse true boolean string', () => {
+					const result = argMate(
+						['--flag=true'],
+						{flag: {type: 'boolean'}},
+						{allowBoolString: true, allowAssign: true}
+					);
+					expect(result.flag).toBe(true);
+				});
 
-			test.skip('should parse "yes" as true', () => {
-				const result = argMate(
-					['--enabled=yes'],
-					{enabled: {type: 'boolean'}},
-					{allowBoolString: true, allowAssign: true}
-				);
-				expect(result.enabled).toBe(true);
+				test('should parse "yes" as true', () => {
+					const result = argMate(
+						['--enabled=yes'],
+						{enabled: {type: 'boolean'}},
+						{allowBoolString: true, allowAssign: true}
+					);
+					expect(result.enabled).toBe(true);
+				});
+
+				test('should parse "on" as true', () => {
+					const result = argMate(
+						['--verbose=on'],
+						{verbose: {type: 'boolean'}},
+						{allowBoolString: true, allowAssign: true}
+					);
+					expect(result.verbose).toBe(true);
+				});
+
+				test('should parse "1" as true', () => {
+					const result = argMate(
+						['--debug=1'],
+						{debug: {type: 'boolean'}},
+						{allowBoolString: true, allowAssign: true}
+					);
+					expect(result.debug).toBe(true);
+				});
 			});
-		});
+		}
 
 		// Test for conflict detection (line 299 in argEngine.ts)
 		describe('Conflict detection', () => {

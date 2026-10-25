@@ -1,6 +1,5 @@
 import {describe, expect, test} from 'bun:test';
-import argMate from '../src/argMate.ts';
-import argMateMini from '../src/argMateMini.ts';
+import {argMate, argMateMini} from './helper.ts';
 
 const engines = [
 	{name: 'Regular', fn: argMate},

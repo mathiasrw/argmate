@@ -1,4 +1,4 @@
-import argInfo from '../src/argInfo.js';
+import {argInfoFormat as argInfo} from './helper.ts';
 
 // Sample params similar to the old rexData example
 const testParams = {

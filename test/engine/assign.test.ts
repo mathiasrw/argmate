@@ -1,12 +1,11 @@
 // https://bun.sh/docs/test/writing
 
-// @ts-ignore
+// @ts-expect-error
 import {describe, expect, test} from 'bun:test';
 
-import argMate from '../../src/argMate';
-import argMateMini from '../../src/argMateMini';
 import type {DoneCallback, ErrorCallback} from '../../src/test-types.js';
 import type {ArgMateEngine} from '../../src/types.js';
+import {argMate, argMateMini} from '../helper.ts';
 
 run(argMate);
 run(argMateMini, ' Mini');
@@ -55,10 +54,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 
 		if (!engineType)
-			test('Multi not allowed', () => {
-				expect(() => {
-					argMate('-foo123'.split(' '), {}, {allowAssign: true});
-				}).toThrow(/Unsupported format.*foo/i);
+			test('Multi with digits gives the digits to the last letter', () => {
+				expect(argMate('-foo123'.split(' '), {}, {allowAssign: true})).toEqual({
+					_: [],
+					f: true,
+					o: 123,
+				});
 			});
 
 		test('Missing assignment', () => {

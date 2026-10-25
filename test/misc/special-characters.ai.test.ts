@@ -1,16 +1,13 @@
 // https://bun.sh/docs/test/writing
 
-// @ts-ignore
+// @ts-expect-error
 import {describe, expect, test} from 'bun:test';
 
-import argMate from '../../src/argMate';
-import argMateMini from '../../src/argMateMini';
 import type {ArgMateEngine} from '../../src/types.js';
+import {argMate, argMateMini} from '../helper.ts';
 
 run(argMate);
 run(argMateMini, ' Mini');
-
-let argv;
 
 function run(argMate: ArgMateEngine, engineType = '') {
 	describe('Special characters' + engineType, () => {
@@ -196,11 +193,17 @@ function run(argMate: ArgMateEngine, engineType = '') {
 		describe('Additional Edge Cases', () => {
 			describe('Special Characters in Flags', () => {
 				test('Dollar sign in flag name', () => {
-					expect(argMate(['--$debug=', 'true'])).toEqual({$debug: 'true', _: []});
+					expect(argMate(['--$debug=', 'true'])).toEqual({
+						$debug: engineType ? 'true' : true,
+						_: [],
+					});
 				});
 
 				test('Ampersand in flag name', () => {
-					expect(argMate(['--enable&=', 'true'])).toEqual({'enable&': 'true', _: []});
+					expect(argMate(['--enable&=', 'true'])).toEqual({
+						'enable&': engineType ? 'true' : true,
+						_: [],
+					});
 				});
 
 				test.todo('Dash in flag name - needs investigation', () => {
@@ -214,15 +217,18 @@ function run(argMate: ArgMateEngine, engineType = '') {
 
 			describe('Unicode in Flags', () => {
 				test('Unicode in flag name', () => {
-					expect(argMate(['--テスト=', 'true'])).toEqual({テスト: 'true', _: []});
+					expect(argMate(['--テスト=', 'true'])).toEqual({
+						テスト: engineType ? 'true' : true,
+						_: [],
+					});
 				});
 
 				test('Non-ASCII characters in flag name', () => {
-					expect(argMate(['--Über=', 'true'])).toEqual({Über: 'true', _: []});
+					expect(argMate(['--Über=', 'true'])).toEqual({Über: engineType ? 'true' : true, _: []});
 				});
 
 				test('Right-to-left flag name', () => {
-					expect(argMate(['--مرحبا=', 'true'])).toEqual({مرحبا: 'true', _: []});
+					expect(argMate(['--مرحبا=', 'true'])).toEqual({مرحبا: engineType ? 'true' : true, _: []});
 				});
 
 				test('Emoji in flag name', () => {

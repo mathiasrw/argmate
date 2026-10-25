@@ -1,16 +1,13 @@
 // https://bun.sh/docs/test/writing
 
-// @ts-ignore
+// @ts-expect-error
 import {describe, expect, test} from 'bun:test';
 
-import argMate from '../../src/argMate';
-import argMateMini from '../../src/argMateMini';
 import type {ArgMateEngine} from '../../src/types.js';
+import {argMate, argMateMini} from '../helper.ts';
 
 run(argMate);
 run(argMateMini, ' Mini');
-
-let argv;
 
 function run(argMate: ArgMateEngine, engineType = '') {
 	describe('README Usage Examples' + engineType, () => {
@@ -133,8 +130,8 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			test('Variation: Boolean string assignment', () => {
 				expect(argMate(['--debug=true', '--verbose=false'])).toEqual({
 					_: [],
-					debug: 'true',
-					verbose: 'false',
+					debug: engineType ? 'true' : true,
+					verbose: engineType ? 'false' : false,
 				});
 			});
 		});

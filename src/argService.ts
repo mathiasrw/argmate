@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import type {
 	ArgMateConfig,
 	ArgMateEngineConfig,
@@ -8,7 +6,7 @@ import type {
 	ArgMateResponse,
 } from './types.js';
 
-import {argInfoFormat, ArgMateHelpConfig} from './argInfo.js';
+import {argInfoFormat, type ArgMateHelpConfig} from './argInfo.js';
 
 import {configPreprocessing} from './compileConfig.js';
 
@@ -27,8 +25,8 @@ export function argService<const Config extends ArgMateConfig>(
 ): ArgMateResponse<Config> {
 	if (!parameterConfig && !engineSettings) return engine(args) as ArgMateResponse<Config>;
 
-	parameterConfig_ = parameterConfig ? {...parameterConfig} : {};
-	engineSettings_ = engineSettings ? {...engineSettings} : {};
+	parameterConfig_ = parameterConfig || {};
+	engineSettings_ = engineSettings || {};
 
 	return engine(
 		args,
@@ -41,7 +39,7 @@ export function argService<const Config extends ArgMateConfig>(
 	parameterConfig?: ArgMateConfig,
 	engineSettings?: ArgMateSettings
 ) {
-	const mergedEngineSettings = {...(engineSettings_ || {}), ...(engineSettings || {})};
+	const _mergedEngineSettings = {...(engineSettings_ || {}), ...(engineSettings || {})};
 	const mergedParameterConfig = {...(parameterConfig_ || {}), ...(parameterConfig || {})};
 
 	// Extract help text (intro, outro) from parameterConfig, and keep the rest as parameter definitions

@@ -1,13 +1,13 @@
 function breakLines(text: string, columnWidth: number): string[] {
 	const regex = new RegExp(`([^\\s].{0,${columnWidth - 1}})(?:[\\s]|$)`, 'g');
 	const lines = ('' + text).split('\n');
-	return lines.map(l => l.match(regex) || []).flat();
+	return lines.flatMap(l => l.match(regex) || []);
 }
 
 function minimizeLineBreaks(data: string[][], maxWidth = 120): number[] {
 	const numColumns = data[0].length;
-	let columnWidths = Array(numColumns).fill(0);
-	let columnMinWidths = Array(numColumns).fill(0);
+	const columnWidths = Array(numColumns).fill(0);
+	const columnMinWidths = Array(numColumns).fill(0);
 	let longestWord = 0;
 
 	// Step 1: Calculate the Initial Minimum Widths and Column Widths
@@ -27,7 +27,7 @@ function minimizeLineBreaks(data: string[][], maxWidth = 120): number[] {
 	}
 
 	// Calculate initial total width and overflow
-	let totalWidth = columnWidths.reduce((a, b) => a + b, 0);
+	const totalWidth = columnWidths.reduce((a, b) => a + b, 0);
 	let overflow = totalWidth - maxWidth;
 
 	// Step 2: Adjust the column widths if there's an overflow
@@ -48,14 +48,15 @@ function tupple(row: string[], widths: number[]): string[][] {
 	const fields = row.map((v, i) => breakLines(v, widths[i]));
 
 	let active = true;
-	let lines: any[] = [];
+	const lines: any[] = [];
 	for (let i = 0; active; i++) {
 		active = false;
-		let line: string[] = [];
+		const line: string[] = [];
 		fields.forEach((f, j) => {
 			if (i < f.length) {
 				active = true;
-				return line.push(f[i].padEnd(widths[j], ' '));
+				line.push(f[i].padEnd(widths[j], ' '));
+				return;
 			}
 			line.push(' '.padEnd(widths[j], ' '));
 		});
@@ -86,7 +87,7 @@ export function tableLayout(data: string[][], conf_: TableLayoutConfig = {}): st
 
 	const optimizedWidths = minimizeLineBreaks(data, workingWidth);
 
-	const table = data.map((t, i) => tupple(t, optimizedWidths));
+	const table = data.map(t => tupple(t, optimizedWidths));
 
 	let ascii = '';
 
@@ -113,7 +114,9 @@ export interface FormatArgInfoConfig {
 export interface ParamDef {
 	alias?: string | string[];
 	default?: any;
+	description?: string;
 	describe?: string;
+	desc?: string;
 	type?: string;
 }
 
@@ -144,7 +147,8 @@ export default function formatArgInfo(
 		const shortFlag = allNames.pop() || '';
 		const longFlags =
 			allNames.join(', ') + (val.default !== undefined ? `\n[=${val.default}]` : '');
-		const description = (val.describe || '') + (val.type ? ` [${val.type}]` : '');
+		const description =
+			(val.description || val.describe || val.desc || '') + (val.type ? ` [${val.type}]` : '');
 
 		tableData.push([shortFlag, longFlags, description]);
 	}

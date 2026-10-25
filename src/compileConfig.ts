@@ -53,10 +53,14 @@ const strictSettings = {
 
 	const {panic} = finalSettings;
 	const hasOwnPropertyFn = Object.prototype.hasOwnProperty;
+	const processedConfig: {[key: string]: any} = {};
 
 	for (const key in parameterConfig) {
 		if (!hasOwnPropertyFn.call(parameterConfig, key)) continue;
-		let param = parameterConfig[key];
+		// `param` is typed loosely here because it is mutated extensively below
+		// (normalization, alias/conflict array coercion, type/default coercion).
+		// The public-facing constraint lives in `ArgMateConfig` + `ValidateConfig`.
+		let param: any = parameterConfig[key];
 
 		// If only default value is provided, then transform to object with correct type
 		if (param === null || typeof param !== 'object' || Array.isArray(param)) {
@@ -64,6 +68,42 @@ const strictSettings = {
 				default: param,
 				type: findType(param),
 			};
+		} else {
+			// Copy to avoid mutating the user's config object. An alias of a config property gets its
+			// canonical name in the copy. A switch is faster here than a regex or a Set.
+			// Keep in sync with `ConfigPropertyName` in `types.ts`
+			const copy: any = {};
+			for (const configProperty in param) {
+				let canonical = configProperty;
+				switch (configProperty) {
+					case 'type':
+					case 'default':
+					case 'alias':
+					case 'conflict':
+					case 'validate':
+					case 'transform':
+					case 'mandatory':
+					case 'description':
+						break;
+					case 'valid':
+						canonical = 'validate';
+						break;
+					case 'required':
+						canonical = 'mandatory';
+						break;
+					case 'describe':
+					case 'desc':
+						canonical = 'description';
+						break;
+					default:
+						return panic(`Unknown config property '${configProperty}' for parameter '${key}'`);
+				}
+				if (canonical in copy) {
+					return panic(`More than one config property for '${canonical}' in parameter '${key}'`);
+				}
+				copy[canonical] = param[configProperty];
+			}
+			param = copy;
 		}
 
 		param.key = key;
@@ -81,15 +121,29 @@ const strictSettings = {
 			transform.push(key);
 		}
 
-		if (undefined !== param.valid) {
+		if (undefined !== param.validate) {
 			validate.push(key);
-			if (undefined === param.default && Array.isArray(param.valid)) {
-				if (!param.valid.length) return panic(`Empty array found for valid values of '${key}'`);
+			if (Array.isArray(param.validate)) {
+				if (undefined === param.default) {
+					if (!param.validate.length) {
+						return panic(`Empty array found for valid values of '${key}'`);
+					}
 
-				if (undefined === param.type) {
-					param.type = findType(param.valid[0]);
+					if (undefined === param.type) {
+						param.type = findType(param.validate[0]);
+					}
+					param.default = param.validate[0];
 				}
-				param.default = param.valid[0];
+			} else if (param.validate instanceof RegExp) {
+				// A regular expression is for text, thus it gives the type `string` when there is no type and no default
+				if (undefined === param.type && undefined === param.default) {
+					param.type = 'string';
+				}
+			} else if ('function' !== typeof param.validate) {
+				// The engines do not check this again
+				return panic(
+					`The "validate" property of '${key}' must be a function, a regular expression or an array of valid values`
+				);
 			}
 		}
 
@@ -138,17 +192,17 @@ const strictSettings = {
 
 		if (param.alias) {
 			for (const alias of param.alias) {
-				if (undefined === parameterConfig[alias]) {
-					parameterConfig[alias] = {key};
+				if (undefined === parameterConfig[alias] && undefined === processedConfig[alias]) {
+					processedConfig[alias] = {key};
 				}
 			}
 		}
 
-		parameterConfig[key] = param;
+		processedConfig[key] = param;
 	}
 
 	return {
-		parameterConfig: parameterConfig as any, // Config has been mutated in place to match EngineFinalConfig structure
+		parameterConfig: processedConfig as any,
 		engineSettings: finalSettings,
 		output,
 		validate,
