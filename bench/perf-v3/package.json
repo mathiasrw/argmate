@@ -21,6 +21,6 @@
 	"dependencies": {
 		"iconv-lite": "^0.7.0",
 		"object-hash": "^3.0.0",
-		"oclif": "^4.22.44"
+		"oclif": "^6.0.0"
 	}
 }
