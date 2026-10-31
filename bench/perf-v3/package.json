@@ -11,7 +11,7 @@
 		"@oclif/core": "^4.8.0",
 		"arg": "^5.0.2",
 		"as-table": "^1.0.55",
-		"commander": "^14.0.2",
+		"commander": "^15.0.0",
 		"is-even": "^1.0.0",
 		"meow": "^14.0.0",
 		"react-native-fs": "^2.20.0",
