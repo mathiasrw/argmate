@@ -175,7 +175,7 @@ type ParameterConfig =
  * - This union
  * - `ValueOfType<T>` below
  * - The engine switch statement in `argEngine.ts` / `argEngineMini.ts`
- * - The `re.validTypes` regex in `common.ts`
+ * - The `switch` of the valid types in `configPreprocessing`, in `compileConfig.ts`
  */
 export type ParameterTypeName =
 	| 'boolean'
@@ -396,7 +396,7 @@ export interface EngineSettings extends ArgMateSettings {
 	panic: (msg: string) => never;
 }
 
-/** What the `error` callback gets for an input error (item 48). `panic` gets a string for a config error. */
+/** What the `error` callback gets for an input error. `panic` gets a string for a config error. */
 export interface ArgMateError {
 	code:
 		| 'UNKNOWN'
@@ -471,7 +471,7 @@ export type ArgMateEngineConfig = {
 	conflict: string[];
 	demand: string[];
 	spots: string[];
-	slices: string[];
+	nextOrLast: string[];
 	complexDefault: {[key: string]: string[] | number[]};
 	engineSettings: EngineSettings;
 	parameterConfig: EngineFinalConfig;

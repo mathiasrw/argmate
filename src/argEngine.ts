@@ -44,8 +44,32 @@ const asTyped = (typed: string[], key: string, kebab?: boolean) => {
 		: (1 < key.length ? '--' : '-') +
 				(kebab && re.isCamel.test(key) ? key.replace(re.camel2kebab, '$1-$2').toLowerCase() : key);
 };
+// Loops in place of `re.isKebab` and `re.kebab2camel`: they run for each parameter that the config does not know,
+// and a loop is faster than a regex there
+const isKebab = (s: string) => {
+	for (let i = 1; i < s.length - 1; i++) {
+		if (45 === s.charCodeAt(i) && 45 !== s.charCodeAt(i - 1) && 45 !== s.charCodeAt(i + 1))
+			return true;
+	}
+	return false;
+};
+const kebab2camel = (s: string) => {
+	let out = '';
+	for (let i = 0; i < s.length; i++) {
+		if (45 === s.charCodeAt(i) && i + 1 < s.length) {
+			const letter = String.fromCodePoint(s.codePointAt(++i) as number);
+			out += letter.toUpperCase();
+			if (1 < letter.length) i++;
+		} else out += s[i];
+	}
+	return out;
+};
 // A value of unspecified type as a number, when it is an int, a float or scientific notation that a number holds
 const autoNumber = (VAL: string) => {
+	// A number starts with a digit or a dash, so most text is known not to be a number from its first character,
+	// without the regex
+	const first = VAL.charCodeAt(0);
+	if (45 !== first && (first < 48 || 57 < first)) return VAL;
 	const number = +VAL;
 	return re.autoNumber.test(VAL) &&
 		(Number.isSafeInteger(number) || (Number.isFinite(number) && !Number.isInteger(number)))
@@ -71,10 +95,19 @@ const finalValue = (theType: string, VAL: string): unknown => {
 				: Number.NaN;
 
 		case 'int':
-		case 'int[]':
+		case 'int[]': {
+			// Plain digits are the usual int and need no regex. A leading zero or 16 digits or more go on to the regex below,
+			// which decides them
+			const first = VAL.charCodeAt(0);
+			if (48 < first && first < 58 && VAL.length < 16) {
+				let i = VAL.length;
+				while (--i && 47 < VAL.charCodeAt(i) && VAL.charCodeAt(i) < 58);
+				if (!i) return +VAL;
+			}
 			return (re.autoNumber.test(VAL) || re.isHexPrefix.test(VAL)) && Number.isSafeInteger(+VAL)
 				? +VAL
 				: Number.NaN;
+		}
 
 		case 'hex':
 		case 'hex[]': {
@@ -91,9 +124,244 @@ const finalValue = (theType: string, VAL: string): unknown => {
 			return undefined;
 	}
 };
-// An error object (item 48): in a string, it is its message
+// The error object is its message in a string, as the error was before it became an object
 const fail = (error: (e: ArgMateError) => never, e: ArgMateError) =>
 	error(Object.setPrototypeOf(e, asText));
+
+const PASS = {};
+
+// Few configs have spot, next, last, exists, conflict or demand. As separate functions they are compiled when a
+// config first needs one, so a program without them does not pay for them at start. They return PASS, or what the
+// engine must return
+function paramValueFromSpot(
+	args: string[],
+	output: any,
+	typed: string[],
+	configObj: ArgMateEngineConfig
+): unknown {
+	const {
+		spots,
+		parameterConfig,
+		engineSettings: {error},
+	} = configObj as any;
+
+	// The index in the reversed array of each spot, highest first, so taking one out doesn't shift the next
+	const inputs = args.length;
+	const indexed: {key: string; index: number}[] = [];
+	for (const key of spots) {
+		const spot = parameterConfig[key].spot as number;
+		indexed.push({key, index: spot < 0 ? -spot - 1 : inputs - spot});
+	}
+	indexed.sort((a, b) => b.index - a.index);
+
+	for (let i = 0; i < indexed.length; i++) {
+		const {key, index} = indexed[i];
+		// A spot without an input is not an error here: mandatory decides that
+		if (index < 0 || inputs <= index) continue;
+		// A spot from the start and one from the end overlap when there are few inputs
+		if (i && index === indexed[i - 1].index)
+			return fail(error, {
+				code: 'MISSING_VALUE',
+				key,
+				alias: (1 < key.length ? '--' : '-') + key,
+				with: indexed[i - 1].key,
+				message: `Not enough data provided for both '${indexed[i - 1].key}' and '${key}': they overlap`,
+			});
+
+		const type = parameterConfig[key].type;
+		const name = (1 < key.length ? '--' : '-') + key;
+		const value = '' + args[index];
+		const data = finalValue(type, value);
+
+		if (Number.isNaN(data)) {
+			// An empty boolean is false, so an empty value here is an empty number
+			if ('' === value)
+				return fail(error, {
+					code: 'MISSING_VALUE',
+					key,
+					alias: name,
+					message: `No data provided for '${key}'`,
+				});
+			return fail(error, {
+				code: 'BAD_VALUE',
+				key,
+				alias: name,
+				value,
+				message: `The value of '${key}' is not a valid ${type}: '${cut(value)}'`,
+			});
+		}
+
+		args.splice(index, 1);
+		if (Array.isArray(output[key])) (output[key] as unknown[]).push(data);
+		else output[key] = data;
+		typed.push(key, name);
+	}
+	return PASS;
+}
+
+// One parameter takes several inputs with next or last. `at` holds what the error messages need to say about the token
+function paramValueFromNextOrLast(
+	args: string[],
+	output: any,
+	param: any,
+	error: any,
+	at: {KEY: string; alias: string; ASSIGN: string; VAL: string; arg: string}
+): unknown {
+	const {KEY, alias, ASSIGN, VAL, arg} = at;
+	const theKey = param.key;
+	const theType = param.type;
+	if (ASSIGN)
+		return fail(error, {
+			code: 'ASSIGN_NOT_ALLOWED',
+			key: theKey,
+			alias,
+			value: VAL,
+			message: `The parameter '${KEY}' takes the inputs after it and can't be assigned with '=': '${cut(arg)}'`,
+		});
+
+	const amount = (param.next || param.last) as number;
+	const count = 0 < amount ? amount : args.length + amount + 1;
+	if (count < 1 || args.length < count)
+		return fail(error, {
+			code: 'MISSING_VALUE',
+			key: theKey,
+			alias,
+			message: `Not enough data provided for '${KEY}'`,
+		});
+	// `args` is reversed, so the splice gives the values in reverse. They are reversed again to the order typed
+	const values = (
+		param.last ? args.splice(0, count) : args.splice(args.length - count, count)
+	).reverse();
+	const list = output[theKey] as unknown[];
+	if ('string[]' === theType || 'array' === theType) {
+		list.push(...values);
+		return PASS;
+	}
+	for (let i = 0; i < count; i++) {
+		const value = '' + values[i];
+		const data = finalValue(theType, value);
+		if (Number.isNaN(data)) {
+			if ('' === value)
+				return fail(error, {
+					code: 'MISSING_VALUE',
+					key: theKey,
+					alias,
+					message: `No data provided for '${KEY}'`,
+				});
+			return fail(error, {
+				code: 'BAD_VALUE',
+				key: theKey,
+				alias,
+				value,
+				message: `The value of '${KEY}' is not a valid ${theType}: '${cut(value)}'`,
+			});
+		}
+		list.push(data);
+	}
+	return PASS;
+}
+
+function checkExists(output: any, typed: string[], configObj: ArgMateEngineConfig): unknown {
+	const {
+		exists,
+		parameterConfig,
+		engineSettings: {error, panic, autoCamelKebabCase},
+	} = configObj as any;
+
+	// After `transform`, so the path that is checked is the one the program gets, and before `validate`, so a
+	// function there gets a file that is there. `fs` is loaded only for a value to check, so a runtime with no
+	// `getBuiltinModule` can still use a config with these types and their defaults.
+	for (const key of exists) {
+		if (undefined === output[key]) continue;
+		const param = parameterConfig[key];
+		const kind = param.exists as string;
+		// A default can be a word with a meaning to the program, like `-` for stdin, so a value that is the default
+		// is not checked
+		const defaults = ([] as unknown[]).concat(param.default ?? []);
+		for (const value of Array.isArray(output[key]) ? output[key] : [output[key]]) {
+			if (defaults.includes(value)) continue;
+			if ('' === value)
+				return fail(error, {
+					code: 'MISSING_VALUE',
+					key,
+					alias: asTyped(typed, key, autoCamelKebabCase),
+					message: `No ${kind} provided for '${key}'`,
+				});
+			// `getBuiltinModule` is new in Node 22.3, so the types of Bun do not have it yet
+			const fs = (globalThis as any).process?.getBuiltinModule?.('node:fs');
+			if (!fs)
+				return panic(
+					`The types 'file', 'folder' and 'path' need process.getBuiltinModule (Node 22.3 and newer, Bun, Deno)`
+				);
+			let stat: {isFile(): boolean; isDirectory(): boolean} | undefined;
+			// A path that can not be read, or a value that is not a path, is not found
+			try {
+				stat = fs.statSync(value, {throwIfNoEntry: false});
+			} catch {}
+			if (!stat)
+				return fail(error, {
+					code: 'INVALID',
+					key,
+					alias: asTyped(typed, key, autoCamelKebabCase),
+					value,
+					message: kind[0].toUpperCase() + kind.slice(1) + ' not found: ' + value,
+				});
+			if ('path' === kind || ('file' === kind ? stat.isFile() : stat.isDirectory())) continue;
+			return fail(error, {
+				code: 'INVALID',
+				key,
+				alias: asTyped(typed, key, autoCamelKebabCase),
+				value,
+				message: 'Not a ' + kind + ': ' + value,
+			});
+		}
+	}
+
+	return PASS;
+}
+
+function checkGroups(typed: string[], configObj: ArgMateEngineConfig): unknown {
+	const {
+		conflict,
+		demand,
+		parameterConfig,
+		engineSettings: {error, autoCamelKebabCase},
+	} = configObj as any;
+
+	for (const conflictingKey of conflict) {
+		if (!tokenOf(typed, conflictingKey)) continue;
+		const conflicting = parameterConfig[conflictingKey]?.conflict?.find((value: string) =>
+			tokenOf(typed, value)
+		);
+		if (conflicting) {
+			return fail(error, {
+				code: 'CONFLICT',
+				key: conflictingKey,
+				alias: asTyped(typed, conflictingKey, autoCamelKebabCase),
+				with: conflicting,
+				withAlias: asTyped(typed, conflicting, autoCamelKebabCase),
+				message: `The parameter '${asTyped(typed, conflictingKey, autoCamelKebabCase)}' conflicts with '${asTyped(typed, conflicting, autoCamelKebabCase)}'`,
+			});
+		}
+	}
+
+	for (const key of demand) {
+		if (!tokenOf(typed, key)) continue;
+		const missing = (parameterConfig[key].demand as string[]).find(name => !tokenOf(typed, name));
+		if (missing) {
+			return fail(error, {
+				code: 'DEMAND',
+				key,
+				alias: asTyped(typed, key, autoCamelKebabCase),
+				with: missing,
+				withAlias: asTyped(typed, missing, autoCamelKebabCase),
+				message: `The parameter '${asTyped(typed, key, autoCamelKebabCase)}' demands '${asTyped(typed, missing, autoCamelKebabCase)}'`,
+			});
+		}
+	}
+
+	return PASS;
+}
 
 export default function argEngine(
 	args: string[],
@@ -109,7 +377,7 @@ export default function argEngine(
 		conflict: [],
 		demand: [],
 		spots: [],
-		slices: [],
+		nextOrLast: [],
 		complexDefault: {},
 		parameterConfig: {},
 		engineSettings: {
@@ -139,7 +407,7 @@ export default function argEngine(
 		conflict,
 		demand,
 		spots,
-		slices,
+		nextOrLast,
 		complexDefault,
 		parameterConfig,
 		engineSettings: {
@@ -171,57 +439,8 @@ export default function argEngine(
 	args = args.slice().reverse(); // A copy: the array of the caller does not change
 
 	if (spots.length) {
-		// The index in the reversed array of each spot, highest first, so taking one out doesn't shift the next
-		const inputs = args.length;
-		const indexed: {key: string; index: number}[] = [];
-		for (const key of spots) {
-			const spot = parameterConfig[key].spot as number;
-			indexed.push({key, index: spot < 0 ? -spot - 1 : inputs - spot});
-		}
-		indexed.sort((a, b) => b.index - a.index);
-
-		for (let i = 0; i < indexed.length; i++) {
-			const {key, index} = indexed[i];
-			// A spot without an input is not an error here: mandatory decides that
-			if (index < 0 || inputs <= index) continue;
-			// A spot from the start and one from the end overlap when there are few inputs
-			if (i && index === indexed[i - 1].index)
-				return fail(error, {
-					code: 'MISSING_VALUE',
-					key,
-					alias: (1 < key.length ? '--' : '-') + key,
-					with: indexed[i - 1].key,
-					message: `Not enough data provided for both '${indexed[i - 1].key}' and '${key}': they overlap`,
-				});
-
-			const type = parameterConfig[key].type;
-			const name = (1 < key.length ? '--' : '-') + key;
-			const value = '' + args[index];
-			const data = finalValue(type, value);
-
-			if (Number.isNaN(data)) {
-				// An empty boolean is false, so an empty value here is an empty number
-				if ('' === value)
-					return fail(error, {
-						code: 'MISSING_VALUE',
-						key,
-						alias: name,
-						message: `No data provided for '${key}'`,
-					});
-				return fail(error, {
-					code: 'BAD_VALUE',
-					key,
-					alias: name,
-					value,
-					message: `The value of '${key}' is not a valid ${type}: '${cut(value)}'`,
-				});
-			}
-
-			args.splice(index, 1);
-			if (Array.isArray(output[key])) (output[key] as unknown[]).push(data);
-			else output[key] = data;
-			typed.push(key, name);
-		}
+		const stop = paramValueFromSpot(args, output, typed, configObj);
+		if (PASS !== stop) return stop as ArgMateResponse<ArgMateConfig>;
 	}
 	while (args.length) {
 		// Speed
@@ -259,7 +478,14 @@ export default function argEngine(
 			});
 		}
 
-		let {STOP, LONG, NO, KEY, KEYNUM, ASSIGN, VAL} = token.groups as {[key: string]: string};
+		// The groups have no names, so the match has no `groups` object. See `re` in common.ts for the place of each
+		const STOP = token[1];
+		const LONG = token[2];
+		let NO = token[3];
+		let KEY = token[4];
+		let KEYNUM = token[5];
+		let ASSIGN = token[6];
+		let VAL = '';
 
 		if (ASSIGN) {
 			ASSIGN = arg.slice(token[0].length - 1);
@@ -360,8 +586,8 @@ export default function argEngine(
 					message: `Invalid parameter '${arg}': a name of only digits must be in the config`,
 				});
 
-			if (autoCamelKebabCase && re.isKebab.test(KEY)) {
-				KEY = KEY.replace(re.kebab2camel, (_, letter) => letter.toUpperCase());
+			if (autoCamelKebabCase && isKebab(KEY)) {
+				KEY = kebab2camel(KEY);
 			}
 
 			if (ASSIGN) {
@@ -416,56 +642,15 @@ export default function argEngine(
 			continue;
 		}
 
-		if (slices.length && (parameterConfig[theKey].next || parameterConfig[theKey].last)) {
-			if (ASSIGN)
-				return fail(error, {
-					code: 'ASSIGN_NOT_ALLOWED',
-					key: theKey,
-					alias: named(LONG, NO, KEY),
-					value: VAL,
-					message: `The parameter '${KEY}' takes the inputs after it and can't be assigned with '=': '${cut(arg)}'`,
-				});
-			const amount = (parameterConfig[theKey].next || parameterConfig[theKey].last) as number;
-			const count = 0 < amount ? amount : args.length + amount + 1;
-			if (count < 1 || args.length < count)
-				return fail(error, {
-					code: 'MISSING_VALUE',
-					key: theKey,
-					alias: named(LONG, NO, KEY),
-					message: `Not enough data provided for '${KEY}'`,
-				});
-			// The values of the slice in the order typed
-			const values = (
-				parameterConfig[theKey].last
-					? args.splice(0, count)
-					: args.splice(args.length - count, count)
-			).reverse();
-			const list = output[theKey] as unknown[];
-			if ('string[]' === theType || 'array' === theType) {
-				list.push(...values);
-				continue;
-			}
-			for (let i = 0; i < count; i++) {
-				const value = '' + values[i];
-				const data = finalValue(theType, value);
-				if (Number.isNaN(data)) {
-					if ('' === value)
-						return fail(error, {
-							code: 'MISSING_VALUE',
-							key: theKey,
-							alias: named(LONG, NO, KEY),
-							message: `No data provided for '${KEY}'`,
-						});
-					return fail(error, {
-						code: 'BAD_VALUE',
-						key: theKey,
-						alias: named(LONG, NO, KEY),
-						value,
-						message: `The value of '${KEY}' is not a valid ${theType}: '${cut(value)}'`,
-					});
-				}
-				list.push(data);
-			}
+		if (nextOrLast.length && (parameterConfig[theKey].next || parameterConfig[theKey].last)) {
+			const stop = paramValueFromNextOrLast(args, output, parameterConfig[theKey], error, {
+				KEY,
+				alias: named(LONG, NO, KEY),
+				ASSIGN,
+				VAL,
+				arg,
+			});
+			if (PASS !== stop) return stop as ArgMateResponse<ArgMateConfig>;
 			continue;
 		}
 
@@ -593,53 +778,9 @@ export default function argEngine(
 		}
 	}
 
-	// After `transform`, so the path that is checked is the one the program gets, and before `validate`, so a
-	// function there gets a file that is there. `fs` is loaded only for a value to check, so a runtime with no
-	// `getBuiltinModule` can still use a config with these types and their defaults.
-	for (const key of exists) {
-		if (undefined === output[key]) continue;
-		const param = parameterConfig[key];
-		const kind = param.exists as string;
-		// A default can be a word with a meaning to the program, like `-` for stdin, so a value that is the default
-		// is not checked
-		const defaults = ([] as unknown[]).concat(param.default ?? []);
-		for (const value of Array.isArray(output[key]) ? output[key] : [output[key]]) {
-			if (defaults.includes(value)) continue;
-			if ('' === value)
-				return fail(error, {
-					code: 'MISSING_VALUE',
-					key,
-					alias: asTyped(typed, key, autoCamelKebabCase),
-					message: `No ${kind} provided for '${key}'`,
-				});
-			// `getBuiltinModule` is new in Node 22.3, so the types of Bun do not have it yet
-			const fs = (globalThis as any).process?.getBuiltinModule?.('node:fs');
-			if (!fs)
-				return panic(
-					`The types 'file', 'folder' and 'path' need process.getBuiltinModule (Node 22.3 and newer, Bun, Deno)`
-				);
-			let stat: {isFile(): boolean; isDirectory(): boolean} | undefined;
-			// A path that can not be read, or a value that is not a path, is not found
-			try {
-				stat = fs.statSync(value, {throwIfNoEntry: false});
-			} catch {}
-			if (!stat)
-				return fail(error, {
-					code: 'INVALID',
-					key,
-					alias: asTyped(typed, key, autoCamelKebabCase),
-					value,
-					message: kind[0].toUpperCase() + kind.slice(1) + ' not found: ' + value,
-				});
-			if ('path' === kind || ('file' === kind ? stat.isFile() : stat.isDirectory())) continue;
-			return fail(error, {
-				code: 'INVALID',
-				key,
-				alias: asTyped(typed, key, autoCamelKebabCase),
-				value,
-				message: 'Not a ' + kind + ': ' + value,
-			});
-		}
+	if (exists.length) {
+		const stop = checkExists(output, typed, configObj);
+		if (PASS !== stop) return stop as ArgMateResponse<ArgMateConfig>;
 	}
 
 	for (const key of validate) {
@@ -690,36 +831,9 @@ export default function argEngine(
 				message: `The parameter '${key}' is mandatory.${parameterConfig[key]?.alias?.length ? ` You can also use an alias: ${parameterConfig[key].alias.join(', ')}` : ''}`,
 			});
 	}
-	for (const conflictingKey of conflict) {
-		if (!tokenOf(typed, conflictingKey)) continue;
-		const conflicting = parameterConfig[conflictingKey]?.conflict?.find((value: string) =>
-			tokenOf(typed, value)
-		);
-		if (conflicting) {
-			return fail(error, {
-				code: 'CONFLICT',
-				key: conflictingKey,
-				alias: asTyped(typed, conflictingKey, autoCamelKebabCase),
-				with: conflicting,
-				withAlias: asTyped(typed, conflicting, autoCamelKebabCase),
-				message: `The parameter '${asTyped(typed, conflictingKey, autoCamelKebabCase)}' conflicts with '${asTyped(typed, conflicting, autoCamelKebabCase)}'`,
-			});
-		}
-	}
-
-	for (const key of demand) {
-		if (!tokenOf(typed, key)) continue;
-		const missing = (parameterConfig[key].demand as string[]).find(name => !tokenOf(typed, name));
-		if (missing) {
-			return fail(error, {
-				code: 'DEMAND',
-				key,
-				alias: asTyped(typed, key, autoCamelKebabCase),
-				with: missing,
-				withAlias: asTyped(typed, missing, autoCamelKebabCase),
-				message: `The parameter '${asTyped(typed, key, autoCamelKebabCase)}' demands '${asTyped(typed, missing, autoCamelKebabCase)}'`,
-			});
-		}
+	if (conflict.length || demand.length) {
+		const stop = checkGroups(typed, configObj);
+		if (PASS !== stop) return stop as ArgMateResponse<ArgMateConfig>;
 	}
 
 	if (crossValidate) {

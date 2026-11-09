@@ -25,7 +25,7 @@ array of value as default
 # conflicting values
 */
 
-// An error object (item 48): in a string, it is its message
+// The error object is its message in a string, as the error was before it became an object
 const fail = (error: (e: ArgMateError) => never, e: ArgMateError) =>
 	error(Object.setPrototypeOf(e, asText));
 
@@ -44,7 +44,7 @@ export default function argEngineMini(
 		conflict: [],
 		demand: [],
 		spots: [],
-		slices: [],
+		nextOrLast: [],
 		complexDefault: {},
 		engineSettings: {
 			error: (e: ArgMateError) => {
