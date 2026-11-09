@@ -1,107 +1,115 @@
-// #26: `leadingValues`: arguments at the start that are not flags
-// The first arguments of a program can start with `-` (a search pattern). `--` does not help, because it also
-// stops the parse of the flags that come after it. With `leadingValues: n` the first n arguments go to `_`.
+// #26: Positions: `spot`, `next` and `last`
+// `spot` takes one input by its place, counted from 1, before the parse. `next` and `last` take several inputs,
+// counted from the parameter. SPEC.md has the rules. This is for the full engine.
 import {describe, expect, test} from 'bun:test';
-import {argMate, argMateMini} from '../../helper.ts';
+import {argMate, configPreprocessing} from '../../helper.ts';
 
-const engines = [
-	['full engine', argMate],
-	['mini engine', argMateMini],
-];
+const rr = () => ({pattern: {spot: 1}, replacement: {spot: 2}, files: {last: -1}});
 
-describe('#26 leadingValues', () => {
-	for (const [name, parse] of engines) {
-		describe(name, () => {
-			test('the default is 0: the engine examines the first argument', () => {
-				expect(parse(['-v', 'my.file'])).toEqual({_: ['my.file'], v: true});
-			});
-
-			test('with leadingValues: 0, the engine examines the first argument', () => {
-				expect(parse(['-v', 'my.file'], {}, {leadingValues: 0})).toEqual({
-					_: ['my.file'],
-					v: true,
-				});
-			});
-
-			// The engines put '- f' in `_` with no leadingValues (item 2b), thus this example passes now
-			test('the example of todo-v9.md: the first 2 arguments go to _', () => {
-				expect(parse(['- f', '_', 'my.file', '-v'], {}, {leadingValues: 2})).toEqual({
-					_: ['- f', '_', 'my.file'],
-					v: true,
-				});
-			});
-
-			test.todo('the first 2 arguments are not flags when they look like flags', () => {
-				expect(parse(['-a', '--b', 'my.file', '-v'], {}, {leadingValues: 2})).toEqual({
-					_: ['-a', '--b', 'my.file'],
-					v: true,
-				});
-			});
-
-			test.todo('with leadingValues: 1, the second argument is a flag', () => {
-				expect(parse(['-a', '-b', 'my.file'], {}, {leadingValues: 1})).toEqual({
-					_: ['-a', 'my.file'],
-					b: true,
-				});
-			});
-
-			// The engines put '- f' in `_` with no leadingValues (item 2b), thus this test passes now
-			test("the leading value '- f' goes to _ with no change", () => {
-				expect(parse(['- f', '-v'], {}, {leadingValues: 1})).toEqual({_: ['- f'], v: true});
-			});
-
-			for (const token of ['-abc', '--long', '--key=value', '-n100', '--no-color']) {
-				test.todo(`the leading value '${token}' goes to _ with no change`, () => {
-					expect(parse([token, '-v'], {}, {leadingValues: 1})).toEqual({_: [token], v: true});
-				});
-			}
-
-			test.todo('a leading -- is a value and does not stop the parse of the flags', () => {
-				expect(parse(['--', '-v'], {}, {leadingValues: 1})).toEqual({_: ['--'], v: true});
-			});
-
-			test.todo('a leading value is not an unknown parameter', () => {
-				expect(parse(['-x', 'my.file'], {}, {leadingValues: 1, allowUnknown: false})).toEqual({
-					_: ['-x', 'my.file'],
-				});
-			});
-
-			test.todo('the engine parses declared parameters after the leading values', () => {
-				const config = {count: {type: 'number'}};
-				expect(parse(['-e', '--count', '3', 'my.file'], config, {leadingValues: 1})).toEqual({
-					_: ['-e', 'my.file'],
-					count: 3,
-				});
-			});
-
-			test('leading values with no dash give the same result as now', () => {
-				expect(parse(['a', 'b', '-v'], {}, {leadingValues: 2})).toEqual({_: ['a', 'b'], v: true});
-			});
-
-			// It is not an error when there are fewer arguments than `leadingValues`
-			test.todo('fewer arguments than leadingValues: all of them go to _', () => {
-				expect(parse(['-x'], {}, {leadingValues: 2})).toEqual({_: ['-x']});
-			});
-
-			// "With no change" means that `autoConvert` (item 5) does not convert a leading value
-			for (const value of [-1, 1.5, 'abc']) {
-				test.todo(`leadingValues: ${JSON.stringify(value)} gives a config error`, () => {
-					const settings = {
-						leadingValues: value,
-						panic: msg => {
-							throw new Error(`config error: ${msg}`);
-						},
-					};
-					expect(() => parse(['a'], {}, settings)).toThrow('config error');
-				});
-			}
-
-			test('a leading value stays a string', () => {
-				expect(parse(['40', 'on', '-v'], {}, {leadingValues: 2})).toEqual({
-					_: ['40', 'on'],
-					v: true,
-				});
-			});
+describe('#26 spot', () => {
+	test('a value that looks like a parameter is not unknown with `strict: true`', () => {
+		expect(
+			argMate(['-x', 'y'], {pattern: {spot: 1}, replacement: {spot: 2}}, {strict: true})
+		).toEqual({
+			_: [],
+			pattern: '-x',
+			replacement: 'y',
 		});
-	}
+	});
+
+	test('the parameter is in the input for `demand`', () => {
+		const config = {pattern: {spot: 1}, files: {next: -1, demand: 'pattern'}};
+		expect(argMate(['x', '--files', 'a.md'], config)).toEqual({
+			_: [],
+			pattern: 'x',
+			files: ['a.md'],
+		});
+	});
+
+	test('the array of the caller does not change', () => {
+		const args = ['-x', 'y', '--files', 'a.md'];
+		argMate(args, rr());
+		expect(args).toEqual(['-x', 'y', '--files', 'a.md']);
+	});
+
+	test('two spots that overlap are an error with both names', () => {
+		let got: unknown;
+		argMate(['a', 'b'], {p: {spot: 1}, q: {spot: -2}}, {
+			error: (e: unknown) => {
+				got = e;
+			},
+		} as any);
+		expect(got).toEqual({
+			code: 'MISSING_VALUE',
+			key: 'q',
+			alias: '-q',
+			with: 'p',
+			message: "Not enough data provided for both 'p' and 'q': they overlap",
+		});
+	});
+
+	test('the engine config has the names of the parameters with `spot` in `spots`', () => {
+		expect((configPreprocessing(rr() as any) as any).spots).toEqual(['pattern', 'replacement']);
+	});
+});
+
+describe('#26 next and last', () => {
+	test('a short alias in a group takes its values', () => {
+		expect(argMate(['-vf', 'a', 'b'], {files: {alias: 'f', next: 2}, v: false})).toEqual({
+			_: [],
+			files: ['a', 'b'],
+			v: true,
+		});
+	});
+
+	test('each value gets the value of its `valid` alias', () => {
+		const config = {e: {next: 2, valid: ['a', ['b', 'x']]}};
+		expect(argMate(['--e', 'a', 'x'], config)).toEqual({_: [], e: ['a', 'b']});
+	});
+
+	test('the parameter given two times takes its values two times', () => {
+		expect(argMate(['--files', 'a', '--files', 'b'], {files: {next: 1}})).toEqual({
+			_: [],
+			files: ['a', 'b'],
+		});
+	});
+
+	test('the parameters after the values are read as parameters', () => {
+		expect(argMate(['--files', 'a', 'b', '-v'], {files: {next: 2}, v: false})).toEqual({
+			_: [],
+			files: ['a', 'b'],
+			v: true,
+		});
+	});
+
+	test('a value with `=` is an error with the name as typed', () => {
+		let got: unknown;
+		argMate(['-f=a', 'b'], {files: {alias: 'f', next: 2}}, {
+			error: (e: unknown) => {
+				got = e;
+			},
+		} as any);
+		expect(got).toEqual({
+			code: 'ASSIGN_NOT_ALLOWED',
+			key: 'files',
+			alias: '-f',
+			value: 'a',
+			message: "The parameter 'f' takes the inputs after it and can't be assigned with '=': '-f=a'",
+		});
+	});
+
+	test('the error for too few values has the name as typed', () => {
+		let got: unknown;
+		argMate(['-f', 'a'], {files: {alias: 'f', next: 2}}, {
+			error: (e: unknown) => {
+				got = e;
+			},
+		} as any);
+		expect(got).toEqual({
+			code: 'MISSING_VALUE',
+			key: 'files',
+			alias: '-f',
+			message: "Not enough data provided for 'f'",
+		});
+	});
 });

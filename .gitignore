@@ -2,8 +2,10 @@ node_modules
 dist/
 *.log
 *.file
-*.lock
 *.exe
+# Bun is the package manager: bun.lock is in the repo, the lock files of other package managers are not
+yarn.lock
+package-lock.json
 bench/perf/package*.json
 
 /tmp

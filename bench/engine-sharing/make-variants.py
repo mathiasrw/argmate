@@ -1,4 +1,4 @@
-# Makes the variants that come from other files, thus the code that is not part of the test is the same in all of them.
+# Makes the variants that come from other files, so the code that is not part of the test is the same in all of them.
 #   param.ts  from this.ts: the state is an argument (`fn(s)`), not `this` (`fn.call(s)`)
 #   tail.ts   from src/argEngine.ts: the phases after the loop are shared functions
 #   hot.ts    from tail.ts: the number conversion in the loop is a shared function also
@@ -15,7 +15,7 @@ s = open(os.path.join(here, 'this.ts')).read()
 s, n = re.subn(r'function (\w+)\(this: any\)', r'function \1(s)', s); assert n == 19, n
 s, n = re.subn(r'\b(\w+)\.call\(s\)', r'\1(s)', s); assert n == 19, n
 s = re.sub(r'\bthis\.', 's.', s)
-s = one(s, "// Variant `this`: each functionality of the full engine is a function of its own.\n// The functions share the state of the parse through `this`, thus they take no arguments.",
+s = one(s, "// Variant `this`: each functionality of the full engine is a function of its own.\n// The functions share the state of the parse through `this`, so they take no arguments.",
         "// Variant `param`: the same as `this.ts`, but each function gets the state of the parse as its one argument.\n// Made by make-variants.py from this.ts. Do not edit.")
 assert 'this' not in s.replace('`this`', '').replace('this.ts', ''), 'this is left'
 open(os.path.join(here, 'param.ts'), 'w').write(s)

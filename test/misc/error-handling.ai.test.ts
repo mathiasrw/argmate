@@ -10,14 +10,15 @@ run(argMate);
 run(argMateMini, ' Mini');
 
 function run(argMate: ArgMateEngine, engineType = '') {
-	describe.todo('Error handeling' + engineType, () => {
-		describe.todo('4o' + engineType, () => {
-			test('Missing required argument (boolean flag)', done => {
+	const engineMini = '' !== engineType;
+	describe('Error handeling' + engineType, () => {
+		describe('4o' + engineType, () => {
+			test.todo('Missing required argument (boolean flag)', done => {
 				argMate(
 					['--username'],
 					{username: {mandatory: true}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('No data provided for');
 							done();
 						},
@@ -25,12 +26,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Missing required argument (integer)', done => {
+			(engineMini ? test.todo : test)('Missing required argument (integer)', done => {
 				argMate(
 					['--age'],
 					{age: {type: 'int', mandatory: true}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('No data provided for');
 							done();
 						},
@@ -38,12 +39,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Missing required argument (string)', done => {
+			(engineMini ? test.todo : test)('Missing required argument (string)', done => {
 				argMate(
 					['--name'],
 					{name: {type: 'string', mandatory: true}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('No data provided for');
 							done();
 						},
@@ -51,12 +52,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Missing required argument with alias', done => {
+			test.todo('Missing required argument with alias', done => {
 				argMate(
 					['-u'],
 					{username: {alias: 'u', mandatory: true}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('No data provided for');
 							done();
 						},
@@ -64,12 +65,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Missing required argument (boolean flag) with negation', done => {
+			test.todo('Missing required argument (boolean flag) with negation', done => {
 				argMate(
 					['--no-enable'],
 					{enable: {mandatory: true}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('No data provided for');
 							done();
 						},
@@ -77,19 +78,22 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Missing required argument with default value (should not trigger error)', () => {
-				expect(argMate([], {username: {mandatory: true, default: 'defaultUser'}})).toEqual({
-					username: 'defaultUser',
-					_: [],
-				});
-			});
+			(engineMini ? test.todo : test)(
+				'Missing required argument with default value (should not trigger error)',
+				() => {
+					expect(argMate([], {username: {mandatory: true, default: 'defaultUser'}})).toEqual({
+						username: 'defaultUser',
+						_: [],
+					});
+				}
+			);
 
-			test('Missing required positional argument', done => {
+			test.todo('Missing required positional argument', done => {
 				argMate(
 					['--foo'],
 					{_: {mandatory: true}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Missing required positional arguments');
 							done();
 						},
@@ -97,12 +101,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Missing required argument with provided invalid data', done => {
+			test.todo('Missing required argument with provided invalid data', done => {
 				argMate(
 					['--age='],
 					{age: {type: 'int', mandatory: true}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('No data provided for');
 							done();
 						},
@@ -110,12 +114,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Missing required array argument', done => {
+			test.todo('Missing required array argument', done => {
 				argMate(
 					[],
 					{files: {type: 'string[]', mandatory: true}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Missing required array argument');
 							done();
 						},
@@ -123,13 +127,13 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Missing required argument in strict mode', done => {
+			test.todo('Missing required argument in strict mode', done => {
 				argMate(
 					[],
 					{username: {mandatory: true}},
 					{
 						allowUnknown: false,
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('No data provided for');
 							done();
 						},
@@ -139,12 +143,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 
 			///			### Error Handling: Invalid Option Formats
 
-			test('Invalid option format (no assignment)', done => {
+			test.todo('Invalid option format (no assignment)', done => {
 				argMate(
 					['--timeout'],
 					{timeout: {type: 'int'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('No data provided for');
 							done();
 						},
@@ -152,12 +156,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Invalid option format (invalid number)', done => {
+			test.todo('Invalid option format (invalid number)', done => {
 				argMate(
 					['--timeout=abc'],
 					{timeout: {type: 'int'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Invalid value');
 							done();
 						},
@@ -165,12 +169,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Invalid option format (invalid float)', done => {
+			test.todo('Invalid option format (invalid float)', done => {
 				argMate(
 					['--threshold=abc'],
 					{threshold: {type: 'float'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Invalid value');
 							done();
 						},
@@ -178,12 +182,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Invalid option format (hexadecimal)', done => {
+			test.todo('Invalid option format (hexadecimal)', done => {
 				argMate(
 					['--color=gggggg'],
 					{color: {type: 'hex'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Invalid value');
 							done();
 						},
@@ -191,12 +195,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Invalid option format (boolean as value)', done => {
+			test.todo('Invalid option format (boolean as value)', done => {
 				argMate(
 					['--verbose=false'],
 					{verbose: {type: 'boolean'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Unsupported format');
 							done();
 						},
@@ -204,12 +208,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Invalid option format (unquoted string with spaces)', done => {
+			test.todo('Invalid option format (unquoted string with spaces)', done => {
 				argMate(
 					['--message=Hello World'],
 					{message: {type: 'string'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Unsupported format');
 							done();
 						},
@@ -217,12 +221,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Invalid option format (unsupported flag)', done => {
+			test.todo('Invalid option format (unsupported flag)', done => {
 				argMate(
 					['-x'],
 					{},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Unknown parameter');
 							done();
 						},
@@ -230,12 +234,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Invalid option format (empty string)', done => {
+			test.todo('Invalid option format (empty string)', done => {
 				argMate(
 					['--name='],
 					{name: {type: 'string'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('No data provided for');
 							done();
 						},
@@ -243,12 +247,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Invalid option format (array without values)', done => {
+			test.todo('Invalid option format (array without values)', done => {
 				argMate(
 					['--files='],
 					{files: {type: 'string[]'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('No data provided for');
 							done();
 						},
@@ -256,12 +260,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Invalid option format (flag with equal sign but no value)', done => {
+			test.todo('Invalid option format (flag with equal sign but no value)', done => {
 				argMate(
 					['--flag='],
 					{},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('No data provided for');
 							done();
 						},
@@ -271,13 +275,13 @@ function run(argMate: ArgMateEngine, engineType = '') {
 
 			///	### Error Handling: Unknown Arguments
 
-			test('Unknown argument (strict mode)', done => {
+			test.todo('Unknown argument (strict mode)', done => {
 				argMate(
 					['--unknown'],
 					{},
 					{
 						allowUnknown: false,
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Unknown parameter');
 							done();
 						},
@@ -285,12 +289,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Unknown argument with alias', done => {
+			test.todo('Unknown argument with alias', done => {
 				argMate(
 					['-x'],
 					{verbose: {alias: 'v'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Unknown parameter');
 							done();
 						},
@@ -298,13 +302,13 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Unknown argument in combination with known argument', done => {
+			test.todo('Unknown argument in combination with known argument', done => {
 				argMate(
 					['--unknown', '--verbose'],
 					{verbose: {type: 'boolean'}},
 					{
 						allowUnknown: false,
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Unknown parameter');
 							done();
 						},
@@ -312,13 +316,13 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Unknown argument with similar known argument', done => {
+			test.todo('Unknown argument with similar known argument', done => {
 				argMate(
 					['--verbose', '--verb'],
 					{verbose: {type: 'boolean'}},
 					{
 						allowUnknown: false,
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Unknown parameter');
 							done();
 						},
@@ -326,13 +330,13 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Unknown argument with negation', done => {
+			test.todo('Unknown argument with negation', done => {
 				argMate(
 					['--no-unknown'],
 					{},
 					{
 						allowUnknown: false,
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Unknown parameter');
 							done();
 						},
@@ -340,13 +344,13 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Unknown argument with positional arguments', done => {
+			test.todo('Unknown argument with positional arguments', done => {
 				argMate(
 					['file.txt', '--unknown'],
 					{},
 					{
 						allowUnknown: false,
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Unknown parameter');
 							done();
 						},
@@ -354,13 +358,13 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Unknown argument with invalid format', done => {
+			test.todo('Unknown argument with invalid format', done => {
 				argMate(
 					['--unknown=123'],
 					{},
 					{
 						allowUnknown: false,
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Unknown parameter');
 							done();
 						},
@@ -368,13 +372,13 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Unknown short flag argument', done => {
+			test.todo('Unknown short flag argument', done => {
 				argMate(
 					['-u'],
 					{},
 					{
 						allowUnknown: false,
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Unknown parameter');
 							done();
 						},
@@ -382,13 +386,13 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Unknown argument with conflicting flag', done => {
+			test.todo('Unknown argument with conflicting flag', done => {
 				argMate(
 					['--foo', '--unknown'],
 					{foo: {type: 'boolean'}},
 					{
 						allowUnknown: false,
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Unknown parameter');
 							done();
 						},
@@ -396,13 +400,13 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Unknown argument with multiple known arguments', done => {
+			test.todo('Unknown argument with multiple known arguments', done => {
 				argMate(
 					['--foo', '--bar', '--unknown'],
 					{foo: {type: 'boolean'}, bar: {type: 'boolean'}},
 					{
 						allowUnknown: false,
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Unknown parameter');
 							done();
 						},
@@ -412,12 +416,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 
 			/// ### Error Handling: Type Mismatches
 
-			test('Type mismatch (string expected, number provided)', done => {
+			test.todo('Type mismatch (string expected, number provided)', done => {
 				argMate(
 					['--name=123'],
 					{name: {type: 'string'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Type mismatch');
 							done();
 						},
@@ -425,12 +429,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Type mismatch (number expected, string provided)', done => {
+			test.todo('Type mismatch (number expected, string provided)', done => {
 				argMate(
 					['--age=twenty'],
 					{age: {type: 'int'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Type mismatch');
 							done();
 						},
@@ -438,12 +442,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Type mismatch (float expected, string provided)', done => {
+			test.todo('Type mismatch (float expected, string provided)', done => {
 				argMate(
 					['--price=cheap'],
 					{price: {type: 'float'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Type mismatch');
 							done();
 						},
@@ -451,12 +455,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Type mismatch (boolean expected, string provided)', done => {
+			test.todo('Type mismatch (boolean expected, string provided)', done => {
 				argMate(
 					['--enabled=yes'],
 					{enabled: {type: 'boolean'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Type mismatch');
 							done();
 						},
@@ -464,12 +468,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Type mismatch (int array expected, string provided)', done => {
+			test.todo('Type mismatch (int array expected, string provided)', done => {
 				argMate(
 					['--values=a,b,c'],
 					{values: {type: 'int[]'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Type mismatch');
 							done();
 						},
@@ -477,12 +481,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Type mismatch (hex expected, number provided)', done => {
+			test.todo('Type mismatch (hex expected, number provided)', done => {
 				argMate(
 					['--color=123456'],
 					{color: {type: 'hex'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Type mismatch');
 							done();
 						},
@@ -490,12 +494,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Type mismatch (float array expected, int provided)', done => {
+			test.todo('Type mismatch (float array expected, int provided)', done => {
 				argMate(
 					['--rates=1,2,3'],
 					{rates: {type: 'float[]'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Type mismatch');
 							done();
 						},
@@ -503,12 +507,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Type mismatch (boolean array expected, string provided)', done => {
+			test.todo('Type mismatch (boolean array expected, string provided)', done => {
 				argMate(
 					['--flags=true,false,maybe'],
 					{flags: {type: 'boolean[]'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Type mismatch');
 							done();
 						},
@@ -516,12 +520,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Type mismatch (int expected, hex provided)', done => {
+			test.todo('Type mismatch (int expected, hex provided)', done => {
 				argMate(
 					['--port=0x1f'],
 					{port: {type: 'int'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Type mismatch');
 							done();
 						},
@@ -529,12 +533,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Type mismatch (float expected, int array provided)', done => {
+			test.todo('Type mismatch (float expected, int array provided)', done => {
 				argMate(
 					['--percentage=50,100'],
 					{percentage: {type: 'float'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Type mismatch');
 							done();
 						},
@@ -542,12 +546,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Type mismatch (string expected, boolean provided)', done => {
+			test.todo('Type mismatch (string expected, boolean provided)', done => {
 				argMate(
 					['--text=true'],
 					{text: {type: 'string'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Type mismatch');
 							done();
 						},
@@ -555,12 +559,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Type mismatch (hex expected, string provided)', done => {
+			test.todo('Type mismatch (hex expected, string provided)', done => {
 				argMate(
 					['--color=blue'],
 					{color: {type: 'hex'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Type mismatch');
 							done();
 						},
@@ -568,12 +572,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Type mismatch (int expected, float provided)', done => {
+			test.todo('Type mismatch (int expected, float provided)', done => {
 				argMate(
 					['--port=8080.5'],
 					{port: {type: 'int'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Type mismatch');
 							done();
 						},
@@ -581,12 +585,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Type mismatch (boolean expected, number provided)', done => {
+			test.todo('Type mismatch (boolean expected, number provided)', done => {
 				argMate(
 					['--enabled=1'],
 					{enabled: {type: 'boolean'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Type mismatch');
 							done();
 						},
@@ -594,12 +598,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Type mismatch (array expected, single value provided)', done => {
+			test.todo('Type mismatch (array expected, single value provided)', done => {
 				argMate(
 					['--files=file1.txt'],
 					{files: {type: 'string[]'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Type mismatch');
 							done();
 						},
@@ -607,12 +611,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Type mismatch (int expected, string provided)', done => {
+			test.todo('Type mismatch (int expected, string provided)', done => {
 				argMate(
 					['--port=abc'],
 					{port: {type: 'int'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Type mismatch');
 							done();
 						},
@@ -620,12 +624,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Type mismatch (float expected, boolean provided)', done => {
+			test.todo('Type mismatch (float expected, boolean provided)', done => {
 				argMate(
 					['--threshold=true'],
 					{threshold: {type: 'float'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Type mismatch');
 							done();
 						},
@@ -633,12 +637,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Type mismatch (boolean expected, float provided)', done => {
+			test.todo('Type mismatch (boolean expected, float provided)', done => {
 				argMate(
 					['--enabled=1.0'],
 					{enabled: {type: 'boolean'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Type mismatch');
 							done();
 						},
@@ -646,12 +650,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Type mismatch (int array expected, float array provided)', done => {
+			test.todo('Type mismatch (int array expected, float array provided)', done => {
 				argMate(
 					['--ids=1.1,2.2,3.3'],
 					{ids: {type: 'int[]'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Type mismatch');
 							done();
 						},
@@ -659,12 +663,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Type mismatch (float expected, int provided)', done => {
+			test.todo('Type mismatch (float expected, int provided)', done => {
 				argMate(
 					['--rate=5'],
 					{rate: {type: 'float'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Type mismatch');
 							done();
 						},
@@ -672,156 +676,156 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 		});
-		describe.todo('Sonnet 3.5' + engineType, () => {
-			test('Basic boolean flag', () => {
+		describe('Sonnet 3.5' + engineType, () => {
+			test.todo('Basic boolean flag', () => {
 				expect(argMate(['--verbose'], {verbose: {type: 'boolean'}})).toEqual({
 					_: [],
 					verbose: true,
 				});
 			});
 
-			test('String type', () => {
+			test.todo('String type', () => {
 				expect(argMate(['--name', 'John'], {name: {type: 'string'}})).toEqual({
 					_: [],
 					name: 'John',
 				});
 			});
 
-			test('Number type', () => {
+			test.todo('Number type', () => {
 				expect(argMate(['--count', '42'], {count: {type: 'number'}})).toEqual({
 					_: [],
 					count: 42,
 				});
 			});
 
-			test('Float type', () => {
+			test.todo('Float type', () => {
 				expect(argMate(['--price', '9.99'], {price: {type: 'float'}})).toEqual({
 					_: [],
 					price: 9.99,
 				});
 			});
 
-			test('Integer type', () => {
+			test.todo('Integer type', () => {
 				expect(argMate(['--age', '30'], {age: {type: 'int'}})).toEqual({
 					_: [],
 					age: 30,
 				});
 			});
 
-			test('Hex type', () => {
+			test.todo('Hex type', () => {
 				expect(argMate(['--color', 'FF00AA'], {color: {type: 'hex'}})).toEqual({
 					_: [],
 					color: 'FF00AA',
 				});
 			});
 
-			test('Array type', () => {
+			test.todo('Array type', () => {
 				expect(argMate(['--fruits', 'apple', 'banana'], {fruits: {type: 'array'}})).toEqual({
 					_: [],
 					fruits: ['apple', 'banana'],
 				});
 			});
 
-			test('String array type', () => {
+			test.todo('String array type', () => {
 				expect(argMate(['--names', 'Alice', 'Bob'], {names: {type: 'string[]'}})).toEqual({
 					_: [],
 					names: ['Alice', 'Bob'],
 				});
 			});
 
-			test('Number array type', () => {
+			test.todo('Number array type', () => {
 				expect(argMate(['--scores', '75', '82', '91'], {scores: {type: 'number[]'}})).toEqual({
 					_: [],
 					scores: [75, 82, 91],
 				});
 			});
 
-			test('Float array type', () => {
+			test.todo('Float array type', () => {
 				expect(argMate(['--prices', '9.99', '15.50'], {prices: {type: 'float[]'}})).toEqual({
 					_: [],
 					prices: [9.99, 15.5],
 				});
 			});
 
-			test('Integer array type', () => {
+			test.todo('Integer array type', () => {
 				expect(argMate(['--years', '2020', '2021', '2022'], {years: {type: 'int[]'}})).toEqual({
 					_: [],
 					years: [2020, 2021, 2022],
 				});
 			});
 
-			test('Hex array type', () => {
+			test.todo('Hex array type', () => {
 				expect(argMate(['--colors', 'FF0000', '00FF00'], {colors: {type: 'hex[]'}})).toEqual({
 					_: [],
 					colors: ['FF0000', '00FF00'],
 				});
 			});
 
-			test('Default value', () => {
+			test.todo('Default value', () => {
 				expect(argMate([], {port: {default: 8080}})).toEqual({_: [], port: 8080});
 			});
 
-			test('Mandatory parameter', () => {
+			test.todo('Mandatory parameter', () => {
 				expect(() => argMate([], {required: {mandatory: true}})).toThrow();
 			});
 
-			test('Alias (array)', () => {
+			test.todo('Alias (array)', () => {
 				expect(argMate(['-v'], {verbose: {alias: ['v']}})).toEqual({
 					_: [],
 					verbose: true,
 				});
 			});
 
-			test('Alias (string)', () => {
+			test.todo('Alias (string)', () => {
 				expect(argMate(['-q'], {quiet: {alias: 'q'}})).toEqual({_: [], quiet: true});
 			});
 
-			test('Alias (comma-separated string)', () => {
+			test.todo('Alias (comma-separated string)', () => {
 				expect(argMate(['-s'], {silent: {alias: 'q,s'}})).toEqual({
 					_: [],
 					silent: true,
 				});
 			});
 
-			test('Automatic kebab-case alias', () => {
+			test.todo('Automatic kebab-case alias', () => {
 				expect(argMate(['--dry-run'], {dryRun: {}})).toEqual({_: [], dryRun: true});
 			});
 
-			test('Conflicting parameters (array)', () => {
+			test.todo('Conflicting parameters (array)', () => {
 				expect(() => argMate(['--min', '--max'], {min: {conflict: ['max']}, max: {}})).toThrow();
 			});
 
-			test('Conflicting parameters (string)', () => {
+			test.todo('Conflicting parameters (string)', () => {
 				expect(() => argMate(['--on', '--off'], {on: {conflict: 'off'}, off: {}})).toThrow();
 			});
 
-			test('Conflicting parameters (comma-separated string)', () => {
+			test.todo('Conflicting parameters (comma-separated string)', () => {
 				expect(() =>
 					argMate(['--start', '--stop'], {start: {conflict: 'stop,pause'}, stop: {}})
 				).toThrow();
 			});
 
-			test('Valid values (function)', () => {
-				expect(argMate(['--age', '25'], {age: {valid: v => v >= 18 && v <= 99}})).toEqual({
+			test.todo('Valid values (function)', () => {
+				expect(argMate(['--age', '25'], {age: {validate: v => v >= 18 && v <= 99}})).toEqual({
 					_: [],
 					age: 25,
 				});
 			});
 
-			test('Valid values (array)', () => {
+			test.todo('Valid values (array)', () => {
 				expect(argMate(['--color', 'red'], {color: {valid: ['red', 'green', 'blue']}})).toEqual({
 					_: [],
 					color: 'red',
 				});
 			});
 
-			test('Invalid value', () => {
+			test.todo('Invalid value', () => {
 				expect(() =>
 					argMate(['--color', 'yellow'], {color: {valid: ['red', 'green', 'blue']}})
 				).toThrow();
 			});
 
-			test('Transform function', () => {
+			test.todo('Transform function', () => {
 				expect(argMate(['--name', ' John '], {name: {transform: (v: string) => v.trim()}})).toEqual(
 					{
 						_: [],
@@ -830,38 +834,38 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				);
 			});
 
-			test('Positional arguments', () => {
+			test.todo('Positional arguments', () => {
 				expect(argMate(['file1.txt', 'file2.txt'])).toEqual({
 					_: ['file1.txt', 'file2.txt'],
 				});
 			});
 
-			test('Mixed positional and named arguments', () => {
+			test.todo('Mixed positional and named arguments', () => {
 				expect(argMate(['file.txt', '--verbose'], {verbose: {}})).toEqual({
 					_: ['file.txt'],
 					verbose: true,
 				});
 			});
 
-			test('Boolean flag with explicit false value', () => {
+			test.todo('Boolean flag with explicit false value', () => {
 				expect(argMate(['--verbose=false'], {verbose: {type: 'boolean'}})).toEqual({
 					_: [],
 					verbose: false,
 				});
 			});
 
-			test('Long option with attached value', () => {
+			test.todo('Long option with attached value', () => {
 				expect(argMate(['--port=8080'], {port: {type: 'number'}})).toEqual({
 					_: [],
 					port: 8080,
 				});
 			});
 
-			test('Short option with attached value', () => {
+			test.todo('Short option with attached value', () => {
 				expect(argMate(['-p8080'], {p: {type: 'number'}})).toEqual({_: [], p: 8080});
 			});
 
-			test('Grouped short boolean flags', () => {
+			test.todo('Grouped short boolean flags', () => {
 				expect(argMate(['-abc'], {a: {}, b: {}, c: {}})).toEqual({
 					_: [],
 					a: true,
@@ -870,73 +874,73 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				});
 			});
 
-			test('Case-sensitive valid values', () => {
+			test.todo('Case-sensitive valid values', () => {
 				expect(() =>
 					argMate(['--color', 'RED'], {color: {valid: ['red', 'green', 'blue']}})
 				).toThrow();
 			});
 
-			test('Case-insensitive valid values', () => {
+			test.todo('Case-insensitive valid values', () => {
 				expect(
 					argMate(['--color', 'RED'], {
-						color: {valid: v => /red|green|blue/i.test(v)},
+						color: {validate: v => /red|green|blue/i.test(v)},
 					})
 				).toEqual({_: [], color: 'RED'});
 			});
 
-			test('Type inference from default value (string)', () => {
+			test.todo('Type inference from default value (string)', () => {
 				expect(argMate(['--name', 'Alice'], {name: {default: 'Bob'}})).toEqual({
 					_: [],
 					name: 'Alice',
 				});
 			});
 
-			test('Type inference from default value (number)', () => {
+			test.todo('Type inference from default value (number)', () => {
 				expect(argMate(['--count', '5'], {count: {default: 10}})).toEqual({
 					_: [],
 					count: 5,
 				});
 			});
 
-			test('Type inference from default value (boolean)', () => {
+			test.todo('Type inference from default value (boolean)', () => {
 				expect(argMate(['--verbose'], {verbose: {default: false}})).toEqual({
 					_: [],
 					verbose: true,
 				});
 			});
 
-			test('Repeated flag (boolean)', () => {
+			test.todo('Repeated flag (boolean)', () => {
 				expect(argMate(['--verbose', '--verbose'], {verbose: {}})).toEqual({
 					_: [],
 					verbose: true,
 				});
 			});
 
-			test('Repeated flag (array)', () => {
+			test.todo('Repeated flag (array)', () => {
 				expect(argMate(['--tag', 'a', '--tag', 'b'], {tag: {type: 'array'}})).toEqual({
 					_: [],
 					tag: ['a', 'b'],
 				});
 			});
 
-			test('Unknown parameter with allowUnknown true', () => {
+			test.todo('Unknown parameter with allowUnknown true', () => {
 				expect(argMate(['--unknown'], {}, {allowUnknown: true})).toEqual({
 					_: [],
 					unknown: true,
 				});
 			});
 
-			test('Unknown parameter with allowUnknown false', () => {
+			test.todo('Unknown parameter with allowUnknown false', () => {
 				expect(() => argMate(['--unknown'], {}, {allowUnknown: false})).toThrow();
 			});
 
-			test('Custom error handling', () => {
+			test.todo('Custom error handling', () => {
 				let errorMessage = '';
 				argMate(
 					['--required'],
 					{required: {mandatory: true}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							errorMessage = msg;
 						},
 					}
@@ -944,49 +948,49 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				expect(errorMessage).toContain('required');
 			});
 
-			test('Negated boolean flag', () => {
+			test.todo('Negated boolean flag', () => {
 				expect(argMate(['--no-verbose'], {verbose: {type: 'boolean', default: true}})).toEqual({
 					_: [],
 					verbose: false,
 				});
 			});
 
-			test('Stop parsing at --', () => {
+			test.todo('Stop parsing at --', () => {
 				expect(argMate(['--port', '8080', '--', '--verbose'], {port: {type: 'number'}})).toEqual({
 					_: ['--verbose'],
 					port: 8080,
 				});
 			});
 
-			test('Value with spaces', () => {
+			test.todo('Value with spaces', () => {
 				expect(argMate(['--name', 'John Doe'], {name: {type: 'string'}})).toEqual({
 					_: [],
 					name: 'John Doe',
 				});
 			});
 
-			test('Value with equal sign', () => {
+			test.todo('Value with equal sign', () => {
 				expect(argMate(['--equation', 'y=mx+b'], {equation: {type: 'string'}})).toEqual({
 					_: [],
 					equation: 'y=mx+b',
 				});
 			});
 
-			test('Unicode in parameter names', () => {
+			test.todo('Unicode in parameter names', () => {
 				expect(argMate(['--名前', 'ジョン'], {名前: {type: 'string'}})).toEqual({
 					_: [],
 					名前: 'ジョン',
 				});
 			});
 
-			test('Unicode in parameter values', () => {
+			test.todo('Unicode in parameter values', () => {
 				expect(argMate(['--name', '约翰'], {name: {type: 'string'}})).toEqual({
 					_: [],
 					name: '约翰',
 				});
 			});
 
-			test('Empty string value', () => {
+			test.todo('Empty string value', () => {
 				expect(argMate(['--name', ''], {name: {type: 'string'}})).toEqual({
 					_: [],
 					name: '',

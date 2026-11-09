@@ -1,19 +1,19 @@
 import type {ArgMateConfig, ArgMateEngineConfig, ArgMateSettings, EngineSettings} from './types.js';
 
-import {re} from './common.js';
+import {findType, re} from './common.js';
 
 const strictSettings = {
 	allowUnknown: false,
 	allowNegatingFlags: false,
 	allowKeyNumValues: false,
 	allowAssign: false,
-	allowBoolString: false,
+	allowAutoNumbers: false,
 };
 
 /** #__PURE__ */ export function precompileConfig(
 	parameterConfig: ArgMateConfig,
 	engineSettings?: ArgMateSettings
-) {
+): string {
 	return objectToCode(configPreprocessing(parameterConfig, engineSettings));
 }
 
@@ -24,31 +24,34 @@ const strictSettings = {
 	const mandatory: string[] = [];
 	const validate: string[] = [];
 	const transform: string[] = [];
+	const exists: string[] = [];
 	const conflict: string[] = [];
+	const demand: string[] = [];
+	const spots: string[] = [];
+	const slices: string[] = [];
 	const complexDefault: {[key: string]: string[] | number[]} = {};
 	const output: {[key: string]: unknown} = {
 		_: [],
 	};
 
 	const finalSettings: EngineSettings = {
-		error: msg => {
-			throw msg;
+		error: e => {
+			throw Object.assign(new Error(e.message), e);
 		},
 		panic: msg => {
-			throw msg;
+			throw new Error(msg);
 		},
 		autoCamelKebabCase: true,
 		allowUnknown: true,
 		allowNegatingFlags: true,
 		allowKeyNumValues: true,
 		allowAssign: true,
-		allowBoolString: true,
+		allowAutoNumbers: true,
 		outputAlias: false,
 		outputInflate: false,
-		intro: '',
-		outro: '',
 		...(engineSettings.strict ? strictSettings : {}),
-		...engineSettings,
+		// A custom `error` may return. The engine stops after it all the same.
+		...(engineSettings as Partial<EngineSettings>),
 	};
 
 	const {panic} = finalSettings;
@@ -56,7 +59,9 @@ const strictSettings = {
 	const processedConfig: {[key: string]: any} = {};
 
 	for (const key in parameterConfig) {
-		if (!hasOwnPropertyFn.call(parameterConfig, key)) continue;
+		// `intro` and `outro` are the text of the help
+		if (!hasOwnPropertyFn.call(parameterConfig, key) || 'intro' === key || 'outro' === key)
+			continue;
 		// `param` is typed loosely here because it is mutated extensively below
 		// (normalization, alias/conflict array coercion, type/default coercion).
 		// The public-facing constraint lives in `ArgMateConfig` + `ValidateConfig`.
@@ -70,7 +75,8 @@ const strictSettings = {
 			};
 		} else {
 			// Copy to avoid mutating the user's config object. An alias of a config property gets its
-			// canonical name in the copy. A switch is faster here than a regex or a Set.
+			// canonical name in the copy. A list goes to `valid` and a function or a regular expression
+			// to `validate`, by either name. A switch is faster here than a regex or a Set.
 			// Keep in sync with `ConfigPropertyName` in `types.ts`
 			const copy: any = {};
 			for (const configProperty in param) {
@@ -80,13 +86,21 @@ const strictSettings = {
 					case 'default':
 					case 'alias':
 					case 'conflict':
-					case 'validate':
+					case 'demand':
+					case 'spot':
+					case 'next':
+					case 'last':
 					case 'transform':
 					case 'mandatory':
 					case 'description':
 						break;
 					case 'valid':
-						canonical = 'validate';
+						if (undefined !== param.valid && !Array.isArray(param.valid)) {
+							return panic(`The "valid" property of '${key}' must be an array of valid values`);
+						}
+						break;
+					case 'validate':
+						if (Array.isArray(param.validate)) canonical = 'valid';
 						break;
 					case 'required':
 						canonical = 'mandatory';
@@ -121,21 +135,40 @@ const strictSettings = {
 			transform.push(key);
 		}
 
-		if (undefined !== param.validate) {
-			validate.push(key);
-			if (Array.isArray(param.validate)) {
-				if (undefined === param.default) {
-					if (!param.validate.length) {
-						return panic(`Empty array found for valid values of '${key}'`);
-					}
+		if (param.demand) {
+			param.demand = Array.isArray(param.demand)
+				? param.demand
+				: String(param.demand).split(re.listDeviders);
+			if (param.demand.length) {
+				demand.push(key);
+			}
+		}
 
-					if (undefined === param.type) {
-						param.type = findType(param.validate[0]);
-					}
-					param.default = param.validate[0];
+		if (param.valid || undefined !== param.validate) {
+			validate.push(key);
+		}
+
+		if (param.valid) {
+			if (!param.valid.length) {
+				return panic(`Empty array found for valid values of '${key}'`);
+			}
+			param.validShown = param.valid.map((item: unknown) =>
+				Array.isArray(item) ? item.filter(alias => !Array.isArray(alias)) : [item]
+			);
+			param.valid = param.valid.map((item: unknown) =>
+				Array.isArray(item) ? item.flat() : [item]
+			);
+			if (undefined === param.default) {
+				if (undefined === param.type) {
+					param.type = findType(param.valid[0][0]) + (param.next || param.last ? '[]' : '');
 				}
-			} else if (param.validate instanceof RegExp) {
-				// A regular expression is for text, thus it gives the type `string` when there is no type and no default
+				param.default = param.valid[0][0];
+			}
+		}
+
+		if (undefined !== param.validate) {
+			if (param.validate instanceof RegExp) {
+				// A regular expression is for text, so it gives the type `string` when there is no type and no default
 				if (undefined === param.type && undefined === param.default) {
 					param.type = 'string';
 				}
@@ -147,7 +180,19 @@ const strictSettings = {
 			}
 		}
 
-		param.type = param.type?.toLowerCase() || findType(param.default) || 'boolean';
+		param.type = (
+			param.type?.toLowerCase() ||
+			findType(param.default) ||
+			(param.spot ? 'string' : param.next || param.last ? 'string[]' : 'boolean')
+		).replace(re.bool, 'boolean$1');
+
+		// A file, a folder or a path is text, and the engine checks that it is on the disk
+		const onDisk = re.onDisk.exec(param.type);
+		if (onDisk) {
+			param.exists = onDisk[1];
+			param.type = 'string' + onDisk[2];
+			exists.push(key);
+		}
 
 		if (undefined !== param.default) {
 			if (Array.isArray(param.default)) {
@@ -167,6 +212,42 @@ const strictSettings = {
 
 		if (!re.validTypes.test(param.type)) {
 			panic(`Invalid type '${param.type}' for parameter '${key}'`);
+		}
+
+		if (undefined !== param.spot || undefined !== param.next || undefined !== param.last) {
+			if (
+				1 <
+				+(undefined !== param.spot) + +(undefined !== param.next) + +(undefined !== param.last)
+			) {
+				return panic(`The parameter '${key}' can only have one of "spot", "next" and "last"`);
+			}
+			const name = undefined !== param.spot ? 'spot' : undefined !== param.next ? 'next' : 'last';
+			if (!Number.isInteger(param[name]) || !param[name]) {
+				return panic(`The "${name}" property of '${key}' must be a whole number other than 0`);
+			}
+			if ('spot' === name) {
+				if ('count' === param.type) {
+					return panic(`The parameter '${key}' has "spot" and can not have the type 'count'`);
+				}
+				// A spot is found by its place, so a name for it in the input has no use
+				if (param.alias) {
+					return panic(`The parameter '${key}' has "spot" and can not have an alias`);
+				}
+				// Two spots with the same number always point at one input. A spot from the start and one from the end
+				// point at one input only for some inputs, so the engine finds that overlap in the input
+				const same = spots.find(other => processedConfig[other].spot === param.spot);
+				if (same) {
+					return panic(`The parameters '${same}' and '${key}' have the same "spot": ${param.spot}`);
+				}
+				spots.push(key);
+			} else {
+				if (!re.isArrayType.test(param.type) || re.noValue.test(param.type)) {
+					return panic(
+						`The parameter '${key}' has "${name}" and must have an array type with values, not '${param.type}'`
+					);
+				}
+				slices.push(key);
+			}
 		}
 
 		if (re.isArrayType.test(param.type)) {
@@ -201,31 +282,38 @@ const strictSettings = {
 		processedConfig[key] = param;
 	}
 
+	for (const key of conflict) {
+		processedConfig[key].conflict = processedConfig[key].conflict.map(
+			(name: string) => processedConfig[name]?.key ?? name
+		);
+	}
+
+	for (const key of demand) {
+		const unknown = processedConfig[key].demand.find((name: string) => !processedConfig[name]?.key);
+		if (undefined !== unknown) {
+			return panic(
+				`The parameter '${key}' demands '${unknown}', which is not a parameter or an alias`
+			);
+		}
+		processedConfig[key].demand = processedConfig[key].demand.map(
+			(name: string) => processedConfig[name].key
+		);
+	}
+
 	return {
 		parameterConfig: processedConfig as any,
 		engineSettings: finalSettings,
 		output,
 		validate,
 		transform,
+		exists,
 		conflict,
+		demand,
+		spots,
+		slices,
 		mandatory,
 		complexDefault,
 	};
-}
-
-/** #__PURE__ */ function findType(val: any): string | undefined {
-	if (val === null || val === undefined) return undefined;
-
-	const type = typeof val;
-	const isArray = Array.isArray(val);
-
-	switch (type) {
-		case 'boolean':
-		case 'number':
-			return type + (isArray ? '[]' : '');
-		default:
-			return 'string' + (isArray ? '[]' : '');
-	}
 }
 
 /** #__PURE__ */ function objectToCode(obj: any, level = 1): string {

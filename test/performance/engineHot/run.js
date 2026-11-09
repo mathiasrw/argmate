@@ -40,6 +40,6 @@ const summary = [
 
 writeResults(
 	'Engines: hot',
-	`Many parses in one process, thus the JIT compiler has optimized the engine. For each workload, ${rounds} rounds of 400 ms for each engine. Each round runs in its own process, and full and mini take turns. The first table is the time of one parse compared to argmate/mini: 1.000× is the same time, 2.000× is two times slower. The second table has the median time of one parse, and "mini is faster by" is \`1 - mini / full\` with a 95 % bootstrap interval. The workloads are in \`../shared/scenarios.js\`.`,
+	`Many parses in one process, so the JIT compiler has optimized the engine. For each workload, ${rounds} rounds of 400 ms for each engine. Each round runs in its own process, and full and mini take turns. The first table is the time of one parse compared to argmate/mini: 1.000× is the same time, 2.000× is two times slower. The second table has the median time of one parse, and "mini is faster by" is \`1 - mini / full\` with a 95 % bootstrap interval. The workloads are in \`../shared/scenarios.js\`.`,
 	`${summary.join('\n')}\n\n${rows.join('\n')}`
 );

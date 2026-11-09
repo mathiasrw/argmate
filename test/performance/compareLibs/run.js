@@ -15,16 +15,7 @@ const step = what => console.log(`${((Date.now() - start) / 1000).toFixed(0)} s:
 
 if (!existsSync('node_modules')) execSync('bun install', {stdio: 'inherit'});
 execSync('bash ../shared/build.sh', {stdio: 'inherit'});
-execSync(
-	`bun -e "
-import {precompileConfig} from '../../../src/compileConfig.ts';
-import {argmateConfig} from './libs.js';
-await Bun.write('dist/precompiled.js', 'const base = ' + precompileConfig(argmateConfig) + ';\\n' +
-	'const arrays = Object.keys(base.output).filter(key => Array.isArray(base.output[key]));\\n' +
-	'export function fresh() {\\n\\tconst output = {...base.output};\\n\\tfor (const key of arrays) output[key] = [];\\n\\treturn {...base, output};\\n}\\n');
-"`,
-	{stdio: 'inherit'}
-);
+execSync('bun precompile.js', {stdio: 'inherit'});
 
 step('built');
 const {libs, workload, inputs} = await import('./libs.js');
@@ -118,7 +109,7 @@ const sizeRows = [
 ];
 for (const name of names) {
 	const lib = libs[name];
-	let version = dependencies[name];
+	let version = (dependencies[lib.version || name] || '').replace('npm:', '');
 	let size = '';
 	if ('src' === lib.version) {
 		version = `${packed.version} (this branch)`;
@@ -127,7 +118,7 @@ for (const name of names) {
 		version = `node ${process.version}`;
 		size = '0 | 0 KB';
 	} else {
-		const sizes = tree(name);
+		const sizes = tree(lib.version || name);
 		size = `${sizes.size} | ${kb([...sizes.values()].reduce((a, b) => a + b, 0))}`;
 	}
 	sizeRows.push(`| ${name} | ${version} | ${size} | ${lib.note || ''} |`);
@@ -161,14 +152,14 @@ for (const runtime of runtimes) {
 	step(`hot, ${runtime}`);
 }
 const hotRows = ['| Parser | node | | bun | |', '|---|---:|---:|---:|---:|'];
-const argmateHot = runtime => median(hot[runtime].argmate);
+const argmateHot = runtime => median(hot[runtime].v1);
 for (const name of sorted(hot, 'node')) {
 	const cell = runtime =>
 		`${median(hot[runtime][name]).toFixed(0)} ns | ${(median(hot[runtime][name]) / argmateHot(runtime)).toFixed(1)} ×`;
 	hotRows.push(`| ${name} | ${cell('node')} | ${cell('bun')} |`);
 }
 sections.push(
-	`## Hot: many parses in one process\n\n${workloadNote} The median time of one parse, of ${rounds} rounds of 400 ms; each round runs in its own process. × is the time compared to argmate. This is what a program gets that parses many times in one process. A CLI parses one time, thus see the next two tables for a CLI.\n\n${hotRows.join('\n')}`
+	`## Hot: many parses in one process\n\n${workloadNote} The median time of one parse, of ${rounds} rounds of 400 ms; each round runs in its own process. × is the time compared to v1. This is what a program gets that parses many times in one process. A CLI parses one time, so see the next two tables for a CLI.\n\n${hotRows.join('\n')}`
 );
 
 // Cold: import the parser and parse one time, in a new process
@@ -243,7 +234,7 @@ sections.push(
 
 step('cli');
 
-// The summary: each time compared to argmate/mini
+// The summary: each time compared to v1 mini
 const tasks = [
 	['node hot', name => median(hot.node[name])],
 	['bun hot', name => median(hot.bun[name])],
@@ -260,15 +251,15 @@ const summaryRows = [
 		.sort((a, b) => median(cli.node[a]) - median(cli.node[b]))
 		.map(
 			name =>
-				`| ${name} | ${tasks.map(([, get]) => relative(get(name), get('argmate/mini'))).join(' | ')} |`
+				`| ${name} | ${tasks.map(([, get]) => relative(get(name), get('v1 mini'))).join(' | ')} |`
 		),
 ];
 sections.unshift(
-	`## Summary: compared to argmate/mini\n\nEach time as a factor of the time of argmate/mini: 1.000× is the same time, 2.000× is two times slower, 0.500× is two times faster. The rows are in the order of the node CLI. *hot* is one parse in a process that parses many times, *cold* is the import and the first parse in a new process, *CLI* is the wall time of the whole process, with the start of the runtime. The tables below have the times.\n\n${workloadNote}\n\n${summaryRows.join('\n')}`
+	`## Summary: compared to v1 mini\n\nEach time as a factor of the time of v1 mini: 1.000× is the same time, 2.000× is two times slower, 0.500× is two times faster. The rows are in the order of the node CLI. *hot* is one parse in a process that parses many times, *cold* is the import and the first parse in a new process, *CLI* is the wall time of the whole process, with the start of the runtime. The tables below have the times.\n\n${workloadNote}\n\n${summaryRows.join('\n')}`
 );
 
 writeResults(
 	'Compare parsers',
-	'argmate and other parsers for the command line of Node, with the same CLI for each one. The setup of each parser is in `libs.js`.',
+	'argmate and other parsers for the command line of Node, with the same CLI for each one. v1 is argmate as it is now in `src/`, on the way to version 1. v0.8 is the published argmate 0.8.5. Each one with the full and the mini engine, and with a precompiled config. The setup of each parser is in `libs.js`.',
 	sections.join('\n\n')
 );

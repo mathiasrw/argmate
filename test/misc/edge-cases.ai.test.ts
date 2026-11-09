@@ -10,6 +10,7 @@ run(argMate);
 run(argMateMini, ' Mini');
 
 function run(argMate: ArgMateEngine, engineType = '') {
+	const engineMini = '' !== engineType;
 	describe('Edge cases' + engineType, () => {
 		describe('4o' + engineType, () => {
 			test('Empty input', () => {
@@ -92,7 +93,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 
 			///### **Conflicting Options**
 
-			test.todo('Conflicting boolean flags', () => {
+			(engineMini ? test.todo : test)('Conflicting boolean flags', () => {
 				expect(() =>
 					argMate(['--enable', '--disable'], {
 						enable: {type: 'boolean'},
@@ -137,7 +138,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				expect(argMate([' '])).toEqual({_: [' ']});
 			});
 
-			test.todo('Newline character in argument', () => {
+			test('Newline character in argument', () => {
 				expect(argMate(['--message=\nHello'])).toEqual({message: '\nHello', _: []});
 			});
 
@@ -156,7 +157,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				});
 			});
 
-			test.todo('Conflicting array-type arguments', () => {
+			(engineMini ? test.todo : test)('Conflicting array-type arguments', () => {
 				expect(() =>
 					argMate(['--id=1', '--id=2', '--no-id'], {
 						id: {type: 'int[]', conflict: 'no-id'},
@@ -187,17 +188,20 @@ function run(argMate: ArgMateEngine, engineType = '') {
 					expect(argMate(['-x', '-y'], {x: {alias: ['y']}})).toEqual({x: true, _: []});
 				});
 
-			test.todo('Conflicting flags with repeated arguments', () => {
+			(engineMini ? test.todo : test)('Conflicting flags with repeated arguments', () => {
 				expect(() =>
 					argMate(['--foo', '--bar', '--foo'], {foo: {conflict: 'bar'}, bar: {}})
 				).toThrow();
 			});
 
-			test.todo('Conflicting flags with repeated and negated arguments', () => {
-				expect(() =>
-					argMate(['--foo', '--no-foo', '--bar'], {foo: {conflict: 'bar'}, bar: {}})
-				).toThrow();
-			});
+			(engineMini ? test.todo : test)(
+				'Conflicting flags with repeated and negated arguments',
+				() => {
+					expect(() =>
+						argMate(['--foo', '--no-foo', '--bar'], {foo: {conflict: 'bar'}, bar: {}})
+					).toThrow();
+				}
+			);
 
 			test('Repeated positional arguments with varying lengths', () => {
 				expect(argMate(['short', 'longer', 'evenlongertext'])).toEqual({
@@ -213,7 +217,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				).toEqual({CaseSensitive: true, _: []});
 			});
 
-			test.todo('Empty string as flag value', () => {
+			test('Empty string as flag value', () => {
 				expect(argMate(['--name='])).toEqual({name: '', _: []});
 			});
 
@@ -221,7 +225,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				expect(argMate(['--name= '])).toEqual({name: ' ', _: []});
 			});
 
-			test.todo('Multiple conflicting flags with separator', () => {
+			(engineMini ? test.todo : test)('Multiple conflicting flags with separator', () => {
 				expect(() => argMate(['--on', '--off'], {on: {conflict: 'off'}, off: {}})).toThrow();
 			});
 
@@ -248,7 +252,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				).toEqual({path: ['/usr/local/bin', ''], _: ['/opt/bin']});
 			});
 
-			test.todo('Repeated conflicting flags with alias', () => {
+			(engineMini ? test.todo : test)('Repeated conflicting flags with alias', () => {
 				expect(() =>
 					argMate(['-f', '--fast', '--safe'], {
 						fast: {alias: 'f', conflict: 'safe'},
@@ -382,7 +386,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 
 			// Conflicting options
-			test.todo('Conflicting boolean flags', () => {
+			(engineMini ? test.todo : test)('Conflicting boolean flags', () => {
 				expect(() =>
 					argMate(['--on', '--off'], {
 						on: {conflict: 'off'},
@@ -391,7 +395,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				).toThrow();
 			});
 
-			test.todo('Conflicting value flags', () => {
+			(engineMini ? test.todo : test)('Conflicting value flags', () => {
 				expect(() =>
 					argMate(['--min', '0', '--max', '100'], {
 						min: {type: 'number', conflict: 'max'},
@@ -400,7 +404,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				).toThrow();
 			});
 
-			test.todo('Self-conflicting flag', () => {
+			(engineMini ? test.todo : test)('Self-conflicting flag', () => {
 				expect(() =>
 					argMate(['--paradox'], {
 						paradox: {conflict: 'paradox'},
@@ -408,7 +412,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				).toThrow();
 			});
 
-			test.todo('Multiple conflicts', () => {
+			(engineMini ? test.todo : test)('Multiple conflicts', () => {
 				expect(() =>
 					argMate(['--a', '--b', '--c'], {
 						a: {conflict: ['b', 'c']},
@@ -419,7 +423,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			});
 
 			// Mixed edge cases
-			test.todo('Long flag name with equals and empty value', () => {
+			test('Long flag name with equals and empty value', () => {
 				const longFlag = 'a'.repeat(1000);
 				expect(argMate([`--${longFlag}=`], {[longFlag]: ''})).toEqual({
 					_: [],
@@ -427,7 +431,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				});
 			});
 
-			test.todo('Conflicting flags', () => {
+			(engineMini ? test.todo : test)('Conflicting flags', () => {
 				expect(() =>
 					argMate(['--a', '--b', '--a', '--b'], {
 						a: {conflict: 'b'},
@@ -469,7 +473,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 					});
 				});
 
-			test.todo('Extremely long negated boolean flag', () => {
+			(engineMini ? test.todo : test)('Extremely long negated boolean flag', () => {
 				const longFlag = 'a'.repeat(1000);
 				expect(argMate([`--no-${longFlag}`], {[longFlag]: true})).toEqual({
 					_: [],
@@ -477,7 +481,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				});
 			});
 
-			test.todo('Conflicting flags with extremely long names', () => {
+			(engineMini ? test.todo : test)('Conflicting flags with extremely long names', () => {
 				const longFlag1 = 'a'.repeat(1000);
 				const longFlag2 = 'b'.repeat(1000);
 				expect(() =>
@@ -488,7 +492,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				).toThrow();
 			});
 
-			test.todo('Extremely long key-value pair', () => {
+			test('Extremely long key-value pair', () => {
 				const longKey = 'k'.repeat(1000);
 				const longValue = 'v'.repeat(1000000);
 				expect(argMate([`--${longKey}=${longValue}`], {[longKey]: ''})).toEqual({
@@ -497,7 +501,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				});
 			});
 
-			test.todo('Many conflicts in config', () => {
+			(engineMini ? test.todo : test)('Many conflicts in config', () => {
 				const config = {};
 				for (let i = 0; i < 1000; i++) {
 					config[`flag${i}`] = {conflict: `flag${(i + 1) % 1000}`};
@@ -505,7 +509,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				expect(() => argMate(['--flag0', '--flag1'], config)).toThrow();
 			});
 
-			test.todo('Mixing extremely long flags and short flags', () => {
+			test('Mixing extremely long flags and short flags', () => {
 				const longFlag = 'a'.repeat(1000);
 				expect(argMate([`--${longFlag}`, '-s'], {})).toEqual({
 					_: [],
@@ -523,7 +527,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				).toEqual({_: [], [longFlag.toLowerCase()]: true});
 			});
 
-			test.todo('Extremely long value with special characters', () => {
+			test('Extremely long value with special characters', () => {
 				const longValue = ('a'.repeat(1000) + '!@#$%^&*()').repeat(100);
 				expect(argMate(['--special', longValue], {special: ''})).toEqual({
 					_: [],
@@ -536,7 +540,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				expect(argMate(args, {})).toEqual({_: [], a: true});
 			});
 
-			test.todo('Extremely long argument with internal spaces', () => {
+			test('Extremely long argument with internal spaces', () => {
 				const longArg = 'a'.repeat(1000) + ' '.repeat(100) + 'b'.repeat(1000);
 				expect(argMate(['--long', longArg], {long: ''})).toEqual({_: [], long: longArg});
 			});
@@ -588,7 +592,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 					argMate(['--pattern', 'aaaa'], {
 						pattern: {
 							type: 'string',
-							valid: (v: string) => new RegExp(longRegex).test(v),
+							validate: (v: string) => new RegExp(longRegex).test(v),
 						},
 					})
 				).toEqual({_: [], pattern: 'aaaa'});

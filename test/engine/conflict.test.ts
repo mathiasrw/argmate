@@ -12,6 +12,7 @@ run(argMate);
 run(argMateMini, ' Mini');
 
 function run(argMate: ArgMateEngine, engineType = '') {
+	const engineMini = '' !== engineType;
 	describe.if(!engineType)('Conflict' + engineType, () => {
 		test('Opposing pairs A', () => {
 			expect(() =>
@@ -22,7 +23,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 						bar: {conflict: 'foo'},
 					},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							throw 'Error was called';
 						},
 					}
@@ -45,7 +46,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 					'--abc --foo'.split(' '),
 					{abc: {conflict: ' foo,         bar '}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('conflict');
 							expect(msg).toContain('abc');
 							expect(msg).toContain('foo');
@@ -60,7 +61,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 					'--abc --bar'.split(' '),
 					{abc: {conflict: 'foo, bar'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('conflict');
 							expect(msg).toContain('abc');
 							expect(msg).toContain('bar');
@@ -77,7 +78,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 					'--abc --foo'.split(' '),
 					{abc: {conflict: ['foo', 'bar']}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('conflict');
 							expect(msg).toContain('abc');
 							expect(msg).toContain('foo');
@@ -92,7 +93,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 					'--abc --bar'.split(' '),
 					{abc: {conflict: ['foo', 'bar']}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('conflict');
 							expect(msg).toContain('abc');
 							expect(msg).toContain('bar');
@@ -133,7 +134,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 						bar: {conflict: 'abc'},
 					},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('conflict');
 							expect(msg).toContain('abc');
 							throw 'Error was called';
@@ -152,7 +153,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 						bar: {conflict: 'abc'},
 					},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('conflict');
 							expect(msg).toContain('abc');
 							throw 'Error was called';
@@ -162,15 +163,15 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			).toThrow('Error was called');
 		});
 
-		test('Alias A1', () => {
+		(engineMini ? test.todo : test)('Alias A1', () => {
 			expect(() => {
 				argMate('--abc --foo'.split(' '), {
 					foo: {conflict: 'bar'},
 					bar: {alias: 'abc'},
 				});
-			}).toThrow(/parameter.*foo.*conflicts.*bar/i);
+			}).toThrow("The parameter '--foo' conflicts with '--abc'");
 		});
-		test.todo('Alias A2', done => {
+		(engineMini ? test.todo : test)('Alias A2', done => {
 			argMate(
 				'--bar --foo'.split(' '),
 				{
@@ -178,7 +179,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 					bar: {alias: 'abc'},
 				},
 				{
-					error: msg => {
+					error: ({message: msg}) => {
 						expect(msg).toContain('conflict');
 						expect(msg).toContain('foo');
 						expect(msg).toContain('bar');
@@ -196,7 +197,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 					bar: {alias: 'abc'},
 				},
 				{
-					error: msg => {
+					error: ({message: msg}) => {
 						expect(msg).toContain('conflict');
 						expect(msg).toContain('foo');
 						expect(msg).toContain('bar');
@@ -214,7 +215,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 					bar: {alias: 'abc'},
 				},
 				{
-					error: msg => {
+					error: ({message: msg}) => {
 						expect(msg).toContain('conflict');
 						expect(msg).toContain('foo');
 						expect(msg).toContain('bar');

@@ -1,5 +1,5 @@
 // The real CLI: the wall time of a whole process that parses process.argv with the workload `config` and prints the result.
-// `baseline` prints process.argv with no argmate, thus `full - baseline` is what argmate costs the CLI. Writes results.md.
+// `baseline` prints process.argv with no argmate, so `full - baseline` is what argmate costs the CLI. Writes results.md.
 //   node run.js [runs]
 import {execSync, spawnSync} from 'node:child_process';
 import {mkdirSync, rmSync} from 'node:fs';

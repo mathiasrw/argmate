@@ -8,7 +8,7 @@ const config = () => ({b: {type: 'boolean[]'}});
 
 // `error` is the callback for input errors and `panic` is the callback for config errors
 const settings = () => ({
-	error: msg => {
+	error: ({message: msg}) => {
 		throw new Error(`input error: ${msg}`);
 	},
 	panic: msg => {
@@ -19,35 +19,35 @@ const settings = () => ({
 const parse = (...args) => argMate(args, config(), settings());
 
 describe('#18d Type boolean[]: each use of the flag adds one value', () => {
-	test.todo('the example in todo-v9.md', () => {
+	test('the example in todo-v9.md', () => {
 		expect(parse('--b', '--no-b', '--b=yes')).toEqual({_: [], b: [true, false, true]});
 	});
 
-	test.todo('one flag gives an array with one value', () => {
+	test('one flag gives an array with one value', () => {
 		expect(parse('--b')).toEqual({_: [], b: [true]});
 	});
 
-	test.todo('the flag adds true for each use', () => {
+	test('the flag adds true for each use', () => {
 		expect(parse('--b', '--b', '--b')).toEqual({_: [], b: [true, true, true]});
 	});
 
-	test.todo('the flag does not take the next argument as its value', () => {
+	test('the flag does not take the next argument as its value', () => {
 		expect(parse('--b', 'file', '--b')).toEqual({_: ['file'], b: [true, true]});
 	});
 
-	test.todo('--no- adds false', () => {
+	test('--no- adds false', () => {
 		expect(parse('--no-b')).toEqual({_: [], b: [false]});
 	});
 
-	test.todo('the assigned words true, yes and on add true', () => {
+	test('the assigned words true, yes and on add true', () => {
 		expect(parse('--b=true', '--b=yes', '--b=on')).toEqual({_: [], b: [true, true, true]});
 	});
 
-	test.todo('the assigned words false, no and off add false', () => {
+	test('the assigned words false, no and off add false', () => {
 		expect(parse('--b=false', '--b=no', '--b=off')).toEqual({_: [], b: [false, false, false]});
 	});
 
-	test.todo('a different assigned word is an input error', () => {
+	test('a different assigned word is an input error', () => {
 		expect(() => parse('--b=maybe')).toThrow(/^input error: /);
 	});
 
@@ -59,14 +59,14 @@ describe('#18d Type boolean[]: each use of the flag adds one value', () => {
 describe('#18d Type boolean[]: alias', () => {
 	const config = () => ({verbose: {type: 'boolean[]', alias: 'v'}});
 
-	test.todo('the alias and the name add to the same array', () => {
+	test('the alias and the name add to the same array', () => {
 		expect(argMate(['-v', '--no-verbose', '-v'], config())).toEqual({
 			_: [],
 			verbose: [true, false, true],
 		});
 	});
 
-	test.todo('the alias in a group of short flags adds one value for each letter', () => {
+	test('the alias in a group of short flags adds one value for each letter', () => {
 		expect(argMate(['-vvv'], config())).toEqual({_: [], verbose: [true, true, true]});
 	});
 });
@@ -82,7 +82,7 @@ describe('#18d Type boolean[]: the flag is not given', () => {
 	});
 
 	// The same rule as for the other array types (test/engine/string[].test.ts)
-	test.todo('a flag that is given replaces the default', () => {
+	test('a flag that is given replaces the default', () => {
 		const config = {b: {type: 'boolean[]', default: [true, true]}};
 		expect(argMate(['--no-b'], config)).toEqual({_: [], b: [false]});
 	});

@@ -10,14 +10,14 @@
 import argMate from '../../src/argMate.js';
 
 // ✅ BEFORE (what you had to do):
-// expect(argMate(['--age', '25'], {age: {type: 'int', valid: (v: number) => v >= 18 && v <= 99}}))
+// expect(argMate(['--age', '25'], {age: {type: 'int', validate: (v: number) => v >= 18 && v <= 99}}))
 
 // ✅ AFTER (what you can do now):
 // Just add 'as const' and TypeScript infers v as number automatically!
 const result = argMate(['--age', '25'], {
 	age: {
 		type: 'int',
-		valid: v => v >= 18 && v <= 99, // ← v is automatically inferred as number!
+		validate: v => v >= 18 && v <= 99, // ← v is automatically inferred as number!
 		// You can also add transform:
 		transform: v => v * 2, // ← v is also automatically inferred as number!
 	},

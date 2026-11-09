@@ -2,10 +2,11 @@
 	"name": "argmate-compare-libs",
 	"private": true,
 	"type": "module",
-	"description": "The parsers that compareLibs compares with argmate. The versions are exact, thus a run can be repeated.",
+	"description": "The parsers that compareLibs compares with argmate, and argmate-v08: the published argmate 0.8.5. The versions are exact, so a run can be repeated.",
 	"dependencies": {
 		"@oclif/core": "5.1.9",
 		"arg": "5.0.2",
+		"argmate-v08": "npm:argmate@0.8.5",
 		"commander": "15.0.0",
 		"meow": "14.1.0",
 		"minimist": "1.2.8",

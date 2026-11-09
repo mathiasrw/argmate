@@ -1,5 +1,5 @@
 // Writes dist/config.js: the input and the engine config of the workload `config`.
-// The engine writes the result to the `output` of the engine config, thus each parse gets a new one from fresh().
+// The engine writes the result to the `output` of the engine config, so each parse gets a new one from fresh().
 import {precompileConfig} from '../../src/compileConfig.ts';
 
 const code = precompileConfig({

@@ -11,7 +11,7 @@ function parse(engine, args, config, settings = {allowUnknown: false}) {
 	try {
 		return engine(args, config, {
 			...settings,
-			error: msg => {
+			error: ({message: msg}) => {
 				throw {error: msg};
 			},
 			panic: msg => {
@@ -29,46 +29,46 @@ const versionIsName = () => ({version: {type: 'boolean'}, verbose: {alias: 'v'}}
 const versionIsAlias = () => ({info: {alias: 'version'}, verbose: {alias: 'v'}});
 
 const didYouMeanVersion = {
-	error: "Unknown parameter '-e' in '-version'. Did you mean '--version'?",
+	error: "Unknown parameter '-e' in '-version'\n\nDid you mean '--version'?",
 };
 
 describe('#16 Full engine: the letters together are a name', () => {
-	test.todo('the name of a parameter: the message proposes two dashes', () => {
+	test('the name of a parameter: the message proposes two dashes', () => {
 		expect(parse(argMate, ['-version'], versionIsName())).toEqual(didYouMeanVersion);
 	});
 
-	test.todo('an alias: the message proposes two dashes', () => {
+	test('an alias: the message proposes two dashes', () => {
 		expect(parse(argMate, ['-version'], versionIsAlias())).toEqual(didYouMeanVersion);
 	});
 
-	test.todo('the kebab-case alias that ArgMate adds for a camelCase name', () => {
+	test('the kebab-case alias that ArgMate adds for a camelCase name', () => {
 		const config = {dryRun: {alias: 'd'}};
 		expect(parse(argMate, ['-dry-run'], config)).toEqual({
-			error: "Unknown parameter '-r' in '-dry-run'. Did you mean '--dry-run'?",
+			error: "Invalid parameter '-dry-run'\n\nDid you mean '--dry-run'?",
 		});
 	});
 
-	test.todo('the first letter of the group is the unknown letter', () => {
+	test('the first letter of the group is the unknown letter', () => {
 		const config = {version: {type: 'boolean'}};
 		expect(parse(argMate, ['-version'], config)).toEqual({
-			error: "Unknown parameter '-v' in '-version'. Did you mean '--version'?",
+			error: "Unknown parameter '-v' in '-version'\n\nDid you mean '--version'?",
 		});
 	});
 
-	test.todo('the fourth letter of the group is the unknown letter', () => {
+	test('the fourth letter of the group is the unknown letter', () => {
 		const config = {version: {type: 'boolean'}, v: {}, e: {}, r: {}};
 		expect(parse(argMate, ['-version'], config)).toEqual({
-			error: "Unknown parameter '-s' in '-version'. Did you mean '--version'?",
+			error: "Unknown parameter '-s' in '-version'\n\nDid you mean '--version'?",
 		});
 	});
 
-	test.todo('the token comes after other arguments', () => {
+	test('the token comes after other arguments', () => {
 		expect(parse(argMate, ['file.txt', '-v', '-version'], versionIsName())).toEqual(
 			didYouMeanVersion
 		);
 	});
 
-	test.todo('the message is the same with `strict: true`', () => {
+	test('the message is the same with `strict: true`', () => {
 		expect(parse(argMate, ['-version'], versionIsName(), {strict: true})).toEqual(
 			didYouMeanVersion
 		);
@@ -78,21 +78,21 @@ describe('#16 Full engine: the letters together are a name', () => {
 describe('#16 Full engine: the letters together are not a name', () => {
 	// Assumption: the message is the first sentence of the message in the issue, with or without the period.
 	// todo-v9.md says only: show the full token in the message.
-	test.todo('the message shows the full token and proposes nothing', () => {
+	test('the message shows the full token and proposes nothing', () => {
 		const config = {verbose: {alias: 'v'}};
 		expect(parse(argMate, ['-vex'], config)).toEqual({
 			error: expect.stringMatching(/^Unknown parameter '-e' in '-vex'\.?$/),
 		});
 	});
 
-	test.todo('a token with two letters', () => {
+	test('a token with two letters', () => {
 		const config = {verbose: {alias: 'v'}};
 		expect(parse(argMate, ['-ve'], config)).toEqual({
 			error: expect.stringMatching(/^Unknown parameter '-e' in '-ve'\.?$/),
 		});
 	});
 
-	test.todo('the first letter of the group is the unknown letter', () => {
+	test('the first letter of the group is the unknown letter', () => {
 		const config = {verbose: {alias: 'v'}};
 		expect(parse(argMate, ['-xv'], config)).toEqual({
 			error: expect.stringMatching(/^Unknown parameter '-x' in '-xv'\.?$/),
@@ -144,16 +144,21 @@ describe('#16 Full engine: what does not change', () => {
 		});
 	});
 
-	test('there is no error when unknown parameters are allowed', () => {
+	// SPEC.md: a group that is also a long name is an error when a letter is not in the config, also when unknown
+	// parameters are allowed. Before, `-version` gave `{verbose: true, e: true, r: true, ...}`.
+	test('when unknown parameters are allowed, a group that is a long name is still an error', () => {
 		expect(parse(argMate, ['-version'], versionIsName(), {})).toEqual({
+			error: "Unknown parameter '-e' in '-version'\n\nDid you mean '--version'?",
+		});
+	});
+
+	test('when unknown parameters are allowed, a group that is not a name has no error', () => {
+		expect(parse(argMate, ['-vers'], versionIsName(), {})).toEqual({
 			_: [],
 			verbose: true,
 			e: true,
 			r: true,
 			s: true,
-			i: true,
-			o: true,
-			n: true,
 		});
 	});
 });

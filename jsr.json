@@ -1,0 +1,16 @@
+{
+	"name": "@mathiasrw/argmate",
+	"version": "0.9.1",
+	"exports": {
+		".": "./src/argMate.ts",
+		"./mini": "./src/argMateMini.ts",
+		"./engine": "./src/argEngine.ts",
+		"./mini/engine": "./src/argEngineMini.ts",
+		"./info": "./src/argInfo.ts",
+		"./precompile": "./src/compileConfig.ts"
+	},
+	"publish": {
+		"include": ["src/", "README.md", "LICENSE"],
+		"exclude": ["src/argMate-cli.ts", "src/argMate.macro.ts", "src/test-types.ts"]
+	}
+}

@@ -35,7 +35,7 @@ for (const {name, parse, engine} of engines) {
 			expect(args).toEqual(['a', 'b', 'c']);
 		});
 
-		// The engine stopped at `--`, thus the array had the items after it: ['b', 'c']
+		// The engine stopped at `--`, so the array had the items after it: ['b', 'c']
 		test('when `--` is in the input', () => {
 			const args = ['a', '--', 'b', 'c'];
 			parse(args);
@@ -48,7 +48,7 @@ for (const {name, parse, engine} of engines) {
 			expect(args).toEqual(['a', '--', 'b', 'c']);
 		});
 
-		// The engine made a new array for the group, thus the array of the caller had the items after it: ['x']
+		// The engine made a new array for the group, so the array of the caller had the items after it: ['x']
 		test('when a group of short flags is in the input', () => {
 			const args = ['-abc', 'x'];
 			parse(args);
@@ -62,9 +62,9 @@ for (const {name, parse, engine} of engines) {
 		});
 
 		test('when the parse with no config throws an input error', () => {
-			const args = ['a', '--foo='];
-			expect(() => parse(args)).not.toThrow();
-			expect(args).toEqual(['a', '--foo=']);
+			const args = ['a', '---x'];
+			expect(() => parse(args)).toThrow();
+			expect(args).toEqual(['a', '---x']);
 		});
 
 		test('after a call to the engine with no engine config', () => {
@@ -79,7 +79,7 @@ for (const {name, parse, engine} of engines) {
 			expect(args).toEqual(['--foo', 'bar', 'baz']);
 		});
 
-		test('thus two parses of one array give the same result', () => {
+		test('so two parses of one array give the same result', () => {
 			const args = ['--foo', 'bar', 'baz'];
 			expect([parse(args), parse(args)]).toEqual([
 				{_: ['bar', 'baz'], foo: true},
@@ -88,7 +88,7 @@ for (const {name, parse, engine} of engines) {
 		});
 
 		// The engine must not write to the array. `args.reverse()` threw a TypeError here.
-		test('thus an array that is frozen can be parsed', () => {
+		test('so an array that is frozen can be parsed', () => {
 			expect(parse(Object.freeze(['--foo', 'bar', 'baz']))).toEqual({_: ['bar', 'baz'], foo: true});
 		});
 

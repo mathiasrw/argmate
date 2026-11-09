@@ -23,7 +23,7 @@ await Bun.write(
 
 const arrays = Object.keys(base.output).filter(key => Array.isArray(base.output[key]));
 
-// The engine writes the result to the output of the engine config, thus each parse needs a new one
+// The engine writes the result to the output of the engine config, so each parse needs a new one
 export function fresh() {
 	const output = {...base.output};
 	for (const key of arrays) output[key] = [];

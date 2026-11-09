@@ -162,7 +162,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				argMate(['--n', '5'], {
 					n: {
 						type: 'int',
-						valid: (v: number) => v >= 0 && v <= 10,
+						validate: (v: number) => v >= 0 && v <= 10,
 						transform: (v: number) => v * 2,
 					},
 				})

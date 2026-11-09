@@ -1,5 +1,5 @@
 // #10: `transform` is not applied
-// The README and the types have the `transform` property, but the engines did not read it, thus the value did not change.
+// The README and the types have the `transform` property, but the engines did not read it, so the value did not change.
 // The two engines apply `transform` to the value after the validation.
 import {describe, expect, test} from 'bun:test';
 import {argMate, argMateMini} from '../../helper.ts';
@@ -10,7 +10,7 @@ const config = () => ({name: {type: 'string', alias: 'n', transform: upper}});
 
 // `error` is the callback for input errors and `panic` is the callback for config errors
 const settings = () => ({
-	error: msg => {
+	error: ({message: msg}) => {
 		throw new Error(`input error: ${msg}`);
 	},
 	panic: msg => {
@@ -66,27 +66,30 @@ describe('#10 The full engine applies transform', () => {
 	});
 });
 
-describe('#10 transform runs after the validation', () => {
-	test('a `valid` function gets the value before transform', () => {
-		const config = {name: {type: 'string', valid: v => v === 'bob', transform: upper}};
+// #50 turned the order around: transform runs first, and the validation checks the transformed value
+describe('#10 #50 transform runs before the validation', () => {
+	test('a `valid` function gets the transformed value', () => {
+		const config = {name: {type: 'string', validate: v => v === 'BOB', transform: upper}};
 		expect(argMate(['--name', 'bob'], config, settings())).toEqual({_: [], name: 'BOB'});
 	});
 
-	test('a `valid` list is compared with the value before transform', () => {
-		const config = {name: {type: 'string', valid: ['bob', 'eve'], transform: upper}};
+	test('a `valid` list is compared with the transformed value', () => {
+		const config = {name: {type: 'string', valid: ['BOB', 'EVE'], transform: upper}};
 		expect(argMate(['--name', 'eve'], config, settings())).toEqual({_: [], name: 'EVE'});
 	});
 
 	test('a value that is not valid is an input error', () => {
-		const config = {name: {type: 'string', valid: v => v === 'bob', transform: upper}};
+		const config = {name: {type: 'string', validate: v => v === 'BOB', transform: upper}};
 		expect(() => argMate(['--name', 'eve'], config, settings())).toThrow(/^input error: /);
 	});
 
-	test('transform does not get a value that is not valid', () => {
+	test('transform gets a value that is not valid', () => {
 		const calls = [];
-		const config = {name: {type: 'string', valid: v => v === 'bob', transform: v => calls.push(v)}};
+		const config = {
+			name: {type: 'string', validate: v => v === 'bob', transform: v => calls.push(v)},
+		};
 		expect(() => argMate(['--name', 'eve'], config, settings())).toThrow();
-		expect(calls).toEqual([]);
+		expect(calls).toEqual(['eve']);
 	});
 });
 
@@ -152,7 +155,7 @@ describe('#10 transform and a default', () => {
 		expect(argMate([], config)).toEqual({_: [], name: 'EVE'});
 	});
 
-	// A parameter with no value and no default is not in the result, thus `transform` does not get it.
+	// A parameter with no value and no default is not in the result, so `transform` does not get it.
 	test('a parameter with no value and no default stays absent', () => {
 		const config = {name: {type: 'string', transform: v => v.trim()}};
 		expect(argMate([], config)).toEqual({_: []});

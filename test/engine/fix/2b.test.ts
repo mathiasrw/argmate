@@ -9,7 +9,7 @@ function parse(engine, args, config = {}, settings = {}) {
 	const calls = [];
 	const result = engine(args, config, {
 		...settings,
-		error: msg => {
+		error: ({message: msg}) => {
 			calls.push(`error: ${msg}`);
 		},
 		panic: msg => {
@@ -37,7 +37,7 @@ describe('#2b A token that the engine cannot read', () => {
 			expect(argMate(['--foo bar'])).toEqual({_: ['--foo bar']});
 		});
 
-		// Assumption: `-=5` is such a token. It has no name before the `=`, thus it is not in the pattern.
+		// Assumption: `-=5` is such a token. It has no name before the `=`, so it is not in the pattern.
 		test("no name before the =: '-=5'", () => {
 			expect(argMate(['-=5'])).toEqual({_: ['-=5']});
 		});
@@ -101,7 +101,7 @@ describe('#2b A token that the engine cannot read', () => {
 			expect(argMateMini(['a', '-', 'b', '--foo'])).toEqual({_: ['a', '-', 'b'], foo: true});
 		});
 
-		// A name with a space is not a name. The mini engine has no pattern, thus it checks the name itself.
+		// A name with a space is not a name. The mini engine has no pattern, so it checks the name itself.
 		for (const token of ['- f', '-a b', '--foo bar', '- ', '-a\tb', '- f=3', '--foo bar=3']) {
 			test(`${JSON.stringify(token)} goes to _`, () => {
 				expect(argMateMini([token])).toEqual({_: [token]});

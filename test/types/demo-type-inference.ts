@@ -14,7 +14,7 @@ import argMate from '../../src/argMate.js';
 const result1 = argMate(['--age', '25'], {
 	age: {
 		type: 'int',
-		valid: v => v >= 18 && v <= 99, // v is automatically inferred as number!
+		validate: v => v >= 18 && v <= 99, // v is automatically inferred as number!
 	},
 } as const);
 
@@ -30,7 +30,7 @@ const result2 = argMate(['--name', ' John '], {
 const result3 = argMate(['--port', '8080'], {
 	port: {
 		default: 3000,
-		valid: v => v > 0 && v < 65536, // v is automatically inferred as number!
+		validate: v => v > 0 && v < 65536, // v is automatically inferred as number!
 	},
 } as const);
 
@@ -38,7 +38,7 @@ const result3 = argMate(['--port', '8080'], {
 const result4 = argMate(['--scores', '95', '87'], {
 	scores: {
 		type: 'number[]',
-		valid: v => v.every(score => score >= 0 && score <= 100), // v is automatically inferred as number[]!
+		validate: v => v.every(score => score >= 0 && score <= 100), // v is automatically inferred as number[]!
 		transform: v => v.map(score => Math.round(score * 1.1)), // v is automatically inferred as number[]!
 	},
 } as const);
@@ -47,7 +47,7 @@ const result4 = argMate(['--scores', '95', '87'], {
 const config = {
 	age: {
 		type: 'int',
-		valid: (v: number) => v >= 18 && v <= 99, // Note: explicit type needed for extracted configs
+		validate: (v: number) => v >= 18 && v <= 99, // Note: explicit type needed for extracted configs
 	},
 } as const;
 

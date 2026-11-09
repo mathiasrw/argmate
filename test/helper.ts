@@ -43,7 +43,8 @@ export const argMate = full.default;
 export const argMateMini = mini.default;
 export const argEngine = engine.default;
 export const argEngineMini = engineMini.default;
-export const argInfoFormat = info.default;
+// The `argmate/info` entry: the help with no parser, which reads `include` and `exclude` with the mini engine
+export const argInfoStandalone = info.default;
 
 export const {argInfo, configPreprocessing, precompileConfig} = full;
 export const argInfoMini = mini.argInfo;

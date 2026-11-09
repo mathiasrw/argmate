@@ -42,7 +42,7 @@ describe('#25 The TypeScript types', () => {
 	test('the aliases of the config properties compile', () => {
 		const config = `{
 					a: {type: 'int', validate: (v: number) => v > 0, mandatory: true, description: 'A'},
-					b: {type: 'int', valid: (v: number) => v > 0, required: true, describe: 'B'},
+					b: {type: 'int', validate: (v: number) => v > 0, required: true, describe: 'B'},
 					c: {type: 'string', validate: ['x', 'y'], desc: 'C'},
 					d: {type: 'string', valid: ['x', 'y']},
 				}`;

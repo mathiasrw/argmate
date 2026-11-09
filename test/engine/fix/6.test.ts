@@ -35,7 +35,7 @@ function program(args, {argMate, argInfo} = full, introOutro = {}) {
 			{...introOutro, ...config()},
 			{
 				allowUnknown: false,
-				error: msg => {
+				error: ({message: msg}) => {
 					console.error(msg);
 					console.log(argInfo());
 					process.exit(1);

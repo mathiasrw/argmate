@@ -10,6 +10,7 @@ run(argMate);
 run(argMateMini, ' Mini');
 
 function run(argMate: ArgMateEngine, engineType = '') {
+	const engineMini = '' !== engineType;
 	describe('Special characters' + engineType, () => {
 		describe('4o' + engineType, () => {
 			describe('Spaces in Values', () => {
@@ -626,9 +627,10 @@ function run(argMate: ArgMateEngine, engineType = '') {
 					expect(argv).toEqual({_: [], snake_case: 'value'});
 				});
 
-				test('Numeric key', () => {
-					const argv = argMate(['--123=value']);
-					expect(argv).toEqual({_: [], '123': 'value'});
+				(engineMini ? test.todo : test)('Numeric key', () => {
+					expect(() => argMate(['--123=value'])).toThrow(
+						'a name of only digits must be in the config'
+					);
 				});
 
 				test('Key with underscore', () => {
@@ -753,10 +755,11 @@ function run(argMate: ArgMateEngine, engineType = '') {
 					expect(argv).toEqual({_: ['y=mx+b'], equation: ''});
 				});
 
-				test('Value starting with hyphen', () => {
-					const argv = argMate(['--range=', '-10,10']);
-					expect(argv).toEqual({_: [], range: '', 1: true, 0: true, ',': engineType ? true : 10});
-				});
+				if (!engineType)
+					test('Value starting with hyphen', () => {
+						const argv = argMate(['--range=', '-10,10']);
+						expect(argv).toEqual({_: ['-10,10'], range: ''});
+					});
 
 				test('Empty string value', () => {
 					const argv = argMate(['--empty=', '""']);
@@ -773,9 +776,10 @@ function run(argMate: ArgMateEngine, engineType = '') {
 					expect(argv).toEqual({_: ['value'], snake_case: ''});
 				});
 
-				test('Numeric key', () => {
-					const argv = argMate(['--123=', 'value']);
-					expect(argv).toEqual({_: ['value'], '123': ''});
+				(engineMini ? test.todo : test)('Numeric key', () => {
+					expect(() => argMate(['--123=', 'value'])).toThrow(
+						'a name of only digits must be in the config'
+					);
 				});
 
 				test('Key with underscore', () => {

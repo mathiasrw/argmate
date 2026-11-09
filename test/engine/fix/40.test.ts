@@ -16,7 +16,7 @@ import {
 function parse(engine, args, config) {
 	try {
 		return engine(args, config, {
-			error: msg => {
+			error: ({message: msg}) => {
 				throw {error: msg};
 			},
 			panic: msg => {
@@ -60,10 +60,10 @@ for (const {name, parse, engine, message} of engines) {
 			expect(parse(['--email', 'abc'], config)).toEqual({error: message('email', 'abc', email)});
 		});
 
-		test('the alias `valid` takes a regular expression also', () => {
-			const config = {email: {type: 'string', valid: email}};
-			expect(parse(['--email', 'a@b.dk'], config)).toEqual({_: [], email: 'a@b.dk'});
-			expect(parse(['--email', 'abc'], config)).toEqual({error: message('email', 'abc', email)});
+		test('a regular expression in `valid` is a config error', () => {
+			expect(parse(['--email', 'a@b.dk'], {email: {type: 'string', valid: email}})).toEqual({
+				panic: `The "valid" property of 'email' must be an array of valid values`,
+			});
 		});
 
 		test('a value given with = is checked', () => {
@@ -147,7 +147,7 @@ for (const {name, parse, engine, message} of engines) {
 			expect(parse([], config)).toEqual({error: expect.stringContaining('mandatory')});
 		});
 
-		// RegExp.test() with the flag `g` starts at `lastIndex`, thus each second call gives another answer
+		// RegExp.test() with the flag `g` starts at `lastIndex`, so each second call gives another answer
 		test('a regular expression with the flag g gives the same answer for each parse', () => {
 			const global = /b/g;
 			const config = {name: {type: 'string', validate: global}};
@@ -164,13 +164,14 @@ for (const {name, parse, engine, message} of engines) {
 			expect(sticky.lastIndex).toBe(1);
 		});
 
-		test('transform runs after the regular expression and gets the value', () => {
+		// #50: transform runs first
+		test('the regular expression checks the transformed value', () => {
 			const config = {
-				name: {type: 'string', validate: /^[a-z]+$/, transform: v => v.toUpperCase()},
+				name: {type: 'string', validate: /^[A-Z]+$/, transform: v => v.toUpperCase()},
 			};
 			expect(parse(['--name', 'abc'], config)).toEqual({_: [], name: 'ABC'});
-			expect(parse(['--name', 'ABC'], config)).toEqual({
-				error: message('name', 'ABC', '/^[a-z]+$/'),
+			expect(parse(['--name', 'a1'], config)).toEqual({
+				error: message('name', 'A1', '/^[A-Z]+$/'),
 			});
 		});
 
@@ -180,7 +181,9 @@ for (const {name, parse, engine, message} of engines) {
 			for (const validate of [5, '^a$', {}, null, true]) {
 				expect(parse(['--foo', 'a'], {foo: {type: 'string', validate}})).toEqual({panic});
 				expect(parse([], {foo: {type: 'string', validate}})).toEqual({panic});
-				expect(parse([], {foo: {valid: validate}})).toEqual({panic});
+				expect(parse([], {foo: {valid: validate}})).toEqual({
+					panic: `The "valid" property of 'foo' must be an array of valid values`,
+				});
 			}
 		});
 

@@ -8,7 +8,7 @@ const engines = {'full engine': argMate, 'mini engine': argMateMini};
 
 // `error` is the callback for input errors and `panic` is the callback for config errors
 const settings = () => ({
-	error: msg => {
+	error: ({message: msg}) => {
 		throw new Error(`input error: ${msg}`);
 	},
 	panic: msg => {
@@ -18,27 +18,27 @@ const settings = () => ({
 
 for (const [name, engine] of Object.entries(engines)) {
 	describe(`#18c bool is the same type as boolean: ${name}`, () => {
-		test.todo('the flag gives true', () => {
+		test('the flag gives true', () => {
 			expect(engine(['--b'], {b: {type: 'bool'}})).toEqual({_: [], b: true});
 		});
 
-		test.todo('the flag does not take the next argument as its value', () => {
+		test('the flag does not take the next argument as its value', () => {
 			expect(engine(['--b', 'file'], {b: {type: 'bool'}})).toEqual({_: ['file'], b: true});
 		});
 
-		test.todo('the alias gives true', () => {
+		test('the alias gives true', () => {
 			expect(engine(['-b'], {bee: {type: 'bool', alias: 'b'}})).toEqual({_: [], bee: true});
 		});
 
-		test.todo('the parameter is absent when the flag is not given', () => {
+		test('the parameter is absent when the flag is not given', () => {
 			expect(engine([], {b: {type: 'bool'}})).toEqual({_: []});
 		});
 
-		test.todo('the default is the value when the flag is not given', () => {
+		test('the default is the value when the flag is not given', () => {
 			expect(engine([], {b: {type: 'bool', default: false}})).toEqual({_: [], b: false});
 		});
 
-		test.todo('the flag changes a default of false to true', () => {
+		test('the flag changes a default of false to true', () => {
 			expect(engine(['--b'], {b: {type: 'bool', default: false}})).toEqual({_: [], b: true});
 		});
 
@@ -53,27 +53,27 @@ for (const [name, engine] of Object.entries(engines)) {
 }
 
 describe('#18c bool in the full engine: negation and assignment', () => {
-	test.todo('--no- gives false', () => {
+	test('--no- gives false', () => {
 		expect(argMate(['--no-b'], {b: {type: 'bool'}})).toEqual({_: [], b: false});
 	});
 
-	test.todo('--no- changes a default of true to false', () => {
+	test('--no- changes a default of true to false', () => {
 		expect(argMate(['--no-b'], {b: {type: 'bool', default: true}})).toEqual({_: [], b: false});
 	});
 
-	test.todo('the assigned words true, yes and on give true', () => {
+	test('the assigned words true, yes and on give true', () => {
 		for (const word of ['true', 'yes', 'on']) {
 			expect(argMate([`--b=${word}`], {b: {type: 'bool'}})).toEqual({_: [], b: true});
 		}
 	});
 
-	test.todo('the assigned words false, no and off give false', () => {
+	test('the assigned words false, no and off give false', () => {
 		for (const word of ['false', 'no', 'off']) {
 			expect(argMate([`--b=${word}`], {b: {type: 'bool'}})).toEqual({_: [], b: false});
 		}
 	});
 
-	test.todo('a different assigned word is an input error', () => {
+	test('a different assigned word is an input error', () => {
 		expect(() => argMate(['--b=maybe'], {b: {type: 'bool'}}, settings())).toThrow(/^input error: /);
 	});
 
@@ -90,11 +90,11 @@ describe('#18c bool in the full engine: negation and assignment', () => {
 
 // The README says that mini has no `--no-` negation and no conversion of the words yes/no
 describe('#18c bool in the mini engine: no negation and no assignment', () => {
-	test.todo('--no- is a different flag', () => {
+	test('--no- is a different flag', () => {
 		expect(argMateMini(['--no-b'], {b: {type: 'bool'}})).toEqual({_: [], noB: true});
 	});
 
-	test.todo('an assigned value is an input error', () => {
+	test('an assigned value is an input error', () => {
 		expect(() => argMateMini(['--b=yes'], {b: {type: 'bool'}}, settings())).toThrow(
 			/^input error: /
 		);
@@ -110,25 +110,25 @@ describe('#18c bool in the mini engine: no negation and no assignment', () => {
 
 // The type `boolean[]` does not work before issue 18d is done. test/engine/fix/18d.test.ts has its complete tests.
 describe('#18c bool[] is the same type as boolean[]', () => {
-	test.todo('full engine: each use of the flag adds one value', () => {
+	test('full engine: each use of the flag adds one value', () => {
 		expect(argMate(['--b', '--no-b', '--b=yes'], {b: {type: 'bool[]'}})).toEqual({
 			_: [],
 			b: [true, false, true],
 		});
 	});
 
-	test.todo('full engine: the flag does not take the next argument as its value', () => {
+	test('full engine: the flag does not take the next argument as its value', () => {
 		expect(argMate(['--b', 'file', '--b'], {b: {type: 'bool[]'}})).toEqual({
 			_: ['file'],
 			b: [true, true],
 		});
 	});
 
-	test.todo('full engine: the value is an empty array when the flag is not given', () => {
+	test('full engine: the value is an empty array when the flag is not given', () => {
 		expect(argMate([], {b: {type: 'bool[]'}})).toEqual({_: [], b: []});
 	});
 
-	test.todo('mini engine: the value is an empty array when the flag is not given', () => {
+	test('mini engine: the value is an empty array when the flag is not given', () => {
 		expect(argMateMini([], {b: {type: 'bool[]'}})).toEqual({_: [], b: []});
 	});
 

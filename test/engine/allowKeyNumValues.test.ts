@@ -28,11 +28,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 						}
 					);
 					expect(argv).toEqual({
-						_: [],
-						s: true,
-						'1': true,
-						'2': true,
-						'3': true,
+						_: ['-s123'],
 					});
 				});
 			});

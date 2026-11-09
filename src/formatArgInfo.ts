@@ -1,177 +1,106 @@
-function breakLines(text: string, columnWidth: number): string[] {
-	const regex = new RegExp(`([^\\s].{0,${columnWidth - 1}})(?:[\\s]|$)`, 'g');
-	const lines = ('' + text).split('\n');
-	return lines.flatMap(l => l.match(regex) || []);
-}
+// The layout of the help: text broken at a width, and tables whose last column wraps
 
-function minimizeLineBreaks(data: string[][], maxWidth = 120): number[] {
-	const numColumns = data[0].length;
-	const columnWidths = Array(numColumns).fill(0);
-	const columnMinWidths = Array(numColumns).fill(0);
-	let longestWord = 0;
+// A cell of a row. An array is split into columns, and a string in the same place of another row spans them.
+export type Cell = string | string[];
 
-	// Step 1: Calculate the Initial Minimum Widths and Column Widths
-	data.forEach(row => {
-		row.forEach((cell, i) => {
-			cell ||= '';
-			const longestWordInCell = Math.max(...cell.split(' ').map(word => word.length));
-			longestWord = Math.max(longestWord, longestWordInCell);
-			columnMinWidths[i] = Math.max(columnMinWidths[i], longestWordInCell);
-			columnWidths[i] = Math.max(columnWidths[i], cell.length, columnMinWidths[i]);
-		});
-	});
-
-	// Throw an error if the longest word is greater than maxWidth
-	if (longestWord > maxWidth) {
-		throw new Error('Longest word exceeds maxWidth.');
-	}
-
-	// Calculate initial total width and overflow
-	const totalWidth = columnWidths.reduce((a, b) => a + b, 0);
-	let overflow = totalWidth - maxWidth;
-
-	// Step 2: Adjust the column widths if there's an overflow
-	while (overflow > 0) {
-		for (let i = 0; i < numColumns && overflow > 0; i++) {
-			if (columnWidths[i] > columnMinWidths[i]) {
-				columnWidths[i]--;
-				overflow--;
+// The lines of a text, broken at spaces so no line is longer than `width`. A word longer than `width` gets a line
+// of its own, as breaking a word or a flag makes it wrong to copy.
+export function wrap(text: string, width: number): string[] {
+	const lines: string[] = [];
+	for (const paragraph of text.split('\n')) {
+		let line = '';
+		for (const word of paragraph.split(' ')) {
+			if (!line) line = word;
+			else if (line.length + 1 + word.length <= width) line += ' ' + word;
+			else {
+				lines.push(line);
+				line = word;
 			}
 		}
-	}
-
-	// Now, the sum of columnWidths should not exceed maxWidth and should respect columnMinWidths.
-	return columnWidths;
-}
-
-function tupple(row: string[], widths: number[]): string[][] {
-	const fields = row.map((v, i) => breakLines(v, widths[i]));
-
-	let active = true;
-	const lines: any[] = [];
-	for (let i = 0; active; i++) {
-		active = false;
-		const line: string[] = [];
-		fields.forEach((f, j) => {
-			if (i < f.length) {
-				active = true;
-				line.push(f[i].padEnd(widths[j], ' '));
-				return;
-			}
-			line.push(' '.padEnd(widths[j], ' '));
-		});
 		lines.push(line);
 	}
-	lines.pop();
 	return lines;
 }
 
-export interface TableLayoutConfig {
-	maxWidth?: number;
-	left?: string;
-	join?: string;
-	right?: string;
-}
+const longestWord = (text: string) => Math.max(...text.split(/\s+/).map(word => word.length));
 
-export function tableLayout(data: string[][], conf_: TableLayoutConfig = {}): string {
-	const conf = {
-		maxWidth: 120,
-		left: '  ',
-		join: '   ',
-		right: '  ',
-		...conf_,
-	};
-	const numColumns = data[0]?.length || 1;
-	const workingWidth =
-		conf.maxWidth - conf.left.length - conf.join.length * (numColumns - 1) - conf.right.length;
+// The lines of each row. The columns line up over all the rows, also when other lines are between them. Two spaces
+// are between the columns of a split cell and three between cells. The last cell wraps in the width that is left.
+// When that is less than `minColumnWidth`, or less than the longest word of the cell, the cell goes on the lines below
+// its row, with an empty line before and after the row: a column of a word or two on each line is harder to read.
+export function table(
+	rows: Cell[][],
+	width: number,
+	minColumnWidth = 30,
+	indent = '  '
+): string[][] {
+	if (!rows.length) return [];
+	const last = Math.max(...rows.map(row => row.length)) - 1;
 
-	const optimizedWidths = minimizeLineBreaks(data, workingWidth);
-
-	const table = data.map(t => tupple(t, optimizedWidths));
-
-	let ascii = '';
-
-	table.forEach(r => {
-		r.forEach(f => {
-			ascii += conf.left;
-			ascii += f.join(conf.join);
-			ascii += conf.right;
-			ascii += '\n';
+	const parts: number[] = [];
+	for (const row of rows)
+		row.forEach((cell, i) => {
+			parts[i] = Math.max(parts[i] || 1, Array.isArray(cell) ? cell.length : 1);
 		});
-		ascii += '\n\n';
-	});
 
-	return ascii;
-}
+	const widths = parts.map(n => Array(n).fill(0));
+	for (const row of rows)
+		row.forEach((cell, i) => {
+			if (Array.isArray(cell))
+				cell.forEach((text, j) => {
+					widths[i][j] = Math.max(widths[i][j], text.length);
+				});
+			else if (i !== last && 1 === parts[i]) widths[i][0] = Math.max(widths[i][0], cell.length);
+		});
 
-export interface FormatArgInfoConfig {
-	maxWidth?: number;
-	left?: string;
-	join?: string;
-	right?: string;
-}
-
-export interface ParamDef {
-	alias?: string | string[];
-	default?: any;
-	description?: string;
-	describe?: string;
-	desc?: string;
-	type?: string;
-}
-
-/**
- * Formats argument definitions into a formatted CLI help table.
- * @param data - Object with param names as keys and ParamDef as values
- * @param settings_ - Table layout configuration
- */
-export default function formatArgInfo(
-	data: Record<string, ParamDef>,
-	settings_: FormatArgInfoConfig = {}
-): string {
-	const settings = {
-		maxWidth: 120,
-		left: '    ',
-		join: '    ',
-		right: ' ',
-		...settings_,
+	// A column with no text takes no room, and neither does the space after it
+	const span = (i: number) => {
+		const used = widths[i].filter(n => n);
+		return used.length ? used.reduce((a, b) => a + b) + 2 * (used.length - 1) : 0;
 	};
+	// A string that spans the columns of a cell widens the last of them when it is longer than all of them
+	for (const row of rows)
+		row.forEach((cell, i) => {
+			if (i === last || Array.isArray(cell) || cell.length <= span(i)) return;
+			// The last column with text, as `findLastIndex` is not in Node 16
+			let j = widths[i].length - 1;
+			while (0 < j && !widths[i][j]) j--;
+			widths[i][j] += cell.length - span(i);
+		});
 
-	const tableData: string[][] = [];
+	const fixed = (cell: Cell, i: number) =>
+		Array.isArray(cell)
+			? cell
+					.filter((_, j) => widths[i][j])
+					.map((text, j) => text.padEnd(widths[i].filter(n => n)[j]))
+					.join('  ')
+			: cell.padEnd(span(i));
+	const shown = Array.from({length: last}, (_, i) => i).filter(i => span(i));
 
-	for (const key in data) {
-		const val = data[key];
-		const aliases = Array.isArray(val.alias) ? val.alias : val.alias ? [val.alias] : [];
-		const allNames = [...aliases, key].sort((a, b) => b.length - a.length).map(camelToKebab);
-
-		const shortFlag = allNames.pop() || '';
-		const longFlags =
-			allNames.join(', ') + (val.default !== undefined ? `\n[=${val.default}]` : '');
-		const description =
-			(val.description || val.describe || val.desc || '') + (val.type ? ` [${val.type}]` : '');
-
-		tableData.push([shortFlag, longFlags, description]);
-	}
-
-	return tableLayout(tableData, settings);
-}
-
-export function camelToKebab(str: string): string {
-	if (str.length === 1) return '-' + str;
-	return '--' + str.replace(/([A-Z])/g, (_, c, i) => (i ? '-' : '') + c).toLowerCase();
-}
-
-export function toArray(val: any): any[] {
-	if (Array.isArray(val)) return val;
-	if (val) return [val];
-	return [];
-}
-
-export function formatIntroOutro(content: any): string {
-	if (!content) return '';
-	if (typeof content === 'string') return content + '\n';
-
-	return (
-		content.map((item: any) => (Array.isArray(item) ? item.join('  ') : item)).join('\n') + '\n'
+	let start = indent.length;
+	for (const i of shown) start += span(i) + 3;
+	const below = rows.map(
+		row =>
+			0 < shown.length &&
+			'string' === typeof row[last] &&
+			(width - start < minColumnWidth || width - start < longestWord(row[last] as string))
 	);
+
+	return rows.map((row, r) => {
+		const cells = shown.filter(i => i < row.length).map(i => fixed(row[i], i));
+		const before = indent + cells.join('   ') + (last < row.length && shown.length ? '   ' : '');
+		const cell = row[last];
+		if (undefined === cell) return [before.trimEnd()];
+		if (Array.isArray(cell)) return [(before + fixed(cell, last)).trimEnd()];
+		// The empty lines show where a row with its text below it starts and ends
+		if (below[r])
+			return [
+				...(0 < r && !below[r - 1] ? [''] : []),
+				before.trimEnd(),
+				...wrap(cell, width - indent.length - 6).map(line => indent + '      ' + line),
+				...(r < rows.length - 1 ? [''] : []),
+			];
+		const pad = ' '.repeat(start);
+		return wrap(cell, width - start).map((line, n) => ((n ? pad : before) + line).trimEnd());
+	});
 }

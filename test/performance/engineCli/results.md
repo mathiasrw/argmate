@@ -1,25 +1,25 @@
 # Engines: real CLI
 
-The wall time of a whole process that parses `process.argv` with the workload `config` and prints the result. 3 runs for each command; all 15 commands take turns. `baseline` is the same CLI with no argmate: it only prints `process.argv`. "argmate in full" is `full - baseline`. "mini is faster by" is `1 - mini / full`, with a 95 % bootstrap interval. `bun --compile` is an executable made with `bun build --compile`. The first table is the time of the whole process compared to argmate/mini: 1.000× is the same time.
+The wall time of a whole process that parses `process.argv` with the workload `config` and prints the result. 300 runs for each command; all 15 commands take turns. `baseline` is the same CLI with no argmate: it only prints `process.argv`. "argmate in full" is `full - baseline`. "mini is faster by" is `1 - mini / full`, with a 95 % bootstrap interval. `bun --compile` is an executable made with `bun build --compile`. The first table is the time of the whole process compared to argmate/mini: 1.000× is the same time.
 
 - Machine: Apple M1 Pro
 - Node v22.23.3, Bun v1.4.3
-- argmate v0.9.0, branch `v091`, `8daa5da` + changes that are not committed
-- Date: 2026-10-25 20:02
+- argmate v0.9.0, branch `v091`, `14acca8` + changes that are not committed
+- Date: 2026-10-25 21:02
 
 | Import | node | bun | bun --compile |
 |---|---:|---:|---:|
 | argmate/mini | 1.000× | 1.000× | 1.000× |
-| argmate | 1.000× | 0.974× | 0.973× |
-| argmate/mini/engine, precompiled | 0.931× | 0.933× | 0.925× |
-| argmate/engine, precompiled | 0.936× | 0.879× | 0.927× |
-| no parser (baseline) | 0.923× | 0.867× | 0.865× |
+| argmate | 0.998× | 1.007× | 1.012× |
+| argmate/mini/engine, precompiled | 0.977× | 0.966× | 0.976× |
+| argmate/engine, precompiled | 0.973× | 0.981× | 0.979× |
+| no parser (baseline) | 0.988× | 0.889× | 0.894× |
 
 | Runtime | Import | baseline | full | mini | argmate in full | mini is faster by (95 % interval) |
 |---|---|---:|---:|---:|---:|---:|
-| node | `argmate`, config at run time | 37.36 ms | 40.49 ms | 40.48 ms | 3.14 ms | 0.0 % (-10.2 to 2.8) |
-| node | `argmate/engine`, precompiled | 37.36 ms | 37.89 ms | 37.69 ms | 0.53 ms | 0.5 % (-0.6 to 3.7) |
-| bun | `argmate`, config at run time | 10.55 ms | 11.86 ms | 12.17 ms | 1.31 ms | -2.6 % (-48.7 to 9.9) |
-| bun | `argmate/engine`, precompiled | 10.55 ms | 10.70 ms | 11.36 ms | 0.15 ms | -6.1 % (-22.8 to -2.6) |
-| bun --compile | `argmate`, config at run time | 10.11 ms | 11.38 ms | 11.69 ms | 1.26 ms | -2.7 % (-13.6 to 6.0) |
-| bun --compile | `argmate/engine`, precompiled | 10.11 ms | 10.83 ms | 10.81 ms | 0.72 ms | 0.2 % (-6.6 to 12.6) |
+| node | `argmate`, config at run time | 40.29 ms | 40.73 ms | 40.79 ms | 0.44 ms | -0.2 % (-1.6 to 1.7) |
+| node | `argmate/engine`, precompiled | 40.29 ms | 39.69 ms | 39.87 ms | -0.59 ms | -0.4 % (-2.1 to 0.8) |
+| bun | `argmate`, config at run time | 10.36 ms | 11.74 ms | 11.66 ms | 1.38 ms | 0.7 % (-0.9 to 2.3) |
+| bun | `argmate/engine`, precompiled | 10.36 ms | 11.44 ms | 11.27 ms | 1.08 ms | 1.5 % (-1.0 to 3.9) |
+| bun --compile | `argmate`, config at run time | 10.41 ms | 11.78 ms | 11.64 ms | 1.38 ms | 1.2 % (-1.5 to 3.3) |
+| bun --compile | `argmate/engine`, precompiled | 10.41 ms | 11.40 ms | 11.36 ms | 0.99 ms | 0.3 % (-1.4 to 3.1) |

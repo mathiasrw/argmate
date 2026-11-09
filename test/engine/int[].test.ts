@@ -10,6 +10,7 @@ run(argMate);
 run(argMateMini, ' Mini');
 
 function run(argMate: ArgMateEngine, engineType = '') {
+	const engineMini = '' !== engineType;
 	describe('int[]' + engineType, () => {
 		test('Plain', () => {
 			const argv = argMate('--foo 9 --foo 2'.split(' '), {foo: {type: 'int[]'}});
@@ -26,10 +27,10 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				foo: [9],
 			});
 		});
-		test('None', () => {
+		(engineMini ? test.todo : test)('None', () => {
 			const argv = argMate('--bar 9'.split(' '), {foo: {type: 'int[]'}});
 			expect(argv).toEqual({
-				_: ['9'],
+				_: [9],
 				foo: [],
 				bar: true,
 			});

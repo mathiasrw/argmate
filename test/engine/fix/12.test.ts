@@ -1,6 +1,6 @@
 // #12: You cannot use one config object for two parses
 // The first parse added an entry for each alias to the config object of the caller. The second parse
-// read that entry as a parameter of type boolean, thus the alias no longer gave the parameter.
+// read that entry as a parameter of type boolean, so the alias no longer gave the parameter.
 // Now ArgMate does not change the config object of the caller.
 import {describe, expect, test} from 'bun:test';
 import {argEngine, argEngineMini, argMate, argMateMini, configPreprocessing} from '../../helper.ts';
@@ -98,12 +98,12 @@ for (const {name, parse, engine, mandatoryMessage} of engines) {
 		});
 
 		// Assumption: todo-v9.md does not have this symptom. Each parse adds `foo-bar` to the alias list
-		// one more time, thus the second message is `... alias: foo-bar, foo-bar`.
+		// one more time, so the second message is `... alias: foo-bar, foo-bar`.
 		test('the error message of the second parse is the same as that of the first', () => {
 			const config = {fooBar: {type: 'string', mandatory: true}};
 			const messages = [];
 			const settings = {
-				error: msg => {
+				error: ({message: msg}) => {
 					messages.push(msg);
 				},
 			};

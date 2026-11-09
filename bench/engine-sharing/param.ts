@@ -393,7 +393,7 @@ export default function argEngine(args, argProcessObj) {
 
 	const settings = configObj.engineSettings;
 
-	// All the properties are here from the start, thus the object keeps one shape
+	// All the properties are here from the start, so the object keeps one shape
 	const s = {
 		args: args.slice().reverse(),
 		output: configObj.output,

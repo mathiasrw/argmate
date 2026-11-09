@@ -4,13 +4,13 @@ import {describe, expect, test} from 'bun:test';
 import {argMate, configPreprocessing} from '../../helper.ts';
 
 // Gives the result of the parse. When ArgMate calls `error` (input error) or `panic` (config error),
-// gives the name of that callback and its message.
+// gives the name of that callback and its message. A conflict gives the config names of the two parameters.
 function parse(args, config, settings = {}) {
 	try {
 		return argMate(args, config, {
 			...settings,
-			error: msg => {
-				throw {error: msg};
+			error: ({code, key, with: other, message}) => {
+				throw 'CONFLICT' === code ? {conflict: [key, other]} : {error: message};
 			},
 			panic: msg => {
 				throw {panic: msg};
@@ -26,66 +26,76 @@ function parse(args, config, settings = {}) {
 const aliasInList = () => ({voidPipe: {alias: 'P', conflict: ['T']}, trimPipe: {alias: 'T'}});
 const nameInList = () => ({voidPipe: {alias: 'P', conflict: ['trimPipe']}, trimPipe: {alias: 'T'}});
 
-// Assumption: the message has the names of the parent parameters, the same as today for a parameter name in the list.
-const voidConflictsWithTrim = {error: "The parameter 'voidPipe' conflicts with 'trimPipe'"};
-const trimConflictsWithVoid = {error: "The parameter 'trimPipe' conflicts with 'voidPipe'"};
+// The error has the names of the parent parameters in `key` and `with`. The message has the names as typed.
+const voidConflictsWithTrim = {conflict: ['voidPipe', 'trimPipe']};
+const trimConflictsWithVoid = {conflict: ['trimPipe', 'voidPipe']};
 
 describe('#24a An alias in a conflict list', () => {
-	test.todo('the user types the two aliases', () => {
+	test('the message has the names as typed', () => {
+		let message = '';
+		argMate(['-P', '--trim-pipe'], aliasInList(), {
+			error: e => {
+				message = e.message;
+			},
+		});
+		expect(message).toBe("The parameter '-P' conflicts with '--trim-pipe'");
+	});
+
+	test('the user types the two aliases', () => {
 		expect(parse(['-P', '-T'], aliasInList())).toEqual(voidConflictsWithTrim);
 	});
 
-	test.todo('the user types the two names', () => {
+	test('the user types the two names', () => {
 		expect(parse(['--voidPipe', '--trimPipe'], aliasInList())).toEqual(voidConflictsWithTrim);
 	});
 
-	test.todo('the user types one name and the alias that is in the list', () => {
+	test('the user types one name and the alias that is in the list', () => {
 		expect(parse(['--voidPipe', '-T'], aliasInList())).toEqual(voidConflictsWithTrim);
 	});
 
-	test.todo('the user types one alias and the name of the parameter in the list', () => {
+	test('the user types one alias and the name of the parameter in the list', () => {
 		expect(parse(['-P', '--trimPipe'], aliasInList())).toEqual(voidConflictsWithTrim);
 	});
 
-	test.todo('the user types the aliases in the opposite sequence', () => {
+	test('the user types the aliases in the opposite sequence', () => {
 		expect(parse(['-T', '-P'], aliasInList())).toEqual(voidConflictsWithTrim);
 	});
 
-	test.todo('the user types the aliases as a group of short flags', () => {
+	test('the user types the aliases as a group of short flags', () => {
 		expect(parse(['-PT'], aliasInList())).toEqual(voidConflictsWithTrim);
 	});
 
-	test.todo('the user types the names in kebab-case', () => {
+	test('the user types the names in kebab-case', () => {
 		expect(parse(['--void-pipe', '--trim-pipe'], aliasInList())).toEqual(voidConflictsWithTrim);
 	});
 
-	test.todo('the parameter has two aliases: one is in the list and the user types the other', () => {
+	test('the parameter has two aliases: one is in the list and the user types the other', () => {
 		const config = {voidPipe: {alias: 'P', conflict: ['trim']}, trimPipe: {alias: ['T', 'trim']}};
 		expect(parse(['-P', '-T'], config)).toEqual(voidConflictsWithTrim);
 	});
 
-	test.todo('the list has the kebab-case alias that ArgMate adds for a camelCase name', () => {
+	test('the list has the kebab-case alias that ArgMate adds for a camelCase name', () => {
 		const config = {voidPipe: {conflict: ['trim-pipe']}, trimPipe: {}};
 		expect(parse(['--voidPipe', '--trimPipe'], config)).toEqual(voidConflictsWithTrim);
 	});
 
-	test.todo('the list is a string with aliases and commas', () => {
+	test('the list is a string with aliases and commas', () => {
 		const config = {
 			voidPipe: {alias: 'P', conflict: 'T, K'},
 			trimPipe: {alias: 'T'},
 			keepPipe: {alias: 'K'},
 		};
 		expect(parse(['-P', '-K'], config)).toEqual({
-			error: "The parameter 'voidPipe' conflicts with 'keepPipe'",
+			conflict: ['voidPipe', 'keepPipe'],
 		});
 	});
 
-	test.todo('the parameter that has the list comes after the other parameter in the config', () => {
+	test('the parameter that has the list comes after the other parameter in the config', () => {
 		const config = {voidPipe: {alias: 'P'}, trimPipe: {alias: 'T', conflict: ['P']}};
 		expect(parse(['-P', '-T'], config)).toEqual(trimConflictsWithVoid);
 	});
 
-	test.todo('the two parameters have the alias of the other parameter in their lists', () => {
+	test('the two parameters have the alias of the other parameter in their lists', () => {
 		const config = {
 			voidPipe: {alias: 'P', conflict: ['T']},
 			trimPipe: {alias: 'T', conflict: ['P']},
@@ -93,7 +103,7 @@ describe('#24a An alias in a conflict list', () => {
 		expect(parse(['-P', '-T'], config)).toEqual(voidConflictsWithTrim);
 	});
 
-	test.todo('ArgMate replaces the alias with its parent parameter when it reads the config', () => {
+	test('ArgMate replaces the alias with its parent parameter when it reads the config', () => {
 		expect(configPreprocessing(aliasInList()).parameterConfig.voidPipe.conflict).toEqual([
 			'trimPipe',
 		]);
@@ -149,7 +159,7 @@ describe('#24a A parameter name in a conflict list', () => {
 	test('the list is a string with names, commas and spaces', () => {
 		const config = {voidPipe: {conflict: ' trimPipe, keepPipe '}, trimPipe: {}, keepPipe: {}};
 		expect(parse(['--voidPipe', '--keepPipe'], config)).toEqual({
-			error: "The parameter 'voidPipe' conflicts with 'keepPipe'",
+			conflict: ['voidPipe', 'keepPipe'],
 		});
 	});
 

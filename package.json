@@ -33,43 +33,51 @@
 		"LICENSE"
 	],
 	"type": "module",
+	"sideEffects": false,
 	"types": "./dist/types.d.ts",
 	"main": "./dist/cjs/argMate.cjs",
 	"module": "./dist/argMate.js",
 	"exports": {
 		".": {
+			"types": "./dist/types.d.ts",
 			"import": "./dist/argMate.js",
 			"require": "./dist/cjs/argMate.cjs",
-			"types": "./dist/types.d.ts"
+			"default": "./dist/argMate.js"
 		},
 		"./engine": {
+			"types": "./dist/types.d.ts",
 			"import": "./dist/argEngine.js",
 			"require": "./dist/cjs/argEngine.cjs",
-			"types": "./dist/types.d.ts"
+			"default": "./dist/argEngine.js"
 		},
 		"./mini": {
+			"types": "./dist/types.d.ts",
 			"import": "./dist/argMateMini.js",
 			"require": "./dist/cjs/argMateMini.cjs",
-			"types": "./dist/types.d.ts"
+			"default": "./dist/argMateMini.js"
 		},
 		"./mini/engine": {
+			"types": "./dist/types.d.ts",
 			"import": "./dist/argEngineMini.js",
 			"require": "./dist/cjs/argEngineMini.cjs",
-			"types": "./dist/types.d.ts"
+			"default": "./dist/argEngineMini.js"
 		},
 		"./info": {
+			"types": "./dist/types.d.ts",
 			"import": "./dist/argInfo.js",
 			"require": "./dist/cjs/argInfo.cjs",
-			"types": "./dist/types.d.ts"
+			"default": "./dist/argInfo.js"
 		},
 		"./precompile": {
+			"types": "./dist/types.d.ts",
 			"import": "./dist/compileConfig.js",
 			"require": "./dist/cjs/compileConfig.cjs",
-			"types": "./dist/types.d.ts"
+			"default": "./dist/compileConfig.js"
 		}
 	},
 	"scripts": {
-		"dev": "cmdlook '{src,test}/**/*.{ts,js}' bun tst",
+		"dev": "bun test/manual/example.ts; cmdlook '{src,test}/**/*.{ts,js}' bun test/manual/example.ts",
+		"dev-test": "cmdlook '{src,test}/**/*.{ts,js}' bun tst",
 		"prebuild": "rm -fr dist/",
 		"build": "bun run build-esm && bun run build-cjs && bun run build-types",
 		"build-cli": "bun build src/argMate-cli.js --compile --outfile dist/argmate-cli",
@@ -77,38 +85,44 @@
 		"build-cjs": "bun build --target node --format cjs src/argMate.ts src/argMateMini.ts src/argEngine.ts src/argEngineMini.ts src/argInfo.ts src/compileConfig.ts --outdir dist/cjs/ --minify --entry-naming [name].cjs --footer 'module.exports = Object.assign(module.exports.default || {}, module.exports)'",
 		"build-types": "bunx tsc -p tsconfig.json --emitDeclarationOnly --declaration --outDir dist/types && cat dist/types/*.d.ts > dist/types.d.ts && rm -fr dist/types",
 		"lint": "biome check && tsc --noEmit && bun test/types/types.ai.ts",
-		"test": "bun tst && bun run lint && bun run test-bundle && bun run test-fuzzy",
+		"test": "bun tools/generateTestsFromDocumentation.js && bun tst && bun run lint && bun run test-bundle",
 		"tst": "biome format --write && bun run test-src",
 		"test-src": "ARGMATE_TEST_TARGET=src bun run test-run",
 		"test-esm": "ARGMATE_TEST_TARGET=esm bun run test-run",
 		"test-cjs": "ARGMATE_TEST_TARGET=cjs bun run test-run",
 		"test-bundle": "bun run build && bun run test-esm && bun run test-cjs",
 		"test-run": "CLAUDECODE=1 bun test --bail --timeout 500 --path-ignore-patterns 'test/{tsc,engine/fuzzy}/**'",
-		"test-fuzzy": "CLAUDECODE=1 bun test ./test/engine/fuzzy --bail --pass-with-no-tests",
+		"test-fuzzy": "bun test ./test/engine/fuzzy",
 		"test-tsc": "CLAUDECODE=1 bun test ./test/tsc --bail",
 		"test-todo": "bun test ./test/engine/fix --todo",
-		"test-ci": "bun run test-format && bun lint && bun run test-src && bun run test-bundle && bun run test-tsc && bun run test-cov",
+		"test-ci": "bun run test-format && bun lint && bun run test-src && bun run test-bundle && bun run test-pack && bun run test-tsc && bun run test-cov",
 		"test-cov": "bun run test-src --coverage",
-		"test-perf": "bun run test-perf-cli && bun run test-perf-js",
-		"test-perf-cli": "bun run test && cd bench/perf-v3 && sh test-cli3.sh",
-		"test-perf-js": "bun run test && cd bench/perf-v3 && sh test-js.sh ",
+		"test-perf": "test/performance/run.sh",
 		"test-format": "biome format",
 		"format": "biome format --write",
-		"release": "yarn version",
-		"prerelease": "bun install && bun format && bun run test",
-		"postrelease": "npm publish && git push && git push --tags && echo \"Successfully released version $npm_package_version\"",
+		"test-pack": "bun test/package/run.js",
+		"is-git-clean": "(git diff --quiet --exit-code --cached && git diff --quiet --exit-code) || (echo Please commit or stash changes && exit 1)",
+		"is-main": "test \"$(git branch --show-current)\" = main || (echo A release is made from main && exit 1)",
+		"release": "npm version -m 'v%s'",
+		"prerelease": "bun run is-main && bun install --frozen-lockfile && bun run format && bun run is-git-clean && bun run test && bun run test-pack",
+		"version": "bun run format && rexreplace '(?<=\"version\": \")[^\"]*' $npm_package_version jsr.json && git add package.json jsr.json",
+		"prepublishOnly": "bun run build && bun run test-pack",
+		"postrelease": "npm publish && git push && git push --tags && bun tools/release-notes.js",
 		"prepare": "husky"
 	},
 	"engines": {
-		"node": ">=15"
+		"node": ">=16"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.5.15",
+		"@arethetypeswrong/cli": "0.18.5",
+		"@biomejs/biome": "2.5.15",
 		"bun-types": "1.1.21",
 		"cmdlook": "^1.0.0",
 		"dts-bundle-generator": "^9.5.1",
 		"husky": "^9.1.4",
 		"onchange": "^7.1.0",
+		"publint": "0.3.25",
+		"rexreplace": "7.1.15",
 		"typescript": "^5.9.3"
 	}
 }

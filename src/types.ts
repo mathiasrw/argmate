@@ -6,6 +6,13 @@ type ParameterProperties = {
 	required?: boolean; // Alias of `mandatory`
 	alias?: string | string[];
 	conflict?: string | string[];
+	demand?: string | string[];
+	/** The input at this place, counted from 1, or from the end when negative. It is taken before the parse. */
+	spot?: number;
+	/** The values after the parameter: a count, or when negative up to and including that place from the end */
+	next?: number;
+	/** The values at the end of the input: a count, or when negative from that place after the parameter */
+	last?: number;
 	description?: string;
 	describe?: string; // Alias of `description`
 	desc?: string; // Alias of `description`
@@ -19,9 +26,29 @@ type ParameterFinalProperties = {
 	mandatory?: boolean;
 	alias?: string[];
 	conflict?: string[];
+	demand?: string[];
+	spot?: number;
+	next?: number;
+	last?: number;
+	valid?: any[][]; // Each item is [value, ...aliases], hidden aliases included
+	validShown?: any[][]; // Each item is the value and the aliases that the help shows
+	exists?: 'file' | 'folder' | 'path'; // The type before it became a string
 	description?: string;
 	key: string; // Required after processing
 };
+
+/**
+ * A list of valid values. An item is a value, or `[value, ...aliases]`: a string is an alias that the help shows,
+ * an array holds aliases that the help does not show. The first value is the default.
+ */
+type ValidList<T> = readonly (T | readonly (T | readonly T[])[])[];
+
+/**
+ * A check of the value. It gets the list of `valid` with each item as `[value, ...aliases]`. `true` or nothing
+ * passes, `false` gives the standard message, and a string is the message.
+ */
+// biome-ignore lint/suspicious/noConfusingVoidType: a function that returns nothing passes
+type ValidateFn<V, T> = (value: V, valid: T[][]) => boolean | string | void;
 
 /**
  * Typed config options with proper type inference for validate and transform functions
@@ -30,71 +57,71 @@ type ParameterConfig =
 	| (ParameterProperties & {
 			type: 'boolean';
 			default?: boolean;
-			validate?: ((value: boolean) => boolean) | boolean[];
-			valid?: ((value: boolean) => boolean) | boolean[]; // Alias of `validate`
+			validate?: ValidateFn<boolean, boolean> | ValidList<boolean>;
+			valid?: ValidList<boolean>;
 			transform?: (value: boolean) => any;
 	  })
 	| (ParameterProperties & {
-			type: 'string' | 'array';
+			type: 'string' | 'array' | 'file' | 'folder' | 'path';
 			default?: string | string[];
-			validate?: ((value: string | string[]) => boolean) | string[] | RegExp;
-			valid?: ((value: string | string[]) => boolean) | string[] | RegExp; // Alias of `validate`
+			validate?: ValidateFn<string | string[], string> | ValidList<string> | RegExp;
+			valid?: ValidList<string>;
 			transform?: (value: string | string[]) => any;
 	  })
 	| (ParameterProperties & {
 			type: 'number' | 'float' | 'int' | 'hex' | 'count';
 			default?: number;
-			validate?: ((value: number) => boolean) | number[] | RegExp;
-			valid?: ((value: number) => boolean) | number[] | RegExp; // Alias of `validate`
+			validate?: ValidateFn<number, number> | ValidList<number> | RegExp;
+			valid?: ValidList<number>;
 			transform?: (value: number) => any;
 	  })
 	| (ParameterProperties & {
-			type: 'string[]';
+			type: 'string[]' | 'file[]' | 'folder[]' | 'path[]';
 			default?: string[];
-			validate?: ((value: string[]) => boolean) | string[] | RegExp;
-			valid?: ((value: string[]) => boolean) | string[] | RegExp; // Alias of `validate`
+			validate?: ValidateFn<string[], string> | ValidList<string> | RegExp;
+			valid?: ValidList<string>;
 			transform?: (value: string[]) => any;
 	  })
 	| (ParameterProperties & {
 			type: 'number[]' | 'float[]' | 'int[]' | 'hex[]';
 			default?: number[];
-			validate?: ((value: number[]) => boolean) | number[] | RegExp;
-			valid?: ((value: number[]) => boolean) | number[] | RegExp; // Alias of `validate`
+			validate?: ValidateFn<number[], number> | ValidList<number> | RegExp;
+			valid?: ValidList<number>;
 			transform?: (value: number[]) => any;
 	  })
 	| (ParameterProperties & {
 			default: string;
-			type?: 'string' | 'array';
-			validate?: ((value: string) => boolean) | string[] | RegExp;
-			valid?: ((value: string) => boolean) | string[] | RegExp; // Alias of `validate`
+			type?: 'string' | 'array' | 'file' | 'folder' | 'path';
+			validate?: ValidateFn<string, string> | ValidList<string> | RegExp;
+			valid?: ValidList<string>;
 			transform?: (value: string) => any;
 	  })
 	| (ParameterProperties & {
 			default: number;
 			type?: 'number' | 'float' | 'int' | 'hex';
-			validate?: ((value: number) => boolean) | number[] | RegExp;
-			valid?: ((value: number) => boolean) | number[] | RegExp; // Alias of `validate`
+			validate?: ValidateFn<number, number> | ValidList<number> | RegExp;
+			valid?: ValidList<number>;
 			transform?: (value: number) => any;
 	  })
 	| (ParameterProperties & {
 			default: boolean;
 			type?: 'boolean';
-			validate?: ((value: boolean) => boolean) | boolean[];
-			valid?: ((value: boolean) => boolean) | boolean[]; // Alias of `validate`
+			validate?: ValidateFn<boolean, boolean> | ValidList<boolean>;
+			valid?: ValidList<boolean>;
 			transform?: (value: boolean) => any;
 	  })
 	| (ParameterProperties & {
 			default: string[];
-			type?: 'string[]' | 'array';
-			validate?: ((value: string[]) => boolean) | string[] | RegExp;
-			valid?: ((value: string[]) => boolean) | string[] | RegExp; // Alias of `validate`
+			type?: 'string[]' | 'array' | 'file[]' | 'folder[]' | 'path[]';
+			validate?: ValidateFn<string[], string> | ValidList<string> | RegExp;
+			valid?: ValidList<string>;
 			transform?: (value: string[]) => any;
 	  })
 	| (ParameterProperties & {
 			default: number[];
 			type?: 'number[]' | 'float[]' | 'int[]' | 'hex[]';
-			validate?: ((value: number[]) => boolean) | number[] | RegExp;
-			valid?: ((value: number[]) => boolean) | number[] | RegExp; // Alias of `validate`
+			validate?: ValidateFn<number[], number> | ValidList<number> | RegExp;
+			valid?: ValidList<number>;
 			transform?: (value: number[]) => any;
 	  })
 	| (ParameterProperties & {
@@ -106,12 +133,23 @@ type ParameterConfig =
 			transform?: (value: string) => any;
 	  })
 	| (ParameterProperties & {
+			// `spot` with no `type` and no `default` gives the type `string`
 			type?: undefined;
 			default?: undefined;
-			validate?: undefined;
-			valid: RegExp; // Alias of `validate`
+			spot: number;
+			validate?: ValidateFn<string, string> | ValidList<string> | RegExp;
+			valid?: ValidList<string>;
 			transform?: (value: string) => any;
 	  })
+	| (ParameterProperties & {
+			// `next` or `last` with no `type` and no `default` gives the type `string[]`
+			type?: undefined;
+			default?: undefined;
+			spot?: undefined;
+			validate?: ValidateFn<string[], string> | ValidList<string> | RegExp;
+			valid?: ValidList<string>;
+			transform?: (value: string[]) => any;
+	  } & ({next: number} | {last: number}))
 	| (ParameterProperties & {
 			// Mutually-exclusive fallback for configs WITHOUT `type` AND WITHOUT `default`,
 			// e.g. `{mandatory: true}`, `{alias: 'v'}`, `{conflict: 'foo'}`, `{}`.
@@ -123,8 +161,11 @@ type ParameterConfig =
 			// unknown type strings (e.g. `{type: 'date'}`) fail at compile time.
 			type?: undefined;
 			default?: undefined;
-			validate?: ((value: boolean) => boolean) | boolean[];
-			valid?: ((value: boolean) => boolean) | boolean[]; // Alias of `validate`
+			spot?: undefined;
+			next?: undefined;
+			last?: undefined;
+			validate?: ValidateFn<boolean, boolean> | ValidList<boolean>;
+			valid?: ValidList<boolean>;
 			transform?: (value: boolean) => any;
 	  });
 
@@ -149,7 +190,13 @@ export type ParameterTypeName =
 	| 'number[]'
 	| 'float[]'
 	| 'int[]'
-	| 'hex[]';
+	| 'hex[]'
+	| 'file'
+	| 'folder'
+	| 'path'
+	| 'file[]'
+	| 'folder[]'
+	| 'path[]';
 
 /**
  * Map a `type` literal to the value-type that ArgMate will produce at runtime.
@@ -157,11 +204,11 @@ export type ParameterTypeName =
  */
 type ValueOfType<T> = T extends 'boolean'
 	? boolean
-	: T extends 'string' | 'array'
+	: T extends 'string' | 'array' | 'file' | 'folder' | 'path'
 		? string | string[]
 		: T extends 'number' | 'float' | 'int' | 'hex' | 'count'
 			? number
-			: T extends 'string[]'
+			: T extends 'string[]' | 'file[]' | 'folder[]' | 'path[]'
 				? string[]
 				: T extends 'number[]' | 'float[]' | 'int[]' | 'hex[]'
 					? number[]
@@ -209,8 +256,8 @@ export type ValidateConfig<C> = {
 		? Omit<C[K], 'transform' | 'validate' | 'valid' | 'type'> & {
 				type?: ParameterTypeName;
 				transform?: (value: ValueOf<C[K]>) => unknown;
-				validate?: ((value: ValueOf<C[K]>) => boolean) | readonly ValueOf<C[K]>[] | RegExp;
-				valid?: ((value: ValueOf<C[K]>) => boolean) | readonly ValueOf<C[K]>[] | RegExp;
+				validate?: ValidateFn<ValueOf<C[K]>, ValueOf<C[K]>> | ValidList<ValueOf<C[K]>> | RegExp;
+				valid?: ValidList<ValueOf<C[K]>>;
 			}
 		: C[K];
 };
@@ -224,37 +271,37 @@ type ParameterFinalConfig =
 	| (ParameterFinalProperties & {
 			type: 'boolean';
 			default?: boolean;
-			validate?: ((value: any) => boolean) | boolean[];
+			validate?: ((value: any, valid?: any[][]) => unknown) | RegExp;
 			transform?: (value: boolean) => any;
 	  })
 	| (ParameterFinalProperties & {
 			type: 'string' | 'array';
 			default?: string | string[];
-			validate?: ((value: any) => boolean) | string[] | RegExp;
+			validate?: ((value: any, valid?: any[][]) => unknown) | RegExp;
 			transform?: (value: string | string[]) => any;
 	  })
 	| (ParameterFinalProperties & {
 			type: 'number' | 'float' | 'int' | 'hex' | 'count';
 			default?: number;
-			validate?: ((value: any) => boolean) | number[] | RegExp;
+			validate?: ((value: any, valid?: any[][]) => unknown) | RegExp;
 			transform?: (value: number) => any;
 	  })
 	| (ParameterFinalProperties & {
 			type: 'string[]';
 			default?: string[];
-			validate?: ((value: any) => boolean) | string[] | RegExp;
+			validate?: ((value: any, valid?: any[][]) => unknown) | RegExp;
 			transform?: (value: string[]) => any;
 	  })
 	| (ParameterFinalProperties & {
 			type: 'number[]' | 'float[]' | 'int[]' | 'hex[]';
 			default?: number[];
-			validate?: ((value: any) => boolean) | number[] | RegExp;
+			validate?: ((value: any, valid?: any[][]) => unknown) | RegExp;
 			transform?: (value: number[]) => any;
 	  })
 	| (ParameterFinalProperties & {
 			type: string;
 			default?: any;
-			validate?: ((value: any) => boolean) | any[] | RegExp;
+			validate?: ((value: any, valid?: any[][]) => unknown) | RegExp;
 			transform?: (value: any) => any;
 	  });
 
@@ -267,8 +314,12 @@ type ConfigPropertyName =
 	| 'default'
 	| 'alias'
 	| 'conflict'
+	| 'demand'
+	| 'spot'
+	| 'next'
+	| 'last'
 	| 'validate'
-	| 'valid' // Alias of `validate`
+	| 'valid'
 	| 'transform'
 	| 'mandatory'
 	| 'required' // Alias of `mandatory`
@@ -284,7 +335,7 @@ type RejectUnknownProperties<V> = V extends readonly unknown[]
 
 /**
  * Gives the type `never` to each config property of a parameter that ArgMate does not know,
- * thus a misspelled property (`alais`) is a compile error. A generic `Config` gets no
+ * so a misspelled property (`alais`) is a compile error. A generic `Config` gets no
  * excess property check from TypeScript, so `argMate` asks for `Config & StrictConfig<Config>`.
  */
 export type StrictConfig<Config> = {[K in keyof Config]: RejectUnknownProperties<Config[K]>};
@@ -293,7 +344,15 @@ export type StrictConfig<Config> = {[K in keyof Config]: RejectUnknownProperties
  * User-facing config passed to argMate/configPreprocessing
  */
 export interface ArgMateConfig {
-	[key: string]: ParameterConfig | null | string | number | string[] | number[] | boolean;
+	[key: string]:
+		| ParameterConfig
+		| null
+		| string
+		| number
+		| string[]
+		| number[]
+		| boolean
+		| HelpText;
 }
 
 /**
@@ -304,40 +363,87 @@ interface EngineFinalConfig {
 	[key: string]: ParameterFinalConfig;
 }
 
-type TextBlock = string | (string | [string, string])[];
+/** The text of the help: arrays in arrays, and the depth gives the meaning. See "Help text" in the README. */
+export type HelpText = string | HelpText[];
 
 export interface ArgMateSettings {
 	panic?: (msg: string) => never;
-	error?: (msg: string) => never;
+	error?: (error: ArgMateError) => void;
 	strict?: boolean;
 	allowUnknown?: boolean;
 	autoCamelKebabCase?: boolean;
 	allowNegatingFlags?: boolean;
 	allowKeyNumValues?: boolean;
+	/** With `false` an assignment with `=` is the error `ASSIGN_NOT_ALLOWED`. Default `true`; `strict` sets it to `false`. */
 	allowAssign?: boolean;
-	allowBoolString?: boolean;
+	/** A value of unspecified type that is an int, a float or scientific notation (`5`, `-1.5`, `1e3`) is a number. With `false` it is a string. Default `true`; `strict` sets it to `false`. */
+	allowAutoNumbers?: boolean;
 	outputAlias?: boolean;
 	outputInflate?: boolean;
-	intro?: TextBlock;
-	outro?: TextBlock;
 	greedy?: boolean;
+	/** With `true` the message of an input error has the help for its parameters below it. Default `false`. */
+	argInfoOnError?: boolean;
+	/** Runs after all the other checks and gets the result, which it may change. `true` or nothing passes. `false` or a string is the error `CROSS_VALIDATE`, and a string is its message. */
+	// biome-ignore lint/suspicious/noConfusingVoidType: a function that returns nothing passes
+	crossValidate?: (argv: {[key: string]: any}) => boolean | string | void;
 
 	//	'dot-notation': false,
 	//  'boolean-negation': false
 }
 
 export interface EngineSettings extends ArgMateSettings {
-	error: (msg: string) => never;
+	error: (error: ArgMateError) => never;
 	panic: (msg: string) => never;
 }
 
+/** What the `error` callback gets for an input error (item 48). `panic` gets a string for a config error. */
+export interface ArgMateError {
+	code:
+		| 'UNKNOWN'
+		| 'MISSING_VALUE'
+		| 'INVALID'
+		| 'CONFLICT'
+		| 'DEMAND'
+		| 'MANDATORY'
+		| 'BAD_TYPE'
+		| 'BAD_VALUE'
+		| 'NEGATED_AND_ASSIGNED'
+		| 'ASSIGN_NOT_ALLOWED'
+		| 'NUMBER_NAME'
+		| 'CROSS_VALIDATE';
+	/** The parameter, by its config name */
+	key?: string;
+	/** The name as typed, with its dashes, like `--sort` or `-Z` */
+	alias?: string;
+	/** The value, when the error is about one */
+	value?: unknown;
+	/** The other parameter, by its config name, for `CONFLICT` and `DEMAND` */
+	with?: string;
+	/** The other parameter as typed */
+	withAlias?: string;
+	/** The list of valid values, or the regular expression, for `INVALID` */
+	valid?: unknown[] | RegExp;
+	/** The text ArgMate gave before */
+	message: string;
+}
+
 export interface ArgMateInfoConfig {
+	// The parameters, intro and outro. Default: the config of the last parse
+	config?: ArgMateConfig;
+	// The engine settings, like `autoCamelKebabCase`. Default: the settings of the last parse
+	settings?: ArgMateSettings;
+	// Words of a command line: only the parameters they name are shown. Empty: all parameters
+	include?: string[];
+	// Words of a command line: the parameters they name are never shown, also when `include` names them
+	exclude?: string[];
+	// In place of the intro and the outro of the config
+	intro?: HelpText;
+	outro?: HelpText;
 	width?: number;
+	minColumnWidth?: number;
 	format?: 'cli' | 'markdown' | 'json';
-	preIntro?: TextBlock;
 	showIntro?: boolean;
 	showOutro?: boolean;
-	postOutro?: TextBlock;
 }
 
 export type ArgMateEngine = (
@@ -361,7 +467,11 @@ export type ArgMateEngineConfig = {
 	mandatory: string[];
 	validate: string[];
 	transform: string[];
+	exists: string[];
 	conflict: string[];
+	demand: string[];
+	spots: string[];
+	slices: string[];
 	complexDefault: {[key: string]: string[] | number[]};
 	engineSettings: EngineSettings;
 	parameterConfig: EngineFinalConfig;
@@ -417,7 +527,7 @@ type NormalizeConfigValue<T> = T extends {type?: any; default?: any}
 									: T extends null
 										? {type: 'boolean'}
 										: // An object with no `type` and no `default` (for example `{mandatory: true}`)
-											// keeps its properties, thus `mandatory` and `validate` are read from it
+											// keeps its properties, so `mandatory` and `validate` are read from it
 											T extends readonly unknown[]
 											? {type: 'boolean'}
 											: T extends object
@@ -469,7 +579,9 @@ type InferConfigType<Config> = Config extends {readonly default: infer D} | {def
 						? boolean
 						: unknown
 	: // For explicit types, always return mutable array types
-		Config extends {readonly type: 'string'} | {type: 'string'}
+		Config extends
+				| {readonly type: 'string' | 'file' | 'folder' | 'path'}
+				| {type: 'string' | 'file' | 'folder' | 'path'}
 		? string
 		: Config extends {readonly type: 'number'} | {type: 'number'}
 			? number
@@ -486,8 +598,8 @@ type InferConfigType<Config> = Config extends {readonly default: infer D} | {def
 								: Config extends {readonly type: 'count'} | {type: 'count'}
 									? number
 									: Config extends
-												| {readonly type: 'array' | 'string[]'}
-												| {type: 'array' | 'string[]'}
+												| {readonly type: 'array' | 'string[]' | 'file[]' | 'folder[]' | 'path[]'}
+												| {type: 'array' | 'string[]' | 'file[]' | 'folder[]' | 'path[]'}
 										? string[]
 										: Config extends {readonly type: 'number[]'} | {type: 'number[]'}
 											? number[]
@@ -500,10 +612,16 @@ type InferConfigType<Config> = Config extends {readonly default: infer D} | {def
 														: Config extends
 																	| {readonly validate: RegExp}
 																	| {validate: RegExp}
-																	| {readonly valid: RegExp}
-																	| {valid: RegExp}
-															? string // a regular expression is for text
-															: boolean; // default to boolean if no type or default specified
+																	| {readonly spot: number}
+																	| {spot: number}
+															? string // a regular expression is for text, and `spot` gives text
+															: Config extends
+																		| {readonly next: number}
+																		| {next: number}
+																		| {readonly last: number}
+																		| {last: number}
+																? string[]
+																: boolean; // default to boolean if no type or default specified
 
 /**
  * Check if a config field has a default value
@@ -540,11 +658,11 @@ type IsOptional<Config> = IsRequired<Config> extends true ? false : true;
  * Arrays are handled first to prevent them from being treated as objects
  */
 type DeepMutable<T> = T extends readonly (infer U)[]
-	? U extends object
+	? [U] extends [object]
 		? DeepMutable<U>[]
 		: U[]
 	: T extends (infer U)[]
-		? U extends object
+		? [U] extends [object]
 			? DeepMutable<U>[]
 			: U[]
 		: T extends object
@@ -564,7 +682,7 @@ type InferFieldResult<ConfigValue> = ConfigValue extends null | undefined
  */
 type CLIParameters<Config extends ArgMateConfig> = {
 	// Always include the _ property for remaining args (always present)
-	_: string[];
+	_: (string | number)[];
 } & {
 	// Required fields (mandatory: true OR has default value)
 	-readonly [K in keyof Config as IsRequired<NormalizeConfigValue<Config[K]>> extends true
@@ -583,4 +701,4 @@ type CLIParameters<Config extends ArgMateConfig> = {
  */
 export type ArgMateResponse<Config extends ArgMateConfig | undefined> = Config extends ArgMateConfig
 	? DeepMutable<CLIParameters<Config>>
-	: {[key: string]: any; _: string[]};
+	: {[key: string]: any; _: (string | number)[]};

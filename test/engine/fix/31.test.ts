@@ -6,21 +6,21 @@ import {argMate} from '../../helper.ts';
 
 // Makes an input error an `Error` that a test can catch
 const settings = {
-	error: (msg: string) => {
+	error: ({message: msg}: {message: string}) => {
 		throw new Error(`input error: ${msg}`);
 	},
 };
 
 describe('#31 The short form -no- is an input error', () => {
-	test.todo('-no-foo gives an input error', () => {
+	test('-no-foo gives an input error', () => {
 		expect(() => argMate(['-no-foo'], {}, settings)).toThrow('input error');
 	});
 
-	test.todo('the message has the token that the user typed', () => {
+	test('the message has the token that the user typed', () => {
 		expect(() => argMate(['-no-foo'], {}, settings)).toThrow("'-no-foo'");
 	});
 
-	test.todo('-no-foo gives an input error when foo is a parameter', () => {
+	test('-no-foo gives an input error when foo is a parameter', () => {
 		expect(() => argMate(['-no-foo'], {foo: {type: 'boolean'}}, settings)).toThrow('input error');
 	});
 

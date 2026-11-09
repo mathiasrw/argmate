@@ -1,5 +1,5 @@
 // Runs cold.js many times for each variant and prints the median of the load time and of the first parse.
-// The variants take turns, thus a change in the load of the machine has the same effect on all of them.
+// The variants take turns, so a change in the load of the machine has the same effect on all of them.
 import {spawnSync} from 'node:child_process';
 
 const [runs = '200'] = process.argv.slice(2);

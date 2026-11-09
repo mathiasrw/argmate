@@ -71,7 +71,7 @@ argMate([], {
 // --- valid uses the same inference ---
 
 argMate(['--n', '5'], {
-	n: {type: 'int', valid: (v: number) => v >= 0 && v <= 100},
+	n: {type: 'int', validate: (v: number) => v >= 0 && v <= 100},
 });
 
 argMate(['--color', 'red'], {
@@ -130,8 +130,8 @@ argMate(['--tags', 'a'], {
 // --- valid parameter type mismatch ---
 
 argMate(['--n', '5'], {
-	// @ts-expect-error - valid expects number, not string
-	n: {type: 'int', valid: (v: string) => v.length > 0},
+	// @ts-expect-error - validate expects number, not string
+	n: {type: 'int', validate: (v: string) => v.length > 0},
 });
 
 // --- invalid type strings (caught by ParameterTypeName whitelist) ---
@@ -155,3 +155,16 @@ argMate(['--n', '5'], {
 	// @ts-expect-error - typo: 'Int' is wrong case
 	n: {type: 'Int'},
 });
+
+// --- file, folder and path are text ---
+
+{
+	const r = argMate(['--f', 'a.sql'], {
+		f: {type: 'file'},
+		d: {type: 'folder[]', default: ['src']},
+	});
+	const f: string | undefined = r.f;
+	const d: string[] = r.d;
+	// @ts-expect-error - a file is text, not a number
+	const n: number | undefined = r.f;
+}

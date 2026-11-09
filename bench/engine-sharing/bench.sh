@@ -1,7 +1,7 @@
 #!/bin/bash
 # Compares the variants of the engine with hyperfine. Run build.sh first.
 #   ./bench.sh <name of the pass> <the variants in the sequence to run them>
-# Hot: one process parses the input 200000 times, thus the JIT compiler has optimized the engine.
+# Hot: one process parses the input 200000 times, so the JIT compiler has optimized the engine.
 # Cold: one process parses one time, as a CLI does.
 set -e
 cd "$(dirname "$0")"

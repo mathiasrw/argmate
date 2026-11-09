@@ -6,7 +6,7 @@ import {argMate, argMateMini} from '../../helper.ts';
 
 // `error` is the callback for input errors and `panic` is the callback for config errors
 const settings = {
-	error: (msg: string) => {
+	error: ({message: msg}: {message: string}) => {
 		throw new Error(`input error: ${msg}`);
 	},
 	panic: (msg: string) => {

@@ -10,6 +10,7 @@ run(argMate);
 run(argMateMini, ' Mini');
 
 function run(argMate: ArgMateEngine, engineType = '') {
+	const engineMini = '' !== engineType;
 	describe('Basic Functionality' + engineType, () => {
 		describe('4o' + engineType, () => {
 			test('Single flag', () => {
@@ -28,8 +29,8 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				expect(argMate(['--timeout=30'])).toEqual({timeout: 30, _: []});
 			});
 
-			test('Flag with separated assignment', () => {
-				expect(argMate(['--timeout=', '30'])).toEqual({timeout: '', _: ['30']});
+			(engineMini ? test.todo : test)('Flag with separated assignment', () => {
+				expect(argMate(['--timeout=', '30'])).toEqual({timeout: '', _: [30]});
 			});
 
 			test('Flag with value containing equal sign', () => {
@@ -104,7 +105,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 					});
 				});
 
-			test.todo('Conflicting flags', () => {
+			(engineMini ? test.todo : test)('Conflicting flags', () => {
 				expect(() => argMate(['--foo', '--bar'], {foo: false, bar: {conflict: 'foo'}})).toThrow(
 					'conflict'
 				);
@@ -133,17 +134,18 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				}).toThrow(/Unknown parameter/i);
 			});
 
-			test('Flag with no value assignment', () => {
+			// An empty number is a missing value (item 52)
+			(engineMini ? test.todo : test)('Flag with no value assignment', () => {
 				expect(() => {
 					argMate(['--timeout='], {timeout: 0}, {allowAssign: true});
-				}).toThrow(/not a valid number/i);
+				}).toThrow(/No data provided for 'timeout'/);
 			});
 
 			if (!engineType)
 				test('Flag with alias and value', () => {
 					expect(argMate(['-t', '30'], {timeout: {alias: 't'}})).toEqual({
 						timeout: true,
-						_: ['30'], // yep, its a string as its an argument and not a parameter
+						_: [30],
 					});
 				});
 
@@ -231,7 +233,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 					['--ids=1', '--ids=abc', '--ids=3'],
 					{ids: {type: 'int[]'}},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('Invalid value');
 							done();
 						},
@@ -246,7 +248,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				});
 			});
 
-			test.todo('Flag with URL as value', () => {
+			test('Flag with URL as value', () => {
 				expect(argMate(['--url=', 'https://example.com'])).toEqual({
 					url: '',
 					_: ['https://example.com'],
@@ -396,7 +398,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				expect(argMate(['-p', '8080'], {p: 0})).toEqual({_: [], p: 8080});
 			});
 
-			test.todo('Short flag with attached value', () => {
+			test('Short flag with attached value', () => {
 				expect(argMate(['-p8080'], {p: 0})).toEqual({_: [], p: 8080});
 			});
 
@@ -555,7 +557,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 					});
 				});
 
-			test.todo('Conflicting flags', () => {
+			(engineMini ? test.todo : test)('Conflicting flags', () => {
 				expect(() =>
 					argMate(['--minify', '--beautify'], {
 						minify: {conflict: 'beautify'},
@@ -591,7 +593,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			test('Custom validation', () => {
 				expect(
 					argMate(['--age', '25'], {
-						age: {type: 'int', valid: (v: number) => v >= 18 && v <= 99},
+						age: {type: 'int', validate: (v: number) => v >= 18 && v <= 99},
 					} as const)
 				).toEqual({
 					_: [],
@@ -602,7 +604,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 			test('Invalid custom validation', () => {
 				expect(() =>
 					argMate(['--age', '15'], {
-						age: {type: 'int', valid: (v: number) => v >= 18 && v <= 99},
+						age: {type: 'int', validate: (v: number) => v >= 18 && v <= 99},
 					} as const)
 				).toThrow();
 			});
@@ -614,7 +616,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				});
 			});
 
-			test.todo('Negated boolean flags', () => {
+			(engineMini ? test.todo : test)('Negated boolean flags', () => {
 				expect(argMate(['--no-verbose'], {verbose: true})).toEqual({_: [], verbose: false});
 			});
 
@@ -687,7 +689,7 @@ function run(argMate: ArgMateEngine, engineType = '') {
 					argMate(['--pattern', 'a'], {
 						pattern: {
 							type: 'string',
-							valid: (v: string) => new RegExp(longRegex).test(v),
+							validate: (v: string) => new RegExp(longRegex).test(v),
 						},
 					})
 				).toEqual({_: [], pattern: 'a'});

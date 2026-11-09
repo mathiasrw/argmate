@@ -15,7 +15,7 @@ import {
 function parse(args, config, engine = argMate) {
 	try {
 		return engine(args, config, {
-			error: msg => {
+			error: ({message: msg}) => {
 				throw {error: msg};
 			},
 			panic: msg => {
@@ -153,7 +153,8 @@ describe('#25 The properties that ArgMate knows', () => {
 	});
 });
 
-// `validate`, `mandatory` and `description` are the canonical names. Each alias gives the result of its canonical name.
+// `mandatory` and `description` are the canonical names. Each alias gives the result of its canonical name.
+// `valid` and `validate` are two properties: `valid` is a list only, and a list in `validate` goes to `valid`.
 describe('#25 The aliases of the config properties', () => {
 	for (const engine of [argMate, argMateMini]) {
 		const name = engine === argMate ? 'argMate' : 'argMateMini';
@@ -177,13 +178,19 @@ describe('#25 The aliases of the config properties', () => {
 					file: 'a.txt',
 				});
 			});
-
-			test(`${name}: '${property}' with a function checks the value`, () => {
-				const config = {n: {type: 'int', [property]: v => v > 4}};
-				expect(parse(['--n', '5'], config, engine)).toEqual({_: [], n: 5});
-				expect(parse(['--n', '3'], config, engine)).toEqual({error: expect.stringContaining('n')});
-			});
 		}
+
+		test(`${name}: 'validate' with a function checks the value`, () => {
+			const config = {n: {type: 'int', validate: v => v > 4}};
+			expect(parse(['--n', '5'], config, engine)).toEqual({_: [], n: 5});
+			expect(parse(['--n', '3'], config, engine)).toEqual({error: expect.stringContaining('n')});
+		});
+
+		test(`${name}: 'valid' with a function is a config error`, () => {
+			expect(parse([], {n: {type: 'int', valid: v => v > 4}}, engine)).toEqual({
+				panic: `The "valid" property of 'n' must be an array of valid values`,
+			});
+		});
 
 		for (const property of ['mandatory', 'required']) {
 			test(`${name}: '${property}' makes the parameter mandatory`, () => {
@@ -207,8 +214,8 @@ describe('#25 The aliases of the config properties', () => {
 		}
 
 		const twoNames = [
-			['validate', {validate: ['a'], valid: ['a']}],
-			['validate', {valid: ['a'], validate: ['a']}],
+			['valid', {validate: ['a'], valid: ['a']}],
+			['valid', {valid: ['a'], validate: ['a']}],
 			['mandatory', {mandatory: true, required: true}],
 			['mandatory', {required: true, mandatory: true}],
 			['description', {description: 'x', describe: 'x'}],
@@ -226,16 +233,23 @@ describe('#25 The aliases of the config properties', () => {
 		}
 	}
 
+	for (const engine of [argMate, argMateMini]) {
+		test(`${engine === argMate ? 'argMate' : 'argMateMini'}: a list in 'valid' and a function in 'validate' are accepted`, () => {
+			const config = {file: {valid: ['a', 'b'], validate: v => 'a' === v}};
+			expect(parse(['--file', 'a'], config, engine)).toEqual({_: [], file: 'a'});
+		});
+	}
+
 	test('the engine config has the canonical names only', () => {
 		const {parameterConfig} = configPreprocessing({
-			file: {valid: ['a', 'b'], required: true, describe: 'The file'},
+			file: {validate: ['a', 'b'], required: true, describe: 'The file'},
 		});
 		expect(parameterConfig.file).toMatchObject({
-			validate: ['a', 'b'],
+			valid: [['a'], ['b']],
 			mandatory: true,
 			description: 'The file',
 		});
-		expect(Object.keys(parameterConfig.file)).not.toContain('valid');
+		expect(Object.keys(parameterConfig.file)).not.toContain('validate');
 		expect(Object.keys(parameterConfig.file)).not.toContain('required');
 		expect(Object.keys(parameterConfig.file)).not.toContain('describe');
 	});
@@ -248,13 +262,15 @@ describe('#25 The aliases of the config properties', () => {
 
 	for (const property of ['description', 'describe', 'desc']) {
 		test(`argInfo() shows the text of '${property}'`, () => {
-			expect(argInfo({}, {file: {[property]: 'The file to read'}})).toContain('The file to read');
+			expect(argInfo({config: {file: {[property]: 'The file to read'}}})).toContain(
+				'The file to read'
+			);
 		});
 	}
 
 	for (const property of ['validate', 'valid']) {
 		test(`argInfo() shows the list of '${property}'`, () => {
-			expect(argInfo({}, {file: {[property]: ['aaa', 'bbb']}})).toContain('aaa|bbb');
+			expect(argInfo({config: {file: {[property]: ['aaa', 'bbb']}}})).toContain('aaa, bbb');
 		});
 	}
 });

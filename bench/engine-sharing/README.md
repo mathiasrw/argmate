@@ -9,7 +9,7 @@ All variants are the full engine and give the same result. `check.ts` compares t
 | Variant | What it is | Minified | gzip |
 |---|---|---:|---:|
 | `now` | `src/argEngine.ts` as it is: one function | 4990 | 2296 |
-| `this` | Each functionality is a function. The state of the parse is `this` (`decode.call(state)`), thus no arguments | 7953 | 2774 |
+| `this` | Each functionality is a function. The state of the parse is `this` (`decode.call(state)`), so no arguments | 7953 | 2774 |
 | `param` | The same functions, but the state is their one argument (`decode(state)`) | 7313 | 2749 |
 | `tail` | The loop is the code of `now`. Only the phases after the loop are functions (defaults, validate, transform, mandatory, conflict). They run one time for each parse | 5309 | 2417 |
 | `hot` | The same as `tail`, and the number conversion in the loop is a function also | 5336 | 2431 |
@@ -18,7 +18,7 @@ All variants are the full engine and give the same result. `check.ts` compares t
 
 ## Hot: 200000 parses in one process
 
-`hyperfine`, 2 passes of 12 runs, the second pass with the variants in the opposite sequence. The machine had other work, thus the table has the fastest run of the 24. The means are in `../results/engine-sharing/hyperfine.md`.
+`hyperfine`, 2 passes of 12 runs, the second pass with the variants in the opposite sequence. The machine had other work, so the table has the fastest run of the 24. The means are in `../results/engine-sharing/hyperfine.md`.
 
 Workload `config`: 16 arguments, a config with 8 parameters. Workload `plain`: 9 arguments, no config.
 
@@ -33,7 +33,7 @@ A difference of 1 % or less is noise.
 
 ## Cold: one parse in one process
 
-This is what a CLI does. The code is new to the runtime, thus it runs with no optimization.
+This is what a CLI does. The code is new to the runtime, so it runs with no optimization.
 
 `hyperfine` on the full process (300 runs) cannot see a difference: the process takes 11 ms (Bun) or 26 ms (Node), and the deviation is 2 to 5 ms.
 
@@ -54,7 +54,7 @@ The two parts are in `../results/engine-sharing/cold-first-parse.md`.
 - `this` costs the most: 11 to 12 % in Node when hot, and 8 to 24 % when cold. It is also 59 % larger.
 - A function for a phase that runs one time for each parse (`tail`) costs nothing when hot. When cold it costs 30 to 100 µs: the runtime must compile each function before its first call.
 - A small function in the loop (`hot`) costs nothing more than `tail`.
-- The first parse in a process takes 350 to 580 µs. A parse in the hot test takes 3 to 6 µs. Thus a real CLI is about 100 times slower than the hot benchmark shows, and the cold numbers are the ones a user of a CLI gets.
+- The first parse in a process takes 350 to 580 µs. A parse in the hot test takes 3 to 6 µs. So a real CLI is about 100 times slower than the hot benchmark shows, and the cold numbers are the ones a user of a CLI gets.
 
 ## Decision
 

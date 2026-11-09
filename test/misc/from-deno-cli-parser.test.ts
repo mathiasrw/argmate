@@ -159,7 +159,7 @@ function run(parseArgs, engineType = '') {
 			expect(propertyArgv).toEqual(expected);
 		});
 
-		test.todo('parseArgs() handles boolean and alias array with options hash', () => {
+		test('parseArgs() handles boolean and alias array with options hash', () => {
 			const opts = {
 				herp: {type: 'boolean', alias: ['h', 'harp']},
 			};
@@ -207,18 +207,18 @@ function run(parseArgs, engineType = '') {
 
 			const parsed = argMate(['--boool', '--other=true'], opts);
 			expect(parsed.boool).toEqual(true);
-			expect(parsed.other).toEqual(true);
+			expect(parsed.other).toEqual('true');
 
 			const parsed2 = argMate(['--boool', '--other=false'], opts);
 			expect(parsed2.boool).toEqual(true);
-			expect(parsed2.other).toEqual(false);
+			expect(parsed2.other).toEqual('false');
 		});
 
 		test('parseArgs() handles boolean true parsing', () => {
 			const argv = argMate('--boool=true'.split(' '));
 			expect(argv).toEqual({
 				_: [],
-				boool: true,
+				boool: 'true',
 			});
 		});
 
@@ -261,7 +261,7 @@ function run(parseArgs, engineType = '') {
 			});
 
 			expect(argv.foo).toEqual(false);
-			expect(argv._).toEqual(['123']);
+			expect(argv._).toEqual([123]);
 		});
 
 		test('parseArgs() handles boolean after boolean negation', () => {
@@ -278,7 +278,7 @@ function run(parseArgs, engineType = '') {
 			});
 
 			expect(argv.foo).toEqual(true);
-			expect(argv._).toEqual(['123']);
+			expect(argv._).toEqual([123]);
 		});
 
 		test('parseArgs() handles latest flag boolean negation', () => {
@@ -295,7 +295,7 @@ function run(parseArgs, engineType = '') {
 			});
 
 			expect(argv.foo).toEqual(false);
-			expect(argv._).toEqual(['123']);
+			expect(argv._).toEqual([123]);
 		});
 
 		test('parseArgs() handles latest flag boolean', () => {
@@ -312,7 +312,7 @@ function run(parseArgs, engineType = '') {
 			});
 
 			expect(argv.foo).toEqual(true);
-			expect(argv._).toEqual(['123']);
+			expect(argv._).toEqual([123]);
 		});
 
 		test('parseArgs() handles string negatable option', () => {
@@ -323,7 +323,7 @@ function run(parseArgs, engineType = '') {
 			expect(argv.foo).toEqual(false);
 		});
 
-		test.todo('parseArgs() handles hyphen', () => {
+		test('parseArgs() handles hyphen', () => {
 			expect(argMate(['-n', '-'], {n: ''})).toEqual({n: '-', _: []});
 			//expect(argMate(['-'], {})).toEqual({_: ['-']});
 			//expect(argMate(['-f-', ''], {f: ''})).toEqual({f: '-', _: []});
@@ -451,7 +451,7 @@ function run(parseArgs, engineType = '') {
 			expect(argMate(['--host=', 'localhost', '--port=', '555'], {})).toEqual({
 				host: '',
 				port: '',
-				_: ['localhost', '555'],
+				_: ['localhost', 555],
 			});
 
 			expect(argMate(['--host=localhost', '--port=55.5'], {})).toEqual({
@@ -477,7 +477,7 @@ function run(parseArgs, engineType = '') {
 			);
 
 			expect(argv).toEqual({
-				_: ['789'],
+				_: [789],
 				x: 1234,
 				y: 5.67,
 				z: 1e7,
@@ -490,15 +490,14 @@ function run(parseArgs, engineType = '') {
 			expect(typeof argv.z).toEqual('number');
 			expect(typeof argv.w).toEqual('string');
 			expect(typeof argv.hex).toEqual('number');
-			expect(typeof argv._[0]).toEqual('string');
+			expect(typeof argv._[0]).toEqual('number');
 		});
 
-		// edited as we dont convert input strings automagicly
 		test('parseArgs() handles already number', () => {
 			const argv = argMate(['-x=', '1234', '789']);
-			expect(argv).toEqual({x: '', _: ['1234', '789']});
+			expect(argv).toEqual({x: '', _: [1234, 789]});
 			expect(typeof argv.x).toBe('string');
-			expect(typeof argv._[0]).toBe('string');
+			expect(typeof argv._[0]).toBe('number');
 		});
 
 		test('parseArgs() parses args', () => {
@@ -691,7 +690,7 @@ function run(parseArgs, engineType = '') {
 			});
 		});
 
-		test.todo('parseArgs() handles slash break B', () => {
+		test('parseArgs() handles slash break B', () => {
 			expect(argMate(['-I=/foo/bar/baz'])).toEqual({I: '/foo/bar/baz', _: []});
 			expect(argMate(['-xyz=/foo/bar/baz'], {x: true, y: true, z: ''})).toEqual({
 				x: true,
@@ -701,7 +700,7 @@ function run(parseArgs, engineType = '') {
 			});
 		});
 
-		test.todo('parseArgs() handles slash break C', () => {
+		test('parseArgs() handles slash break C', () => {
 			expect(argMate(['-I=/foo/bar/baz'])).toEqual({I: '/foo/bar/baz', _: []});
 			expect(argMate(['-xyz=/foo/bar/baz'])).toEqual({
 				x: true,

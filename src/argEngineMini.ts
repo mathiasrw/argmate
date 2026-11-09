@@ -1,6 +1,6 @@
-import type {ArgMateConfig, ArgMateEngineConfig, ArgMateResponse} from './types.js';
+import type {ArgMateConfig, ArgMateEngineConfig, ArgMateError, ArgMateResponse} from './types.js';
 
-import {re} from './common.js';
+import {asText, re} from './common.js';
 
 /*
 /^(?<stop>--)$|^-(?<full>-)?(?<no>no-)?(?<key>[^=\s]+?)(?<keynum>[\d]*)(?<assign>=(?<val>.*))?$/,
@@ -25,6 +25,10 @@ array of value as default
 # conflicting values
 */
 
+// An error object (item 48): in a string, it is its message
+const fail = (error: (e: ArgMateError) => never, e: ArgMateError) =>
+	error(Object.setPrototypeOf(e, asText));
+
 export default function argEngineMini(
 	args: string[],
 	argProcessObj?: ArgMateEngineConfig
@@ -35,15 +39,19 @@ export default function argEngineMini(
 		},
 		validate: [],
 		transform: [],
+		exists: [],
 		mandatory: [],
 		conflict: [],
+		demand: [],
+		spots: [],
+		slices: [],
 		complexDefault: {},
 		engineSettings: {
-			error: (msg: string) => {
-				throw msg;
+			error: (e: ArgMateError) => {
+				throw Object.assign(new Error(e.message), e);
 			},
 			panic: (msg: string) => {
-				throw msg;
+				throw new Error(msg);
 			},
 			allowUnknown: true,
 			autoCamelKebabCase: true,
@@ -54,8 +62,17 @@ export default function argEngineMini(
 		parameterConfig: {},
 	};
 
-	const {mandatory, validate, transform, complexDefault, output, engineSettings, parameterConfig} =
-		argProcessObj;
+	const {
+		mandatory,
+		validate,
+		transform,
+		complexDefault,
+		output: template,
+		engineSettings,
+		parameterConfig,
+	} = argProcessObj;
+	const output = {...template};
+	for (const key in output) if (Array.isArray(output[key])) output[key] = output[key].slice();
 	const _ = output._ as (string | number)[];
 
 	args = args.slice().reverse(); // Reverse, pop, push, reverse 8.77 times faster than unshft, shift. A copy: the array of the caller does not change
@@ -98,29 +115,46 @@ export default function argEngineMini(
 			}
 		}
 
-		if (!KEY) {
+		if (!KEY || re.hasSpace.test(KEY)) {
 			_.push(arg);
 			continue;
 		}
 
-		if (!LONG && 1 !== KEY.length) {
-			if (re.hasSpace.test(KEY)) {
-				_.push(arg);
+		if (
+			LONG
+				? 45 === KEY.charCodeAt(0) || 45 === KEY.charCodeAt(KEY.length - 1) || KEY.includes('--')
+				: KEY.includes('-')
+		) {
+			return fail(engineSettings.error, {code: 'UNKNOWN', message: `Invalid parameter '${arg}'`});
+		}
+
+		if (!LONG && 1 < KEY.length) {
+			if (!ASSIGN && engineSettings.allowKeyNumValues) {
+				let j = KEY.length;
+				while (1 < j && (KEY.charCodeAt(j - 1) - 48) >>> 0 < 10) j--;
+				if (j < KEY.length) {
+					VAL = KEY.slice(j);
+					KEY = KEY.slice(0, j);
+					ASSIGN = true;
+				}
+			}
+			const multi = re.hasNonAscii.test(KEY)
+				? (KEY.match(re.graphemes) as string[])
+				: KEY.split('');
+			if (1 < multi.length) {
+				multi[multi.length - 1] += ASSIGN ? '=' + VAL : '';
+				for (let i = multi.length; i--; ) args.push('-' + multi[i]);
 				continue;
 			}
-			if (ASSIGN) return engineSettings.error(`Unsupported format: '${arg}'`);
-			const multi = KEY.split('').map(v => '-' + v);
-			args = args.concat(multi.reverse());
-			continue;
 		}
 
 		if (!parameterConfig[KEY]) {
-			if (re.hasSpace.test(KEY)) {
-				_.push(arg);
-				continue;
-			}
 			if (!engineSettings.allowUnknown)
-				return engineSettings.error(`Unknown parameter '${KEY}' not allowed`);
+				return fail(engineSettings.error, {
+					code: 'UNKNOWN',
+					key: KEY,
+					message: `Unknown parameter '${KEY}' not allowed`,
+				});
 
 			if (engineSettings.autoCamelKebabCase) {
 				KEY = KEY.replace(re.kebab2camel, (_match, letter) => letter.toUpperCase());
@@ -134,12 +168,16 @@ export default function argEngineMini(
 			continue;
 		}
 
-		const param = parameterConfig[parameterConfig[KEY].key || KEY];
+		const param = parameterConfig[parameterConfig[KEY].key];
 		const type = param.type;
 
 		if ('boolean' === type) {
 			if (ASSIGN)
-				return engineSettings.error(`'${KEY}' is boolean, so can't assign: '${VAL.slice(0, 16)}'`);
+				return fail(engineSettings.error, {
+					code: 'BAD_VALUE',
+					key: param.key,
+					message: `'${KEY}' is boolean, so can't assign: '${VAL.slice(0, 16)}'`,
+				});
 			output[param.key] = true;
 			continue;
 		}
@@ -149,7 +187,11 @@ export default function argEngineMini(
 			if (ASSIGN) {
 				inc = +VAL | 0;
 				if (inc + '' !== VAL) {
-					return engineSettings.error(`'${KEY}' value is not a valid int: '${VAL}'`);
+					return fail(engineSettings.error, {
+						code: 'BAD_VALUE',
+						key: param.key,
+						message: `'${KEY}' value is not a valid int: '${VAL}'`,
+					});
 				}
 			}
 			(output[param.key] as number) += inc;
@@ -157,7 +199,12 @@ export default function argEngineMini(
 		}
 
 		if (!ASSIGN) {
-			if (0 === args.length) return engineSettings.error(`No data provided for '${KEY}'`);
+			if (0 === args.length)
+				return fail(engineSettings.error, {
+					code: 'MISSING_VALUE',
+					key: param.key,
+					message: `No data provided for '${KEY}'`,
+				});
 			VAL = args.pop() || '';
 		}
 
@@ -202,9 +249,11 @@ export default function argEngineMini(
 		}
 
 		if (Number.isNaN(num) || !Number.isFinite(num)) {
-			return engineSettings.error(
-				`'${KEY}' value is not a valid ${parameterConfig[param.key].type}: '${VAL}'`
-			);
+			return fail(engineSettings.error, {
+				code: 'BAD_VALUE',
+				key: param.key,
+				message: `'${KEY}' value is not a valid ${parameterConfig[param.key].type}: '${VAL}'`,
+			});
 		}
 
 		if (Array.isArray(output[param.key])) {
@@ -214,10 +263,27 @@ export default function argEngineMini(
 		}
 	}
 
+	for (const key of transform) {
+		if (undefined === output[key]) continue;
+		const fn: unknown = parameterConfig[key].transform;
+		if ('function' !== typeof fn) {
+			return engineSettings.panic(`'${key}' transform must be a function`);
+		}
+		try {
+			output[key] = fn(output[key]);
+		} catch (e) {
+			return fail(engineSettings.error, {
+				code: 'INVALID',
+				key,
+				message: `'${key}' transform threw: ${e instanceof Error ? e.message : String(e)}`,
+			});
+		}
+	}
+
 	for (const key of validate) {
 		if (undefined === output[key]) continue;
 
-		const el = parameterConfig[parameterConfig[key].key || key];
+		const el = parameterConfig[key];
 		let help = '';
 
 		if ('function' === typeof el.validate) {
@@ -232,50 +298,39 @@ export default function argEngineMini(
 			}
 			help = '. Must match ' + el.validate;
 		} else {
-			if ((el.validate as any[]).includes(output[key])) {
+			if ((el.valid as unknown[][]).some(item => item[0] === output[key])) {
 				continue;
 			}
 
-			help = '. Valid values: ' + JSON.stringify(el.validate);
+			help = '. Valid values: ' + JSON.stringify((el.valid as unknown[][]).map(item => item[0]));
 		}
 
-		return engineSettings.error(`Invalid value for '${key}': '${output[key]}'` + help);
-	}
-
-	for (const key of transform) {
-		if (undefined === output[key]) continue;
-		const fn: unknown = parameterConfig[key].transform;
-		if ('function' !== typeof fn) {
-			return engineSettings.panic(`'${key}' transform must be a function`);
-		}
-		try {
-			output[key] = fn(output[key]);
-		} catch (e) {
-			return engineSettings.error(
-				`'${key}' transform threw: ${e instanceof Error ? e.message : String(e)}`
-			);
-		}
+		return fail(engineSettings.error, {
+			code: 'INVALID',
+			key,
+			message: `Invalid value for '${key}': '${output[key]}'` + help,
+		});
 	}
 
 	for (const key of mandatory) {
 		if (undefined === output[key]) {
-			return engineSettings.error(
-				`'${key.length > 1 ? '--' : '-'}${key}' is mandatory` +
-					(parameterConfig[parameterConfig[key].key || key]?.alias?.length
-						? `.  Or use an alias: ${parameterConfig[parameterConfig[key].key || key]?.alias
+			return fail(engineSettings.error, {
+				code: 'MANDATORY',
+				key,
+				message:
+					`'${key.length > 1 ? '--' : '-'}${key}' is mandatory` +
+					(parameterConfig[key].alias?.length
+						? `.  Or use an alias: ${parameterConfig[key].alias
 								?.map((v: string) => (v.length > 1 ? '--' : '-') + v)
 								.join(', ')}`
-						: '')
-			);
+						: ''),
+			});
 		}
 	}
 
-	for (let key in complexDefault) {
-		key = parameterConfig[key].key || key;
-		if (!Object.hasOwn(parameterConfig, key)) continue;
-
+	for (const key in complexDefault) {
 		if (undefined === output[key] || !(output[key] as any[]).length) {
-			output[key] = complexDefault[key];
+			output[key] = complexDefault[key].slice();
 		}
 	}
 

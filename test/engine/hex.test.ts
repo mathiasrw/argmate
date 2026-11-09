@@ -52,6 +52,12 @@ function run(argMate: ArgMateEngine, engineType = '') {
 				});
 			});
 
+			test('Too many digits for a number is not a valid hex', () => {
+				expect(() => argMate(['--foo', 'f'.repeat(300)], {foo: {type: 'hex'}})).toThrow(
+					'is not a valid hex'
+				);
+			});
+
 			test('Invalid hex input A', () => {
 				expect(() => argMate('--foo g1'.split(' '), {foo: {type: 'hex'}})).toThrow(
 					'is not a valid hex'

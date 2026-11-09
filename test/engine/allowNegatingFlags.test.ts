@@ -13,12 +13,16 @@ function run(argMate: ArgMateEngine, engineType = '') {
 	describe('allowNegatingFlags' + engineType, () => {
 		if (!engineType)
 			test('Default', () => {
-				const argv = argMate('---no-foo bar'.split(' '));
+				const argv = argMate('--no-foo bar'.split(' '));
 				expect(argv).toEqual({
 					_: ['bar'],
 					foo: false,
 				});
 			});
+
+		test('Three dashes is an error', () => {
+			expect(() => argMate('---no-foo bar'.split(' '))).toThrow("Invalid parameter '---no-foo'");
+		});
 
 		test('Disabled', () => {
 			const argv = argMate('--no-foo bar'.split(' '), {}, {allowNegatingFlags: false});

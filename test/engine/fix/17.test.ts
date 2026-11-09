@@ -1,6 +1,6 @@
 // #17: `outputAlias` crashes when there is an unknown parameter
 // With `outputAlias: true` the engine read `config[key].alias` for each key in the result. An unknown
-// parameter has no config entry, thus the parse threw a TypeError. The mini engine has no `outputAlias`.
+// parameter has no config entry, so the parse threw a TypeError. The mini engine has no `outputAlias`.
 import {describe, expect, test} from 'bun:test';
 import {argMate, argMateMini} from '../../helper.ts';
 

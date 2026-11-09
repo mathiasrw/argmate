@@ -1,7 +1,8 @@
 // #2: Negative numbers are parsed as flags
 // The engine read each token that starts with `-` as a parameter: `-5` became the flag `5`, and `-1.5` gave an error.
 // A token with one dash and a digit must go to a check with four rules. A negative number is a value in `_`.
-// No parameter has a name that is only digits: `-0` is a number, and `{0: ...}` in the config is a config error.
+// A short name that is only digits is a parameter only when the config has it: then `-5` is that parameter, else `-5` is a number.
+// A long name of only digits (`--5`) must also be in the config.
 import {describe, expect, test} from 'bun:test';
 import {argMate, argMateMini} from '../../helper.ts';
 
@@ -10,38 +11,37 @@ const numberForms = [
 	['-1.5', -1.5],
 	['-0.7', -0.7],
 	['-1.0', -1],
-	['-0x10', -16],
 ];
 
 const notNumberForms = [
+	['-0x10', 'hexadecimal'],
+	['-0xff', 'hexadecimal'],
 	['-.5', 'no digit before the point'],
 	['-1.', 'no digit after the point'],
 	['-10,10', 'comma'],
 	['-1_000', 'underscore'],
 	['-12345678901234567890', 'larger than the maximum safe integer'],
+	['-1e30', 'larger than the maximum safe integer'],
+	['-1e400', 'larger than the largest number'],
 	['-5abc', 'letters after the digits'],
 	['-5px', 'letters after the digits'],
 ];
 
 describe('#2 Negative numbers are parsed as flags', () => {
 	describe('rule 1: a token in a number form is a negative number in _', () => {
-		// todo.md leaves open if `_` gets -0 or 0, thus this test sets `autoConvert: false`
-		test.todo('-0 is a value in _ and not the flag 0', () => {
-			expect(argMate(['-0'], {}, {autoConvert: false})).toEqual({_: ['-0']});
+		// todo.md leaves open if `_` gets -0 or 0, so this test sets `allowAutoNumbers: false`
+		test('-0 is a value in _ and not the flag 0', () => {
+			expect(argMate(['-0'], {}, {allowAutoNumbers: false})).toEqual({_: ['-0']});
 		});
 
 		for (const [token, number] of numberForms) {
-			test.todo(`${token} is the number ${number}`, () => {
+			test(`${token} is the number ${number}`, () => {
 				expect(argMate([token])).toEqual({_: [number]});
 			});
 		}
 
-		test.todo('-0xff is the number -255', () => {
-			expect(argMate(['-0xff'])).toEqual({_: [-255]});
-		});
-
 		// Assumption: for a negative number, "larger than the maximum safe integer" is about the size without the sign
-		test.todo('-9007199254740991 is a number, because it is a safe integer', () => {
+		test('-9007199254740991 is a number, because it is a safe integer', () => {
 			expect(argMate(['-9007199254740991'])).toEqual({_: [Number.MIN_SAFE_INTEGER]});
 		});
 	});
@@ -63,9 +63,8 @@ describe('#2 Negative numbers are parsed as flags', () => {
 			expect(argMate(['-n100'], {n: {type: 'int'}})).toEqual({_: [], n: 100});
 		});
 
-		// With `allowKeyNumValues: false` rule 3 does not apply, thus rule 5 does.
-		// Today the result is the flags `n`, `1` and `0`. `1` cannot be a parameter after this issue.
-		test.todo('with allowKeyNumValues: false, -n100 is a string in _', () => {
+		// With `allowKeyNumValues: false` rule 2 does not apply, so rule 4 does.
+		test('with allowKeyNumValues: false, -n100 is a string in _', () => {
 			expect(argMate(['-n100'], {}, {allowKeyNumValues: false})).toEqual({_: ['-n100']});
 		});
 	});
@@ -82,13 +81,13 @@ describe('#2 Negative numbers are parsed as flags', () => {
 
 	describe('rule 4: all other tokens go to _ as strings', () => {
 		for (const [token, cause] of notNumberForms) {
-			test.todo(`${token} is a string (${cause})`, () => {
+			test(`${token} is a string (${cause})`, () => {
 				expect(argMate([token])).toEqual({_: [token]});
 			});
 		}
 
-		// Rule 5 applies to one letter and a decimal.
-		test.todo('-n1.5 is a string, because rule 2 is for digits only', () => {
+		// Rule 4 applies to one letter and a decimal.
+		test('-n1.5 is a string, because rule 2 is for digits only', () => {
 			expect(argMate(['-n1.5'])).toEqual({_: ['-n1.5']});
 		});
 	});
@@ -99,85 +98,93 @@ describe('#2 Negative numbers are parsed as flags', () => {
 		});
 	});
 
-	describe('-0 to -9 are not parameters', () => {
+	describe('-0 to -9 are numbers when the config does not have them', () => {
 		for (const digit of [1, 2, 3, 4, 5, 6, 7, 8, 9]) {
-			test.todo(`-${digit} is the number -${digit} and not the flag ${digit}`, () => {
+			test(`-${digit} is the number -${digit} and not the flag ${digit}`, () => {
 				expect(argMate([`-${digit}`])).toEqual({_: [-digit]});
 			});
 		}
 
-		test.todo('with allowUnknown: false, -5 is a value and not an unknown parameter', () => {
+		test('with allowUnknown: false, -5 is a value and not an unknown parameter', () => {
 			expect(argMate(['-5'], {}, {allowUnknown: false})).toEqual({_: [-5]});
 		});
 
-		test.todo('a negative number after an unknown flag goes to _', () => {
+		test('a negative number after an unknown flag goes to _', () => {
 			expect(argMate(['-v', '-5', 'x'])).toEqual({_: [-5, 'x'], v: true});
 		});
 	});
 
-	describe('autoConvert sets the type of the value in _', () => {
-		test.todo('the default is true: -5 is the number -5', () => {
+	describe('allowAutoNumbers sets the type of the value in _', () => {
+		test('the default is true: -5 is the number -5', () => {
 			expect(argMate(['-5'])).toEqual({_: [-5]});
 		});
 
-		test.todo('the default is the same when there is a config', () => {
+		test('the default is the same when there is a config', () => {
 			expect(argMate(['-5'], {})).toEqual({_: [-5]});
 		});
 
-		test.todo('with autoConvert: true, -5 is the number -5', () => {
-			expect(argMate(['-5'], {}, {autoConvert: true})).toEqual({_: [-5]});
+		test('with allowAutoNumbers: true, -5 is the number -5', () => {
+			expect(argMate(['-5'], {}, {allowAutoNumbers: true})).toEqual({_: [-5]});
 		});
 
 		for (const [token] of numberForms) {
-			test.todo(`with autoConvert: false, ${token} is the string '${token}'`, () => {
-				expect(argMate([token], {}, {autoConvert: false})).toEqual({_: [token]});
+			test(`with allowAutoNumbers: false, ${token} is the string '${token}'`, () => {
+				expect(argMate([token], {}, {allowAutoNumbers: false})).toEqual({_: [token]});
 			});
 		}
 
-		test.todo('a negative number keeps its position between the other values', () => {
-			expect(argMate(['1', '-5', '2'], {}, {autoConvert: false})).toEqual({_: ['1', '-5', '2']});
+		test('a negative number keeps its position between the other values', () => {
+			expect(argMate(['1', '-5', '2'], {}, {allowAutoNumbers: false})).toEqual({
+				_: ['1', '-5', '2'],
+			});
 		});
 	});
 
-	describe('a name that is only digits is not the name of a parameter', () => {
+	describe('names of only digits', () => {
 		// Makes an input error an `Error` that a test can catch
 		const settings = {
-			error: (msg: string) => {
+			error: ({message: msg}: {message: string}) => {
 				throw new Error(`input error: ${msg}`);
 			},
 		};
 
-		test.todo('--5 gives an input error', () => {
-			expect(() => argMate(['--5'], {}, settings)).toThrow('input error');
-		});
-
-		test.todo('-5=3 gives an input error', () => {
+		test('-5=3 gives an input error', () => {
 			expect(() => argMate(['-5=3'], {}, settings)).toThrow('input error');
 		});
 
-		for (const token of ['--0', '--123', '-0=1']) {
-			test.todo(`${token} gives an input error`, () => {
+		test('-5=3 is 5 = 3 when the config has 5', () => {
+			expect(argMate(['-5=3'], {5: {type: 'int'}})).toEqual({_: [], 5: 3});
+		});
+
+		test('-a5=3 gives an input error', () => {
+			expect(() => argMate(['-a5=3'], {}, settings)).toThrow('input error');
+		});
+
+		test('-50=1 gives an input error', () => {
+			expect(() => argMate(['-50=1'], {}, settings)).toThrow('input error');
+		});
+
+		for (const token of ['--5', '--0', '--123', '-0=1']) {
+			test(`${token} gives an input error`, () => {
 				expect(() => argMate([token], {}, settings)).toThrow('input error');
 			});
 		}
 
-		// Makes a config error an `Error` that a test can catch
-		const configSettings = {
-			panic: (msg: string) => {
-				throw new Error(`config error: ${msg}`);
-			},
-		};
+		test('-0 is the parameter 0 in the config', () => {
+			expect(argMate(['-0'], {0: {type: 'boolean'}})).toEqual({_: [], 0: true});
+		});
 
-		for (const [what, config] of [
-			['the parameter 0', {0: {type: 'boolean'}}],
-			["the parameter '5' as a default value", {'5': true}],
-			['the parameter 123', {123: {type: 'string'}}],
-			["the alias '1'", {verbose: {alias: '1'}}],
-		] as const) {
-			test.todo(`${what} in the config is a config error`, () => {
-				expect(() => argMate([], config, configSettings)).toThrow('config error');
-			});
-		}
+		test("-5 is the parameter '5' with a default value", () => {
+			expect(argMate(['-5', 'x'], {'5': false})).toEqual({_: ['x'], 5: true});
+		});
+
+		test('--123 is the parameter 123 in the config', () => {
+			expect(argMate(['--123', 'x'], {123: {type: 'string'}})).toEqual({_: [], 123: 'x'});
+		});
+
+		test("-1 is the alias '1' in the config", () => {
+			expect(argMate(['-1'], {verbose: {alias: '1'}})).toEqual({_: [], verbose: true});
+		});
 
 		test('a name with letters and digits is correct in the config', () => {
 			expect(argMate(['--port8080', '--utf8'], {port8080: {}, utf8: {}})).toEqual({
@@ -187,7 +194,7 @@ describe('#2 Negative numbers are parsed as flags', () => {
 			});
 		});
 
-		test.todo("with allowKeyNumValues: false, -A0 is the string '-A0' and not the flags A and 0", () => {
+		test("with allowKeyNumValues: false, -A0 is the string '-A0' and not the flags A and 0", () => {
 			expect(argMate(['-A0'], {A: {type: 'boolean'}}, {allowKeyNumValues: false})).toEqual({
 				_: ['-A0'],
 			});
@@ -203,15 +210,15 @@ describe('#2 Negative numbers are parsed as flags', () => {
 	});
 
 	describe('more forms', () => {
-		test.todo("-007 is the string '-007', because of the zeros at the start", () => {
+		test("-007 is the string '-007', because of the zeros at the start", () => {
 			expect(argMate(['-007'])).toEqual({_: ['-007']});
 		});
 
-		test.todo('-1e3 is the number -1000', () => {
+		test('-1e3 is the number -1000', () => {
 			expect(argMate(['-1e3'])).toEqual({_: [-1000]});
 		});
 
-		test.todo('-5abc is a string in _', () => {
+		test('-5abc is a string in _', () => {
 			expect(argMate(['-5abc'])).toEqual({_: ['-5abc']});
 		});
 	});
@@ -236,21 +243,36 @@ describe('#2 Negative numbers are parsed as flags', () => {
 		});
 	});
 
-	// todo-v9.md #5 leaves the default of `autoConvert` open for the mini engine.
-	// Thus these tests set `autoConvert: false`: the token is a value and not a flag.
+	// The mini engine does not have this item (it is a curiosity, not the product). These tests stay todo.
 	describe('mini engine', () => {
 		test.todo('-0 is a value in _ and not the flag 0', () => {
-			expect(argMateMini(['-0'], {}, {autoConvert: false})).toEqual({_: ['-0']});
+			expect(argMateMini(['-0'], {}, {allowAutoNumbers: false})).toEqual({_: ['-0']});
 		});
 
 		for (const [token] of numberForms) {
 			test.todo(`${token} is a value in _ and not a flag`, () => {
-				expect(argMateMini([token], {}, {autoConvert: false})).toEqual({_: [token]});
+				expect(argMateMini([token], {}, {allowAutoNumbers: false})).toEqual({_: [token]});
 			});
 		}
 
 		test('a declared number parameter gets the number', () => {
 			expect(argMateMini(['--num', '-5'], {num: {type: 'number'}})).toEqual({_: [], num: -5});
+		});
+
+		test('-p8080 is p = 8080', () => {
+			expect(argMateMini(['-p8080'])).toEqual({_: [], p: 8080});
+		});
+
+		test('-p8080 gives 8080 to the declared parameter p', () => {
+			expect(argMateMini(['-p8080'], {p: {type: 'int'}})).toEqual({_: [], p: 8080});
+		});
+
+		test('-ab12 is a and b = 12', () => {
+			expect(argMateMini(['-ab12'])).toEqual({_: [], a: true, b: 12});
+		});
+
+		test('-abc=5 is a, b and c = 5', () => {
+			expect(argMateMini(['-abc=5'])).toEqual({_: [], a: true, b: true, c: 5});
 		});
 	});
 });

@@ -1,5 +1,5 @@
 // #7b: `argInfo()`: markdown format
-// `argInfo({format: 'markdown'}, parameterConfig)` gives a markdown table with one row for each parameter (the flags,
+// `argInfo({format: 'markdown', config})` gives a markdown table with one row for each parameter (the flags,
 // the description and the tags), with the `intro` of the config before the table and the `outro` after it.
 import {beforeEach, describe, expect, test} from 'bun:test';
 import {argInfo, argInfoMini, argMate, argMateMini, configPreprocessing} from '../../helper.ts';
@@ -14,9 +14,9 @@ const config = () => ({
 const long =
 	'Set the size of each search step so that slow searches stop sooner and the status shows some progress on the screen for each file';
 
-// The markdown for a config that was not parsed: the config is the second argument of `argInfo()`
-const markdown = (conf = config(), infoConfig = {}) =>
-	argInfo({format: 'markdown', ...infoConfig}, conf);
+// The markdown for a config that was not parsed: the config is in the options of `argInfo()`
+const markdown = (conf = config(), options = {}) =>
+	argInfo({format: 'markdown', ...options, config: conf});
 
 // The cells of a table line. The `|` at the start and at the end of the line are optional in markdown,
 // and `\|` is a `|` in the text of a cell.
@@ -37,7 +37,7 @@ const body = text => lines(text).slice(2).map(cells);
 const row = (text, flag) => lines(text).find(line => line.includes(flag)) || '';
 
 // `argInfo()` keeps the config of the last parse. A parse with an empty config removes it.
-// Thus no test depends on the tests before it.
+// So no test depends on the tests before it.
 beforeEach(() => {
 	argMate([], {}, {});
 	argMateMini([], {}, {});
@@ -60,8 +60,8 @@ describe('#7b argInfo(): markdown format', () => {
 			]);
 		});
 
-		// `[V8|RE2]`: the `|` between the valid values starts a new cell
-		test.todo('each row has one cell for each header cell', () => {
+		// The tag of a `valid` list is `[V8, RE2]`, with no `|` that starts a new cell
+		test('each row has one cell for each header cell', () => {
 			const [header] = lines(markdown()).map(cells);
 			expect(body(markdown()).map(row => row.length)).toEqual(Array(4).fill(header.length));
 		});
@@ -96,13 +96,13 @@ describe('#7b argInfo(): markdown format', () => {
 			expect(row(text, '--step')).toContain(long);
 		});
 
-		test.todo('a line break in a description does not start a new row', () => {
+		test('a line break in a description does not start a new row', () => {
 			const text = markdown({step: {type: 'int', describe: 'First part\nSecond part'}});
 			expect(body(text)).toHaveLength(1);
 			expect(row(text, '--step')).toMatch(/First part.*Second part/);
 		});
 
-		test.todo('a `|` in a description does not start a new cell', () => {
+		test('a `|` in a description does not start a new cell', () => {
 			const text = markdown({mode: {type: 'string', describe: 'Use fast|slow search'}});
 			const [header] = lines(text).map(cells);
 			expect(body(text).map(row => row.length)).toEqual([header.length]);
@@ -138,7 +138,7 @@ describe('#7b argInfo(): markdown format', () => {
 		});
 
 		// Markdown: a line of text directly below a table row becomes a row of the table
-		test.todo('an empty line is between the table and the outro', () => {
+		test('an empty line is between the table and the outro', () => {
 			const {all, last, outro} = where();
 			expect(outro).toBeGreaterThan(last + 1);
 			expect(all[last + 1].trim()).toBe('');
@@ -147,7 +147,7 @@ describe('#7b argInfo(): markdown format', () => {
 
 	describe('the mini entry point', () => {
 		test('gives the same markdown as the full entry point', () => {
-			expect(argInfoMini({format: 'markdown'}, config())).toBe(markdown());
+			expect(argInfoMini({format: 'markdown', config: config()})).toBe(markdown());
 		});
 	});
 });

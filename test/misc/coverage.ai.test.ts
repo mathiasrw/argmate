@@ -11,6 +11,7 @@ run(argMate, argEngine);
 run(argMateMini, argEngineMini, ' Mini');
 
 function run(argMate, engine, engineType = '') {
+	const engineMini = '' !== engineType;
 	describe('Coverage tests' + engineType, () => {
 		// Test for default error handler (line 53 in argEngine.ts, line 50 in argEngineMini.ts)
 		// These are only hit when engine is called without preprocessed config
@@ -88,7 +89,7 @@ function run(argMate, engine, engineType = '') {
 					{active: {type: 'boolean'}},
 					{
 						allowAssign: true,
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain("can't be negated AND assigned");
 							done();
 						},
@@ -102,7 +103,7 @@ function run(argMate, engine, engineType = '') {
 					{verbose: {type: 'boolean'}},
 					{
 						allowAssign: true,
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain("can't be negated AND assigned");
 							done();
 						},
@@ -111,16 +112,12 @@ function run(argMate, engine, engineType = '') {
 			});
 		});
 
-		// Test for allowBoolString with false values (line 177 in argEngine.ts)
-		// Skip for Mini engine (doesn't support allowBoolString)
+		// Boolean strings for a boolean parameter
+		// Skip for Mini engine (it rejects a value for a boolean)
 		if (!engineType) {
 			describe('Boolean string values', () => {
 				test('should parse false boolean string', () => {
-					const result = argMate(
-						['--flag=false'],
-						{flag: {type: 'boolean'}},
-						{allowBoolString: true, allowAssign: true}
-					);
+					const result = argMate(['--flag=false'], {flag: {type: 'boolean'}}, {allowAssign: true});
 					expect(result.flag).toBe(false);
 				});
 
@@ -128,7 +125,7 @@ function run(argMate, engine, engineType = '') {
 					const result = argMate(
 						['--enabled=no'],
 						{enabled: {type: 'boolean'}},
-						{allowBoolString: true, allowAssign: true}
+						{allowAssign: true}
 					);
 					expect(result.enabled).toBe(false);
 				});
@@ -137,26 +134,18 @@ function run(argMate, engine, engineType = '') {
 					const result = argMate(
 						['--active=off'],
 						{active: {type: 'boolean'}},
-						{allowBoolString: true, allowAssign: true}
+						{allowAssign: true}
 					);
 					expect(result.active).toBe(false);
 				});
 
 				test('should parse "0" as false', () => {
-					const result = argMate(
-						['--debug=0'],
-						{debug: {type: 'boolean'}},
-						{allowBoolString: true, allowAssign: true}
-					);
+					const result = argMate(['--debug=0'], {debug: {type: 'boolean'}}, {allowAssign: true});
 					expect(result.debug).toBe(false);
 				});
 
 				test('should parse true boolean string', () => {
-					const result = argMate(
-						['--flag=true'],
-						{flag: {type: 'boolean'}},
-						{allowBoolString: true, allowAssign: true}
-					);
+					const result = argMate(['--flag=true'], {flag: {type: 'boolean'}}, {allowAssign: true});
 					expect(result.flag).toBe(true);
 				});
 
@@ -164,7 +153,7 @@ function run(argMate, engine, engineType = '') {
 					const result = argMate(
 						['--enabled=yes'],
 						{enabled: {type: 'boolean'}},
-						{allowBoolString: true, allowAssign: true}
+						{allowAssign: true}
 					);
 					expect(result.enabled).toBe(true);
 				});
@@ -173,17 +162,13 @@ function run(argMate, engine, engineType = '') {
 					const result = argMate(
 						['--verbose=on'],
 						{verbose: {type: 'boolean'}},
-						{allowBoolString: true, allowAssign: true}
+						{allowAssign: true}
 					);
 					expect(result.verbose).toBe(true);
 				});
 
 				test('should parse "1" as true', () => {
-					const result = argMate(
-						['--debug=1'],
-						{debug: {type: 'boolean'}},
-						{allowBoolString: true, allowAssign: true}
-					);
+					const result = argMate(['--debug=1'], {debug: {type: 'boolean'}}, {allowAssign: true});
 					expect(result.debug).toBe(true);
 				});
 			});
@@ -199,7 +184,7 @@ function run(argMate, engine, engineType = '') {
 						xml: {type: 'boolean'},
 					},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('conflicts with');
 							done();
 						},
@@ -215,7 +200,7 @@ function run(argMate, engine, engineType = '') {
 						output: {type: 'string'},
 					},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('conflicts with');
 							done();
 						},
@@ -231,7 +216,7 @@ function run(argMate, engine, engineType = '') {
 						quiet: {type: 'boolean', conflict: ['verbose']},
 					},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('conflicts with');
 							done();
 						},
@@ -247,7 +232,7 @@ function run(argMate, engine, engineType = '') {
 						quiet: {type: 'boolean'},
 					},
 					{
-						error: msg => {
+						error: ({message: msg}) => {
 							expect(msg).toContain('conflicts with');
 							done();
 						},
@@ -267,7 +252,7 @@ function run(argMate, engine, engineType = '') {
 
 		// Test for outputAlias setting (line 319 in argEngine.ts)
 		describe('Output alias transformation', () => {
-			test.todo('should use alias in output when outputAlias is true', () => {
+			(engineMini ? test.todo : test)('should use alias in output when outputAlias is true', () => {
 				const result = argMate(
 					['--verbose'],
 					{verbose: {type: 'boolean', alias: ['v']}},
@@ -392,7 +377,7 @@ function run(argMate, engine, engineType = '') {
 							verbose: {type: 'boolean', mandatory: true, alias: ['v']},
 						},
 						{
-							error: msg => {
+							error: ({message: msg}) => {
 								expect(msg).toContain('mandatory');
 								expect(msg).toContain('alias');
 								done();
@@ -408,7 +393,7 @@ function run(argMate, engine, engineType = '') {
 							input: {type: 'string', mandatory: true, alias: ['i', 'in']},
 						},
 						{
-							error: msg => {
+							error: ({message: msg}) => {
 								expect(msg).toContain('mandatory');
 								expect(msg).toContain('alias');
 								done();
@@ -424,7 +409,7 @@ function run(argMate, engine, engineType = '') {
 							output: {type: 'string', mandatory: true, alias: ['o', 'out']},
 						},
 						{
-							error: msg => {
+							error: ({message: msg}) => {
 								expect(msg).toContain('mandatory');
 								expect(msg).toContain('-o');
 								expect(msg).toContain('--out');
@@ -441,7 +426,7 @@ function run(argMate, engine, engineType = '') {
 							file: {type: 'string', mandatory: true, alias: ['f']},
 						},
 						{
-							error: msg => {
+							error: ({message: msg}) => {
 								expect(msg).toContain('mandatory');
 								expect(msg).toContain('-f');
 								done();

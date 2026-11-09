@@ -51,15 +51,13 @@ function bogusType(settings) {
 }
 
 for (const {name, parse, engine, engineMessage} of engines) {
-	const engineMini = name === 'argMateMini';
-
-	// The one call that throws an `Error` now, and only in the full engine
+	// An input error with no config and no settings
 	const noConfig = {
-		call: () => parse(['--foo=']),
-		message: "No data provided for 'foo'",
+		call: () => parse(['---x']),
+		message: "Invalid parameter '---x'",
 	};
 
-	// The other calls throw a string now
+	// The calls with a config, with settings, or with an engine config
 	const otherCalls = {
 		'an input error with a config': {
 			call: () => parse(['--foo'], {foo: {type: 'string'}}),
@@ -74,7 +72,7 @@ for (const {name, parse, engine, engineMessage} of engines) {
 			message: "Invalid type 'bogus' for parameter 'foo'",
 		},
 		'a config error that the config check finds in `validate`': {
-			call: () => parse([], {foo: {valid: 'x'}}),
+			call: () => parse([], {foo: {validate: 'x'}}),
 			message: `The "validate" property of 'foo' must be a function, a regular expression or an array of valid values`,
 		},
 		'a config error that the engine finds': {
@@ -87,48 +85,61 @@ for (const {name, parse, engine, engineMessage} of engines) {
 	const calls = {'an input error with no config and no settings': noConfig, ...otherCalls};
 
 	describe(`#15 The default error functions throw an Error: ${name}`, () => {
-		(engineMini ? test.todo : test)(
-			'an input error with no config and no settings is an Error with the message',
-			() => {
-				const err = thrown(noConfig.call);
-				expect(err).toBeUndefined();
-			}
-		);
+		test('an input error with no config and no settings is an Error with the message', () => {
+			const err = thrown(noConfig.call);
+			expect(err).toBeInstanceOf(Error);
+			expect(err.message).toBe(noConfig.message);
+		});
 
 		for (const [what, {call, message}] of Object.entries(otherCalls)) {
-			test.todo(`${what} is an Error with the message`, () => {
+			test(`${what} is an Error with the message`, () => {
 				const err = thrown(call);
 				expect(err).toBeInstanceOf(Error);
 				expect(err.message).toBe(message);
 			});
 		}
 
-		(engineMini ? test.todo : test)('the engine with no engine config throws an Error', () => {
-			const err = thrown(() => engine(['--foo=']));
-			expect(err).toBeUndefined();
+		test('the engine with no engine config throws an Error', () => {
+			const err = thrown(() => engine(['---x']));
+			expect(err).toBeInstanceOf(Error);
+			expect(err.message).toBe("Invalid parameter '---x'");
 		});
 	});
 
 	describe(`#15 The stack starts at the code that called argMate: ${name}`, () => {
-		for (const [what, {call}] of Object.entries(calls)) {
-			test.todo(`${what}: the first line of the stack is the caller`, () => {
+		const {'a config error that the engine finds': engineCall, ...throughArgMate} = calls;
+
+		for (const [what, {call}] of Object.entries(throughArgMate)) {
+			test(`${what}: the first line of the stack is the caller`, () => {
 				const [first = 'The error has no stack'] = frames(thrown(call));
 				expect(first).toContain(import.meta.path);
 			});
 
 			// A stack with no lines also has no lines of the library, but it does not show the caller
-			test.todo(`${what}: the stack has lines and none is from the library`, () => {
+			test(`${what}: the stack has lines and none is from the library`, () => {
 				const stack = frames(thrown(call));
 				expect(stack.length).toBeGreaterThan(0);
 				expect(stack.filter(line => line.includes(library))).toEqual([]);
 			});
 		}
+
+		// The engine is called directly, not through argMate, so its stack starts in the library
+		test.todo('a config error that the engine finds: the first line of the stack is the caller', () => {
+			const [first = 'The error has no stack'] = frames(thrown(engineCall.call));
+			expect(first).toContain(import.meta.path);
+		});
+
+		test.todo('a config error that the engine finds: the stack has lines and none is from the library', () => {
+			const stack = frames(thrown(engineCall.call));
+			expect(stack.length).toBeGreaterThan(0);
+			expect(stack.filter(line => line.includes(library))).toEqual([]);
+		});
 	});
 
-	describe(`#15 A custom error function gets the message as a string: ${name}`, () => {
+	describe(`#15 A custom error function gets the message (error: in an object, item 48; panic: as a string): ${name}`, () => {
 		test('error', () => {
 			const messages = [];
-			const error = msg => {
+			const error = ({message: msg}) => {
 				messages.push(msg);
 			};
 			parse(['--foo'], {foo: {type: 'string'}}, {error});
@@ -164,7 +175,7 @@ for (const {name, parse, engine, engineMessage} of engines) {
 }
 
 describe('#15 configPreprocessing', () => {
-	test.todo('a config error is an Error with the message', () => {
+	test('a config error is an Error with the message', () => {
 		const err = thrown(() => configPreprocessing({foo: {type: 'bogus'}}));
 		expect(err).toBeInstanceOf(Error);
 		expect(err.message).toBe("Invalid type 'bogus' for parameter 'foo'");

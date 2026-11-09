@@ -6,7 +6,7 @@ import {argMate} from '../../helper.ts';
 
 // Makes an input error an `Error` that a test can catch
 const settings = {
-	error: (msg: string) => {
+	error: ({message: msg}: {message: string}) => {
 		throw new Error(`input error: ${msg}`);
 	},
 };
@@ -15,20 +15,20 @@ const message = "input error: The parameter 'bogus' can't be negated AND assigne
 
 describe('#41 A negated unknown parameter with a value is an input error', () => {
 	for (const value of ['true', 'false', '0', '1', 'yes', '5', 'abc']) {
-		test.todo(`--no-bogus=${value} with no config`, () => {
+		test(`--no-bogus=${value} with no config`, () => {
 			expect(() => argMate([`--no-bogus=${value}`], undefined, settings)).toThrow(message);
 		});
 	}
 
-	test.todo('--no-bogus=true when there is a config', () => {
+	test('--no-bogus=true when there is a config', () => {
 		expect(() => argMate(['--no-bogus=true'], {file: {type: 'string'}}, settings)).toThrow(message);
 	});
 
-	test.todo('the value in the next argument', () => {
+	test('the value in the next argument', () => {
 		expect(() => argMate(['--no-bogus=', 'abc'], undefined, settings)).toThrow(message);
 	});
 
-	test.todo('the name in kebab-case', () => {
+	test('the name in kebab-case', () => {
 		expect(() => argMate(['--no-foo-bar=5'], undefined, settings)).toThrow('input error');
 	});
 
@@ -46,7 +46,7 @@ describe('#41 A negated unknown parameter with a value is an input error', () =>
 		);
 	});
 
-	// With this setting `no-` is a part of the name, thus there is no negation
+	// With this setting `no-` is a part of the name, so there is no negation
 	test('with allowNegatingFlags: false the name is noBogus', () => {
 		expect(argMate(['--no-bogus=5'], undefined, {...settings, allowNegatingFlags: false})).toEqual({
 			_: [],

@@ -1,7 +1,7 @@
 // Each entry point of the package must load through the paths in package.json.
 // Each one is loaded by its name in a new Node process and in a new Bun process:
 // with `import` when the tests run on the ESM bundles (test-esm), with `require` when they run on the CommonJS bundles (test-cjs).
-// The tests on src/ do not build the package, thus they skip this file.
+// The tests on src/ do not build the package, so they skip this file.
 import {describe, expect, test} from 'bun:test';
 import path from 'node:path';
 import pkg from '../../package.json';

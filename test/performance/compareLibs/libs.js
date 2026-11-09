@@ -1,7 +1,7 @@
 // The same CLI for each parser: --name <string>, -p/--port <number>, -d/--debug (a flag, also --no-debug)
 // and -t/--tag <string> (can repeat). Each parser is set up with its own features, as its docs show.
 // `load()` imports the parser and gives a parse function. The parse function gives the same form for each parser:
-// {name, port, debug, tag, _}, thus the results can be compared.
+// {name, port, debug, tag, _}, so the results can be compared.
 
 const norm = (o, _) => ({
 	name: o.name,
@@ -11,52 +11,70 @@ const norm = (o, _) => ({
 	_,
 });
 
-export const argmateConfig = {
+// A new config object each time: v0.8 changes the config it gets, so a second parse with the same object is wrong
+const config = () => ({
 	name: {type: 'string'},
 	port: {type: 'number', alias: 'p'},
 	debug: {type: 'boolean', alias: 'd'},
 	tag: {type: 'string[]', alias: 't'},
-};
+});
+
+export const argmateConfig = config();
+
+// v1 is argmate as it is now in src/, on the way to version 1. v0.8 is the published argmate 0.8.5.
+// The engines of v0.8 empty the args array of the caller (issue #13) and change the config, so the v0.8 adapters
+// give them a copy of the args and a new config for each parse. In a CLI that parses one time, this is not needed.
+const argmate = (version, file, copy) => ({
+	version,
+	load: async () => {
+		const {default: argMate} = await import(file);
+		return argv => {
+			const o = copy ? argMate(argv.slice(), config()) : argMate(argv, argmateConfig);
+			return norm(o, o._);
+		};
+	},
+});
+
+const precompiled = (version, file, config, copy) => ({
+	version,
+	note: 'The config is compiled at build time with `precompileConfig()`, and the CLI imports the engine only',
+	load: async () => {
+		const {fresh} = await import(config);
+		const {default: argEngine} = await import(file);
+		return argv => {
+			const o = argEngine(copy ? argv.slice() : argv, fresh());
+			return norm(o, o._);
+		};
+	},
+});
 
 export const libs = {
-	argmate: {
-		version: 'src',
-		load: async () => {
-			const {default: argMate} = await import('../shared/dist/argMate.js');
-			return argv => {
-				const o = argMate(argv, argmateConfig);
-				return norm(o, o._);
-			};
-		},
-	},
-
-	'argmate (precompiled)': {
-		version: 'src',
-		note: 'The config is compiled at build time with `precompileConfig()`, and the CLI imports `argmate/engine`',
-		load: async () => {
-			const {fresh} = await import('./dist/precompiled.js');
-			const {default: argEngine} = await import('../shared/dist/argEngine.js');
-			return argv => {
-				const o = argEngine(argv, fresh());
-				return norm(o, o._);
-			};
-		},
-	},
-
-	'argmate/mini': {
-		version: 'src',
-		load: async () => {
-			const {default: argMate} = await import('../shared/dist/argMateMini.js');
-			return argv => {
-				const o = argMate(argv, argmateConfig);
-				return norm(o, o._);
-			};
-		},
-	},
+	v1: argmate('src', '../shared/dist/argMate.js'),
+	'v1 mini': argmate('src', '../shared/dist/argMateMini.js'),
+	'v1 (precompiled)': precompiled('src', '../shared/dist/argEngine.js', './dist/precompiled.js'),
+	'v1 mini (precompiled)': precompiled(
+		'src',
+		'../shared/dist/argEngineMini.js',
+		'./dist/precompiled.js'
+	),
+	'v0.8': argmate('argmate-v08', 'argmate-v08', true),
+	'v0.8 mini': argmate('argmate-v08', 'argmate-v08/mini', true),
+	'v0.8 (precompiled)': precompiled(
+		'argmate-v08',
+		'argmate-v08/engine',
+		'./dist/precompiled-v08.js',
+		true
+	),
+	'v0.8 mini (precompiled)': precompiled(
+		'argmate-v08',
+		'argmate-v08/mini/engine',
+		'./dist/precompiled-v08.js',
+		true
+	),
 
 	'util.parseArgs': {
 		version: 'node',
-		note: 'Built into Node and Bun. It has no number type, thus the adapter converts `port` with `Number()`',
+		note: 'Built into Node and Bun. It has no number type, so the adapter converts `port` with `Number()`',
 		load: async () => {
 			const {parseArgs} = await import('node:util');
 			return argv => {

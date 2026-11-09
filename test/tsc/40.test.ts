@@ -7,14 +7,14 @@ describe('#40 The TypeScript types', () => {
 	test('a regular expression compiles for the types with text and numbers', () => {
 		const config = `{
 					a: {type: 'string', validate: /x/},
-					b: {type: 'string', valid: /x/},
+					b: {type: 'string', validate: /x/},
 					c: {type: 'int', validate: /^\\d+$/},
 					d: {type: 'string[]', validate: /x/},
 					e: {type: 'number[]', validate: /x/},
 					f: {default: 'x', validate: /x/},
 					g: {default: 5, validate: /5/},
 					h: {validate: /x/},
-					i: {valid: /x/},
+					i: {validate: /x/},
 				}`;
 		const code = `
 				import argMate from 'argmate';
@@ -30,7 +30,7 @@ describe('#40 The TypeScript types', () => {
 				import argMate from 'argmate';
 				const argv = argMate([], {
 					a: {validate: /x/},
-					b: {valid: /x/, mandatory: true},
+					b: {validate: /x/, mandatory: true},
 					c: {alias: 'c'},
 				});
 				const a: string | undefined = argv.a;
@@ -40,7 +40,7 @@ describe('#40 The TypeScript types', () => {
 		expect(typeErrors(code)).toEqual([]);
 	}, 10000);
 
-	// A boolean has only two values, thus a regular expression has no use there
+	// A boolean has only two values, so a regular expression has no use there
 	test('a regular expression for a boolean parameter is rejected', () => {
 		const code = `import argMate from 'argmate';\nargMate([], {a: {type: 'string', validate: /x/}});\nargMate([], {a: {type: 'boolean', validate: /x/}});\n`;
 		expect(typeErrors(code)).toEqual([expect.stringMatching(/^code\.ts\(3,\d+\): error TS\d+: /)]);

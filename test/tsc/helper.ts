@@ -1,4 +1,4 @@
-// The tests in this directory check the TypeScript types with tsc. They are slow, thus they have their own script: test-tsc.
+// The tests in this directory check the TypeScript types with tsc. They are slow, so they have their own script: test-tsc.
 import {spawnSync} from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -29,7 +29,7 @@ function tsc(dir: string, file: string, compilerOptions = {}): string[] {
 
 // Type-check TypeScript code with tsc and get the errors that tsc found in that code, one string for each error.
 // The code can import 'argmate', 'argmate/mini', 'argmate/engine' and 'argmate/mini/engine'. They give the source in src/.
-// One call takes about a second, thus give the test a timeout.
+// One call takes about a second, so give the test a timeout.
 export function typeErrors(code: string): string[] {
 	const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'argmate-types-'));
 	const paths: Record<string, string[]> = {};

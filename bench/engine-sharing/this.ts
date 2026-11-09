@@ -1,5 +1,5 @@
 // Variant `this`: each functionality of the full engine is a function of its own.
-// The functions share the state of the parse through `this`, thus they take no arguments.
+// The functions share the state of the parse through `this`, so they take no arguments.
 // @ts-nocheck
 import {re} from '../../src/common.js';
 
@@ -402,7 +402,7 @@ export default function argEngine(args, argProcessObj) {
 
 	const settings = configObj.engineSettings;
 
-	// All the properties are here from the start, thus the object keeps one shape
+	// All the properties are here from the start, so the object keeps one shape
 	const s = {
 		args: args.slice().reverse(),
 		output: configObj.output,
